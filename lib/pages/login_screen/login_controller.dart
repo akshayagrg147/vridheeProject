@@ -22,7 +22,8 @@ class LoginController extends GetxController {
   final TextEditingController passwordController = TextEditingController();
   RxBool obscureText = true.obs;
   RxString selectedRole = RxString('Teacher');
-  Rx<RegisterDeviceResponse> registerDeviceResponse = RegisterDeviceResponse().obs;
+  Rx<RegisterDeviceResponse> registerDeviceResponse =
+      RegisterDeviceResponse().obs;
   Rx<SyncDataResponse> syncDataResponse = SyncDataResponse().obs;
   RxBool isLoading = false.obs;
   final DatabaseController myDataController = Get.find();
@@ -39,9 +40,11 @@ class LoginController extends GetxController {
     }
   }
 
-  void startForegroundService() {
+  void startForegroundService() async {
     print("startForegroundService called");
-
+    if (await FlutterForegroundTask.isRunningService) {
+      await FlutterForegroundTask.stopService();
+    }
     FlutterForegroundTask.startService(
       callback: startCallback,
       notificationTitle: 'Foreground Service is running',
@@ -59,7 +62,6 @@ class LoginController extends GetxController {
 
   void callback3() {
     print("startCallback called");
-
   }
 
   // @pragma('vm:entry-point')
@@ -74,7 +76,8 @@ class LoginController extends GetxController {
   }
 
   void checkLoginCredentials() {
-    if (idController.text == 'akhileshredomud@gmail.com' && passwordController.text == '1234') {
+    if (idController.text == 'akhileshredomud@gmail.com' &&
+        passwordController.text == '1234') {
       print('Login successful');
     } else {
       print('Invalid credentials or captcha');
@@ -167,7 +170,8 @@ class LoginController extends GetxController {
   }
 
   Future<bool> downloadFile() async {
-    List<Map<String, dynamic>> resource = await myDataController.getDownloadList();
+    List<Map<String, dynamic>> resource =
+        await myDataController.getDownloadList();
     return true;
   }
 }
@@ -180,7 +184,8 @@ class MyTaskHandler extends TaskHandler {
   void onStart(DateTime timestamp, SendPort? sendPort) async {
     _sendPort = sendPort;
 
-    final customData = await FlutterForegroundTask.getData<String>(key: 'customData');
+    final customData =
+        await FlutterForegroundTask.getData<String>(key: 'customData');
     print('customData: $customData');
   }
 

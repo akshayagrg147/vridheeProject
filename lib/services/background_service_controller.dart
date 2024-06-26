@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,7 +11,7 @@ class BackgroundServiceController {
   BackgroundServiceController._privateConstructor();
 
   static final BackgroundServiceController instance =
-  BackgroundServiceController._privateConstructor();
+      BackgroundServiceController._privateConstructor();
 
   final Connectivity _connectivity = Connectivity();
 
@@ -18,11 +20,12 @@ class BackgroundServiceController {
     await dbController.initializeDatabase();
     // Get the download list
     final rows = await dbController.getDownloadList();
-    for (var row in rows) {
+
+    await Future.forEach(rows, (row) async {
       final url = row['html5_download_url'];
       final fileName = getFileNameFromUrl(url);
       await downloadFile(url, fileName);
-    }
+    });
   }
 
   String getFileNameFromUrl(String url) {
@@ -30,13 +33,14 @@ class BackgroundServiceController {
   }
 
   Future<void> downloadFile(String url, String fileName) async {
+    log("Forground Service Download Url :- $url");
     final directory = await getExternalStorageDirectory();
     final path = directory?.path;
 
-    if (path != null) {
+    if ((path ?? "").isNotEmpty) {
       await FlutterDownloader.enqueue(
         url: url,
-        savedDir: path,
+        savedDir: path!,
         fileName: fileName,
         showNotification: true,
         openFileFromNotification: true,

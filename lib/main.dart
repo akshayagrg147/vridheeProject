@@ -21,8 +21,8 @@ import 'package:teaching_app/services/background_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
-    debug: true, // optional: set false to disable printing logs to console
-  );
+      debug: true, // optional: set false to disable printing logs to console
+      ignoreSsl: true);
   await Firebase.initializeApp(
     options: const FirebaseOptions(
       apiKey: "AIzaSyDHyF-iVu8zeas7DprEjGpfF1uZVWkDcic",
@@ -37,7 +37,6 @@ void main() async {
 
   await SharedPrefHelper().initialize();
   await RemoteConfigService.initConfig();
-  // await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
   // FlutterDownloader.registerCallback(downloadCallback);
   await _requestPermissions();
   // await BackgroundService.instance.initializeService();
@@ -45,7 +44,6 @@ void main() async {
   await databaseController.initializeDatabase();
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

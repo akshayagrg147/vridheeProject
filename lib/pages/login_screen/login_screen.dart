@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/loading_screen.dart';
+import 'package:teaching_app/services/ForegroundTaskService.dart';
 import 'package:teaching_app/widgets/edit_text.dart';
 import 'package:teaching_app/widgets/text_view.dart';
 import 'login_controller.dart';
 
 class LoginScreen extends StatelessWidget {
-  static const platform =  MethodChannel('com.mafatlal.lms/foreground');
+  static const platform = MethodChannel('com.mafatlal.lms/foreground');
 
   const LoginScreen({super.key});
 
-
   @override
   Widget build(BuildContext context) {
-
     return GetBuilder(
       init: LoginController(),
       builder: (_) {
@@ -132,6 +131,9 @@ class LoginScreen extends StatelessWidget {
                             Center(
                               child: ElevatedButton(
                                 onPressed: () async {
+                                  ForegroundTaskService.init();
+                                  _.startForegroundService();
+                                  return;
                                   if (_.formKey.currentState!.validate()) {
                                     print("A");
                                     print(_.selectedRole.value);
