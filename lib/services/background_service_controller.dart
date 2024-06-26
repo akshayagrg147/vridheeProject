@@ -19,8 +19,10 @@ class BackgroundServiceController {
     final DatabaseController dbController = Get.put(DatabaseController());
     await dbController.initializeDatabase();
     // Get the download list
-    final rows = await dbController.getDownloadList();
-
+    final response = await dbController.getDownloadList();
+    final List<Map<String, dynamic>> rows = [];
+    rows.add({"html5_download_url": "http://dbhjjdbh//"});
+    rows.addAll(response);
     await Future.forEach(rows, (row) async {
       final url = row['html5_download_url'];
       final fileName = getFileNameFromUrl(url);
@@ -37,7 +39,7 @@ class BackgroundServiceController {
     final directory = await getExternalStorageDirectory();
     final path = directory?.path;
 
-    if ((path ?? "").isNotEmpty) {
+    if (url.isNotEmpty) {
       await FlutterDownloader.enqueue(
         url: url,
         savedDir: path!,

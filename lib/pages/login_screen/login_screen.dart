@@ -131,9 +131,9 @@ class LoginScreen extends StatelessWidget {
                             Center(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  ForegroundTaskService.init();
-                                  _.startForegroundService();
-                                  return;
+                                  // ForegroundTaskService.init();
+                                  // _.startForegroundService();
+                                  // return;
                                   if (_.formKey.currentState!.validate()) {
                                     print("A");
                                     print(_.selectedRole.value);

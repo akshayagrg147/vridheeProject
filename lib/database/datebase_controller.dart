@@ -14,9 +14,9 @@ class DatabaseController extends GetxController {
 
   Future<List<Map<String, dynamic>>> query(String table,
       {String? where,
-        List<Object?>? whereArgs,
-        int? limit,
-        String? orderBy}) async {
+      List<Object?>? whereArgs,
+      int? limit,
+      String? orderBy}) async {
     if (database != null) {
       return await database!.query(table,
           where: where, whereArgs: whereArgs, limit: limit, orderBy: orderBy);
@@ -69,7 +69,8 @@ class DatabaseController extends GetxController {
 
   Future<List<Map<String, dynamic>>> getDownloadList() async {
     if (database != null) {
-      final List<Map<String, dynamic>> maps = await database!.rawQuery('SELECT html5_download_url FROM tbl_institute_topic_data');
+      final List<Map<String, dynamic>> maps = await database!
+          .rawQuery('SELECT html5_download_url FROM tbl_institute_topic_data');
       return maps;
     } else {
       throw Exception("Database is not initialized");
