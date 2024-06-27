@@ -56,13 +56,39 @@ class DatabaseController extends GetxController {
   Future<bool> getLogin({
     required String user,
     required String password,
+    required String role,
   }) async {
     final List<Map<String, dynamic>> maps = await database!.rawQuery(
         'SELECT user_type_id FROM tbl_employee WHERE user_email_id = ? AND user_password = ?',
         [user, password]);
     print("LoginQuery :- $maps");
     if (maps.isNotEmpty) {
-      return true;
+      // now check for department
+      final userTypeId = maps.first['user_type_id'];
+      final List<
+          Map<String,
+              dynamic>> userTypeNameMap = await database!.rawQuery(
+          'SELECT designation_for FROM tbl_user_type WHERE online_user_type_id = ? ',
+          [userTypeId]);
+      if (userTypeNameMap.isNotEmpty) {
+        final designation = userTypeNameMap.first['designation_for'];
+        if (designation == 'Department') {
+          return true;
+        } else if (designation == 'Institute') {
+          //check for teacher or principal
+          final List<
+              Map<String,
+                  dynamic>> userNameMap = await database!.rawQuery(
+              'SELECT user_type_name FROM tbl_user_type WHERE online_user_type_id = ? ',
+              [userTypeId]);
+          if (userNameMap.isNotEmpty) {
+            final userName = userNameMap.first['user_type_name'];
+            if (userName == 'Teacher' || userName == 'Principal') {
+              return true;
+            }
+          }
+        }
+      }
     }
     return false;
   }

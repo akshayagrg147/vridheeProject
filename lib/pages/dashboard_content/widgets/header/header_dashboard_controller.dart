@@ -542,14 +542,15 @@ class DashboardHeaderController extends GetxController {
         whereArgs: [topicId],
       );
 
-      print('Error fetching topic data: $topicDataMaps');
+      print('success fetching topic data: $topicDataMaps');
 
       final List<InstituteTopicData> topicData =
           topicDataMaps.map((map) => InstituteTopicData.fromJson(map)).toList();
 
       return topicData[0];
     } catch (e) {
-      print('Error fetching topic data: $e');
+      print('Error fetching topic data');
+      // print('Error fetching topic data: $e');
       return null; // Handle error case
     }
   }

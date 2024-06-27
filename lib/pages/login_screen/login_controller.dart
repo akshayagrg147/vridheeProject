@@ -152,7 +152,7 @@ class LoginController extends GetxController {
     try {
       final response = await myDataController.getLogin(
         user: idController.text,
-        password: passwordController.text,
+        password: passwordController.text, role: selectedRole.value,
       );
       if (response == true) {
         print("LoginDevice :- $response");
