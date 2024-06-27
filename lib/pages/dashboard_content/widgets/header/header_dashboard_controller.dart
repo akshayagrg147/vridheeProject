@@ -405,6 +405,7 @@ class DashboardHeaderController extends GetxController {
       // print("in all A : ${allChapterList.length} : ${subject.onlineInstituteSubjectId}");
 
       inProgress.addAll(this.inProgress);
+      print("todo data list"+toDo.length.toString());
       toDo.addAll(this.toDo);
       completed.addAll(this.completed);
 
