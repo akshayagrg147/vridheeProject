@@ -70,6 +70,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   }
 
   void  loadVideoPlayer() {
+ 
     if ((widget.topic?.fileNameExt == 'mp4' ||
             widget.topic?.fileNameExt == 'html5') &&
         widget.topic?.code != null) {

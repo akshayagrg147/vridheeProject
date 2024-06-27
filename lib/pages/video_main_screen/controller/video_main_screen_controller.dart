@@ -68,9 +68,10 @@ class VideoMainScreenController extends GetxController {
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
       filterTopicData();
+      currentTopicData.value = topics.value[0];
     }
 
-    currentTopicData.value = topics.value[1];
+
     // Now you can use the chapterData as needed
   }
 
@@ -199,7 +200,7 @@ class VideoMainScreenController extends GetxController {
         await myDataController.query(
       'tbl_institute_topic_data',
       where: 'online_institute_topic_data_id = ?',
-      whereArgs: [topicId],
+      whereArgs: ,
     );
 
     // print("in fetch topic data 2 ${topicsDataMaps.length}");
@@ -222,6 +223,7 @@ class VideoMainScreenController extends GetxController {
         topicsDataMaps.map((map) => InstituteTopicData.fromJson(map)).toList();
     // print("in fetch topic data  3 ${topicData.length}");
     topics.value.assignAll(topicData);
+    currentTopicData.value = topics.value[0];
     // print("topppic ${topics.value.length}");
     // print("topppic ${topics.value[0]}");
     return topicData;
@@ -331,7 +333,7 @@ class VideoMainScreenController extends GetxController {
         .where((topic) => topic.topicDataType == "e-Content (AI)")
         .toList();
 
-    try {
+
       final List<Map<String, dynamic>> existingSyllabusData =
           await myDataController.query(
         StringConstant().tblSyllabusPlanning,
@@ -359,9 +361,7 @@ class VideoMainScreenController extends GetxController {
           ematerialtopics.value.add(eMaterialData);
         }
       }
-    } catch (e) {
-      print('Error fetching existing selections: $e');
-    }
+
     // videotopics.value.assignAll(videoData);
     // ematerialtopics.value.assignAll(ematerialData);
 

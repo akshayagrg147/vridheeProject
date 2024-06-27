@@ -250,8 +250,7 @@ class ContentPlanningController extends GetxController {
             'end_year': 2025,
             'created_date': DateTime.now().toIso8601String(),
             'updated_date': DateTime.now().toIso8601String(),
-            //Todo Aditya
-            'entry_date': null,
+
             'plan_priority': null
           };
 
@@ -281,9 +280,9 @@ class ContentPlanningController extends GetxController {
             'end_year': 2025,
             'created_date': DateTime.now().toIso8601String(),
             'updated_date': DateTime.now().toIso8601String(),
-            //Todo Aditya
-            'entry_date': null,
-            'named plan_priority': null
+
+
+            'plan_priority': null
           };
 
           int id = await myDataController.insert(
@@ -309,7 +308,6 @@ class ContentPlanningController extends GetxController {
         if (!selectedEMaterialList.value.contains(eMaterialData)) {
           await myDataController.delete(
             StringConstant().tblSyllabusPlanning,
-            where: 'institute_topic_data_id = ?',
             whereArgs: [eMaterialData.instituteTopicDataId],
           );
           print(

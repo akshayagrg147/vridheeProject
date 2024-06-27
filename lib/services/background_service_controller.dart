@@ -39,7 +39,6 @@ class BackgroundServiceController {
   Future<void> downloadFile(String url, String fileName) async {
     log("Forground Service Download Url :- $url");
     final path = await getContentDirectoryPath();
-
     if (url.isNotEmpty) {
       try {
         await FlutterDownloader.enqueue(
