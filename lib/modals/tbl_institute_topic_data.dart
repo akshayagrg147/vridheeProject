@@ -30,33 +30,33 @@ class InstituteTopicData {
 
   InstituteTopicData(
       {this.instituteTopicDataId,
-        this.onlineInstituteTopicDataId,
-        this.instituteId,
-        this.parentInstituteId,
-        this.instituteTopicId,
-        this.topicDataKind,
-        this.topicDataType,
-        this.topicDataFileCodeName,
-        this.code,
-        this.fileNameExt,
-        this.html5FileName,
-        this.html5FileNameApp,
-        this.referenceUrl,
-        this.noOfClicks,
-        this.priority,
-        this.status,
-        this.displayType,
-        this.isDefault,
-        this.defaultTopicDateId,
-        this.entryByInstituteUserId,
-        this.addedType,
-        this.contentLevel,
-        this.contentTag,
-        this.contentLang,
-        this.isVerified,
-        this.verifiedBy,
-        this.isLocalContentAvailable,
-        this.html5DownloadUrl});
+      this.onlineInstituteTopicDataId,
+      this.instituteId,
+      this.parentInstituteId,
+      this.instituteTopicId,
+      this.topicDataKind,
+      this.topicDataType,
+      this.topicDataFileCodeName,
+      this.code,
+      this.fileNameExt,
+      this.html5FileName,
+      this.html5FileNameApp,
+      this.referenceUrl,
+      this.noOfClicks,
+      this.priority,
+      this.status,
+      this.displayType,
+      this.isDefault,
+      this.defaultTopicDateId,
+      this.entryByInstituteUserId,
+      this.addedType,
+      this.contentLevel,
+      this.contentTag,
+      this.contentLang,
+      this.isVerified,
+      this.verifiedBy,
+      this.isLocalContentAvailable,
+      this.html5DownloadUrl});
 
   InstituteTopicData.fromJson(Map<String, dynamic> json) {
     instituteTopicDataId = json['institute_topic_data_id'];
@@ -78,7 +78,8 @@ class InstituteTopicData {
     displayType = json['display_type'];
     isDefault = json['is_default'];
     defaultTopicDateId = json['default_topic_date_id'];
-    entryByInstituteUserId = json['entry_by_institute_user_id'];
+    entryByInstituteUserId =
+        (json['entry_by_institute_user_id'] ?? "").toString();
     addedType = json['added_type'];
     contentLevel = json['content_level'];
     contentTag = json['content_tag'];
