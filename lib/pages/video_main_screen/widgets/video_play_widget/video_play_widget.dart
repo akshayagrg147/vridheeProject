@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 // import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
+import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../modals/tbl_institute_topic_data.dart';
 import 'package:video_player/video_player.dart';
@@ -69,24 +72,38 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     }
   }
 
-  void  loadVideoPlayer() {
- 
-    if ((widget.topic?.fileNameExt == 'mp4' ||
-            widget.topic?.fileNameExt == 'html5') &&
-        widget.topic?.code != null) {
-      print("in init : ${widget.topic!.code!}");
-      if (widget.topic!.code!.contains("https://www.youtube.com")) {
-        String id = extractYouTubeVideoId(widget.topic!.code!);
-        _controller.loadVideoById(videoId: id);
-      } else {
-        controller = VideoPlayerController.networkUrl(Uri.parse(
-            "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
-          ..initialize().then((_) {
-            // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-            setState(() {});
-          });
-      }
+  void loadVideoPlayer() async {
+//TODO remove hardCoded Video
+    final filename = "6475.mp4";
+    String filePath =
+        await BackgroundServiceController.instance.getContentDirectoryPath();
+    filePath += "/$filename";
+    final file = File(filePath);
+    if (await file.exists()) {
+      controller = VideoPlayerController.file(file,
+          //TODO :-  check andd option if needed
+          videoPlayerOptions: VideoPlayerOptions())
+        ..initialize().then((value) => setState(() {
+              controller.play();
+            }));
     }
+
+    // if ((widget.topic?.fileNameExt == 'mp4' ||
+    //         widget.topic?.fileNameExt == 'html5') &&
+    //     widget.topic?.code != null) {
+    //   print("in init : ${widget.topic!.code!}");
+    //   if (widget.topic!.code!.contains("https://www.youtube.com")) {
+    //     String id = extractYouTubeVideoId(widget.topic!.code!);
+    //     _controller.loadVideoById(videoId: id);
+    //   } else {
+    //     controller = VideoPlayerController.networkUrl(Uri.parse(
+    //         "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
+    //       ..initialize().then((_) {
+    //         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+    //         setState(() {});
+    //       });
+    //   }
+    // }
   }
 
   String extractYouTubeVideoId(String url) {
@@ -159,7 +176,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       contentWidget = SfPdfViewer.network(widget.topic!.code!);
       // contentWidget = WebViewWidget(controller: controller);
     } else {
-      contentWidget = const Center(child: Text('Unsupported file type'));
+      contentWidget = controller.value.isInitialized
+          ? AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: VideoPlayer(controller),
+            )
+          : const Center(child: CircularProgressIndicator());
+      // contentWidget = const Center(child: Text('Unsupported file type'));
     }
 
     return Container(

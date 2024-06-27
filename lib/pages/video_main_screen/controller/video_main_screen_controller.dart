@@ -71,7 +71,6 @@ class VideoMainScreenController extends GetxController {
       currentTopicData.value = topics.value[0];
     }
 
-
     // Now you can use the chapterData as needed
   }
 
@@ -200,7 +199,7 @@ class VideoMainScreenController extends GetxController {
         await myDataController.query(
       'tbl_institute_topic_data',
       where: 'online_institute_topic_data_id = ?',
-      whereArgs: ,
+      whereArgs: [topicId],
     );
 
     // print("in fetch topic data 2 ${topicsDataMaps.length}");
@@ -333,34 +332,31 @@ class VideoMainScreenController extends GetxController {
         .where((topic) => topic.topicDataType == "e-Content (AI)")
         .toList();
 
+    final List<Map<String, dynamic>> existingSyllabusData =
+        await myDataController.query(
+      StringConstant().tblSyllabusPlanning,
+      where: 'institute_topic_id = ?',
+      whereArgs: [selectedTopic.value!.topic.onlineInstituteTopicId.toDouble()],
+    );
+    print("fetching syllabus data 1");
 
-      final List<Map<String, dynamic>> existingSyllabusData =
-          await myDataController.query(
-        StringConstant().tblSyllabusPlanning,
-        where: 'institute_topic_id = ?',
-        whereArgs: [
-          selectedTopic.value!.topic.onlineInstituteTopicId.toDouble()
-        ],
-      );
-      print("fetching syllabus data 1");
+    List<double> existingTopicDataIds = existingSyllabusData
+        .map((entry) => entry['institute_topic_data_id'] as double)
+        .toList();
 
-      List<double> existingTopicDataIds = existingSyllabusData
-          .map((entry) => entry['institute_topic_data_id'] as double)
-          .toList();
+    print(existingTopicDataIds);
 
-      print(existingTopicDataIds);
-
-      for (var video in videoData) {
-        if (existingTopicDataIds.contains(video.instituteTopicDataId)) {
-          videotopics.value.add(video);
-        }
+    for (var video in videoData) {
+      if (existingTopicDataIds.contains(video.instituteTopicDataId)) {
+        videotopics.value.add(video);
       }
+    }
 
-      for (var eMaterialData in ematerialData) {
-        if (existingTopicDataIds.contains(eMaterialData.instituteTopicDataId)) {
-          ematerialtopics.value.add(eMaterialData);
-        }
+    for (var eMaterialData in ematerialData) {
+      if (existingTopicDataIds.contains(eMaterialData.instituteTopicDataId)) {
+        ematerialtopics.value.add(eMaterialData);
       }
+    }
 
     // videotopics.value.assignAll(videoData);
     // ematerialtopics.value.assignAll(ematerialData);

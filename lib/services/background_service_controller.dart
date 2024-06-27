@@ -27,6 +27,9 @@ class BackgroundServiceController {
 
     await Future.forEach(rows, (row) async {
       final url = row['url'];
+      if ((row['ext'] ?? "").isEmpty) {
+        return;
+      }
       final fileName = "${row['filename'] ?? ""}.${row['ext'] ?? ""}";
       await downloadFile(url, fileName);
     });
