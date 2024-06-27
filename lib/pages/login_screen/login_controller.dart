@@ -168,12 +168,6 @@ class LoginController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  Future<bool> downloadFile() async {
-    List<Map<String, dynamic>> resource =
-        await myDataController.getDownloadList();
-    return true;
-  }
 }
 
 class MyTaskHandler extends TaskHandler {

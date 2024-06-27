@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
@@ -21,11 +22,12 @@ class BackgroundServiceController {
     // Get the download list
     final response = await dbController.getDownloadList();
     final List<Map<String, dynamic>> rows = [];
-    rows.add({"html5_download_url": "http://dbhjjdbh//"});
+    rows.add({"url": "http://dbhjjdbh//"});
     rows.addAll(response);
+
     await Future.forEach(rows, (row) async {
-      final url = row['html5_download_url'];
-      final fileName = getFileNameFromUrl(url);
+      final url = row['url'];
+      final fileName = "${row['filename'] ?? ""}.${row['ext'] ?? ""}";
       await downloadFile(url, fileName);
     });
   }
@@ -36,18 +38,27 @@ class BackgroundServiceController {
 
   Future<void> downloadFile(String url, String fileName) async {
     log("Forground Service Download Url :- $url");
-    final directory = await getExternalStorageDirectory();
-    final path = directory?.path;
+    final path = await getContentDirectoryPath();
 
     if (url.isNotEmpty) {
-      await FlutterDownloader.enqueue(
-        url: url,
-        savedDir: path!,
-        fileName: fileName,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
+      try {
+        await FlutterDownloader.enqueue(
+          url: url,
+          savedDir: path,
+          fileName: fileName,
+          showNotification: true,
+          openFileFromNotification: true,
+        );
+      } catch (e) {
+        log(e.toString());
+      }
     }
+  }
+
+  Future<String> getContentDirectoryPath() async {
+    final directory = await getExternalStorageDirectory();
+
+    return directory!.path;
   }
 
   Future<void> checkPermissions() async {

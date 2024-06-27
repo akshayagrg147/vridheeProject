@@ -69,8 +69,8 @@ class DatabaseController extends GetxController {
 
   Future<List<Map<String, dynamic>>> getDownloadList() async {
     if (database != null) {
-      final List<Map<String, dynamic>> maps = await database!
-          .rawQuery('SELECT html5_download_url FROM tbl_institute_topic_data');
+      final List<Map<String, dynamic>> maps = await database!.rawQuery(
+          'SELECT html5_download_url as url,online_institute_topic_data_id as filename,file_name_ext as ext FROM tbl_institute_topic_data');
       return maps;
     } else {
       throw Exception("Database is not initialized");
