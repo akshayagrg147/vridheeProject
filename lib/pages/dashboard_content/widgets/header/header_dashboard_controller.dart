@@ -251,7 +251,7 @@ class DashboardHeaderController extends GetxController {
     );
     // print("in fetch execution 2");
 
-    try {
+
       final List<LaPlanExecution> executionData = executionDataMaps.map((map) {
         // print("Mapping la plan: $map");
         return LaPlanExecution.fromMap(map);
@@ -270,6 +270,7 @@ class DashboardHeaderController extends GetxController {
                 chapter.chapter.instituteSubjectId ==
                     execution.instituteSubjectId)
             .toList();
+        print("filteredChapters list"+filteredChapters.toString());
         // print("in dfd ${chapter.chapter.instituteChapterId}");
         // print("aa : ${execution.instituteSubjectId} : ${execution.instituteChapterId}");
         // print("in execution aa");
@@ -283,9 +284,7 @@ class DashboardHeaderController extends GetxController {
               .removeWhere((chapter) => filteredChapters.contains(chapter));
         }
       }
-    } catch (e) {
-      print("Error during mapping execution: $e");
-    }
+
   }
 
   Future<void> filterChapterByUserAccess() async {
@@ -405,7 +404,7 @@ class DashboardHeaderController extends GetxController {
       // print("in all A : ${allChapterList.length} : ${subject.onlineInstituteSubjectId}");
 
       inProgress.addAll(this.inProgress);
-      print("todo data list"+toDo.length.toString());
+
       toDo.addAll(this.toDo);
       completed.addAll(this.completed);
 

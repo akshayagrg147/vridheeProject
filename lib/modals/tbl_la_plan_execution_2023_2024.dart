@@ -53,7 +53,7 @@ class LaPlanExecution {
       //     : null,
       instituteTopicIds: map['institute_topic_ids'],
       laHwCnAssessmentIds: map['la_hw_cn_assessment_ids'],
-      executionByTeacherUserId: map['execution_by_teacher_user_id'],
+      executionByTeacherUserId: map['execution_by_teacher_user_id'].toString(),
       // entryDate: map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
       // lastUpdateDate: map['last_update_date'] != null ? DateTime.parse(map['last_update_date']) : null,
     );
