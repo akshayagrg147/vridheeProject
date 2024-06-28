@@ -14,6 +14,7 @@ class ContentPlanningController extends GetxController {
   // var subjectName = RxnString();
   var chapterName = RxnString();
   var topicName = RxnString();
+  var subjectName = RxnString();
   var topics = RxList<InstituteTopicData>().obs;
 
   var allVideoList = RxList<InstituteTopicData>().obs;
@@ -46,9 +47,13 @@ class ContentPlanningController extends GetxController {
 
     className.value =
         await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
-    // subjectName.value = await fetchSubjectName(selectedTopic.value!.topic.);
-    chapterName.value =
+    int subjectId=-1;
+    String chapter='';
+    (chapter,subjectId) =
         await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
+    chapterName.value=chapter;
+    subjectName.value = await fetchSubjectName(subjectId);
+
     topicName.value = selectedTopic.value!.topic.topicName;
     topics.value.assignAll(selectedTopic.value!.topicData);
     filterTopicData();
@@ -102,12 +107,12 @@ class ContentPlanningController extends GetxController {
         StringConstant().tblSyllabusPlanning,
         where: 'institute_topic_id = ?',
         whereArgs: [
-          selectedTopic.value!.topic.onlineInstituteTopicId.toDouble()
+          selectedTopic.value!.topic.onlineInstituteTopicId
         ],
       );
 
-      List<double> existingTopicDataIds = existingSyllabusData
-          .map((entry) => entry['institute_topic_data_id'] as double)
+      List<int> existingTopicDataIds = existingSyllabusData
+          .map((entry) => entry['institute_topic_data_id']as int)
           .toList();
 
       print(existingTopicDataIds);
@@ -187,8 +192,29 @@ class ContentPlanningController extends GetxController {
       return ''; // Handle error case
     }
   }
+  Future<String> fetchSubjectName(int instituteSubjectId) async {
+    try {
+      final List<Map<String, dynamic>> subjectDataMaps =
+      await myDataController.query(
+        'tbl_institute_subject',
+        where: 'online_institute_subject_id = ?',
+        whereArgs: [instituteSubjectId],
+      );
 
-  Future<String> fetchChapterName(int chapterId) async {
+      if (subjectDataMaps.isNotEmpty) {
+        final String subjectName =
+        subjectDataMaps.first['subject_name'] as String;
+        return subjectName;
+      } else {
+        return ''; // Handle the case where no class name is found
+      }
+    } catch (e) {
+      print('Error fetching class name: $e');
+      return ''; // Handle error case
+    }
+  }
+
+  Future<(String,int)> fetchChapterName(int chapterId) async {
     try {
       final List<Map<String, dynamic>> chapterDataMaps =
           await myDataController.query(
@@ -201,13 +227,15 @@ class ContentPlanningController extends GetxController {
       if (chapterDataMaps.isNotEmpty) {
         final String chapterName =
             chapterDataMaps.first['chapter_name'] as String;
-        return chapterName;
+        final int subjectId =
+        chapterDataMaps.first['institute_subject_id'] as int;
+        return (chapterName,subjectId);
       } else {
-        return ''; // Handle the case where no chapter name is found
+        return ('',-1); // Handle the case where no chapter name is found
       }
     } catch (e) {
       print('Error fetching chapter name: $e');
-      return ''; // Handle error case
+      return ('',-1); // Handle error case
     }
   }
 

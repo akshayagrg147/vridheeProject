@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
 import 'package:teaching_app/core/api_client/header_interceptor.dart';
+import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'api_exception.dart';
 
 typedef JsonMap = Map<String, dynamic>;
@@ -163,12 +164,14 @@ class ApiClient {
       {required String path,
       void Function(int, int)? onReceiveProgress}) async {
     try {
-      await Dio().download(url, path,
+  final response=    await Dio().download(url, path,
           onReceiveProgress: onReceiveProgress,
           cancelToken: _cancelToken,
           options: Options(followRedirects: false));
+
     } catch (error) {
       return _handleError(url, error);
     }
   }
+
 }

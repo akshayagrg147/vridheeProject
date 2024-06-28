@@ -21,9 +21,20 @@ import '../../widgets/address_header.dart';
 import '../../widgets/flag_container.dart';
 // import '../add_content_planning/controller/content_planning_controller.dart';
 
-class VideoMainScreen extends StatelessWidget {
+class VideoMainScreen extends StatefulWidget {
   const VideoMainScreen({super.key});
 
+  @override
+  State<VideoMainScreen> createState() => _VideoMainScreenState();
+}
+
+class _VideoMainScreenState extends State<VideoMainScreen> {
+
+@override
+  void initState() {
+   Get.delete<VideoMainScreenController>();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return GetBuilder(

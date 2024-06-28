@@ -68,7 +68,7 @@ class VideoMainScreenController extends GetxController {
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
       filterTopicData();
-      currentTopicData.value = topics.value[0];
+      // currentTopicData.value = topics.value[0];
     }
 
     // Now you can use the chapterData as needed
@@ -198,7 +198,7 @@ class VideoMainScreenController extends GetxController {
     final List<Map<String, dynamic>> topicsDataMaps =
         await myDataController.query(
       'tbl_institute_topic_data',
-      where: 'online_institute_topic_data_id = ?',
+      where: 'institute_topic_id = ?',
       whereArgs: [topicId],
     );
 
@@ -321,8 +321,17 @@ class VideoMainScreenController extends GetxController {
     // Filter video type data
     var videoData = topics.value
         .where((topic) =>
-            topic.topicDataType == "HTML5" || topic.topicDataType == "MP4")
+             topic.topicDataType == "MP4")
         .toList();
+    var html5Data = topics.value
+        .where((topic) =>
+    topic.topicDataType == "HTML5")
+        .toList();
+    if(videoData.isNotEmpty){
+      currentTopicData.value = videoData[0];
+    }else if(html5Data.isNotEmpty){
+      currentTopicData.value = html5Data[0];
+    }
     // print("filter video data :${videoData.length} : ${videoData[videoData.length -1].instituteTopicId}");
     // Filter ematerial type data
     var ematerialData = topics.value
@@ -349,6 +358,11 @@ class VideoMainScreenController extends GetxController {
     for (var video in videoData) {
       if (existingTopicDataIds.contains(video.instituteTopicDataId)) {
         videotopics.value.add(video);
+      }
+    }
+    for (var html5 in html5Data){
+      if (existingTopicDataIds.contains(html5.instituteTopicDataId)) {
+        videotopics.value.add(html5);
       }
     }
 

@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:teaching_app/core/api_client/api_client.dart';
+import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 
 class BackgroundServiceController {
@@ -22,15 +24,17 @@ class BackgroundServiceController {
     // Get the download list
     final response = await dbController.getDownloadList();
     final List<Map<String, dynamic>> rows = [];
-    rows.add({"url": "http://dbhjjdbh//"});
+    rows.add({"url": "http://dbhjjdbh//","filename":"filename","ext":"fg"});
     rows.addAll(response);
 
     await Future.forEach(rows, (row) async {
+
       final url = row['url'];
-      if ((row['ext'] ?? "").isEmpty) {
+      final ext = (row['ext']??"").isNotEmpty?row['ext']:getFileExtFromUrl(url);
+      if(ext=="zip"){
         return;
       }
-      final fileName = "${row['filename'] ?? ""}.${row['ext'] ?? ""}";
+      final fileName = "${row['filename'] ?? ""}.$ext";
       await downloadFile(url, fileName);
     });
   }
@@ -39,18 +43,35 @@ class BackgroundServiceController {
     return url.split('/').last;
   }
 
+  String getFileExtFromUrl(String url) {
+    return url.split('/').last.split(".").last;
+  }
+
   Future<void> downloadFile(String url, String fileName) async {
     log("Forground Service Download Url :- $url");
     final path = await getContentDirectoryPath();
     if (url.isNotEmpty) {
       try {
-        await FlutterDownloader.enqueue(
-          url: url,
-          savedDir: path,
-          fileName: fileName,
-          showNotification: true,
-          openFileFromNotification: true,
+        final filePath = "$path/$fileName";
+        await ApiClient().download(url, path: filePath,
+        onReceiveProgress: (recieved, total) {
+          if(recieved==total){
+            FileEncryptor().encryptFile(File(filePath), filePath);
+          }
+        }
+
         );
+        
+        
+        
+        // await FlutterDownloader.enqueue(
+        //   url: url,
+        //   savedDir: path,
+        //   fileName: fileName,
+        //   showNotification: true,
+        //   openFileFromNotification: true,
+        // );
+
       } catch (e) {
         log(e.toString());
       }

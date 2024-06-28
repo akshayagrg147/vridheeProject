@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/pages/add_content_planning/widgets/video_material_selection_widget.dart';
 import 'package:teaching_app/widgets/address_header.dart';
@@ -14,8 +15,8 @@ class ContentPlanningScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-        init: ContentPlanningController(),
+    Get.put(ContentPlanningController());
+    return GetBuilder<ContentPlanningController>(
         builder: (_) {
           return LayoutBuilder(builder: (context, constraints) {
             if (constraints.maxWidth < 1000) {
@@ -29,12 +30,14 @@ class ContentPlanningScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(25.0),
                       child: Column(
                         children: [
-                          const Card(
+                           Card(
                               color: Colors.white,
                               elevation: 10,
-                              child: AddressHeader(
-                                address:
-                                    "2024 - 2025 / 8th / Maths / Term 1 / Number System / Topic 2",
+                              child: Obx(
+                                ()=> AddressHeader(
+                                  address:
+                                      "2024 - 2025 / ${_.className} / ${_.subjectName} / ${_.chapterName} / ${_.topicName}",
+                                ),
                               )),
                           const SizedBox(
                             height: 20,
@@ -186,13 +189,15 @@ class ContentPlanningScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(25.0),
                       child: Column(
                         children: [
-                          const Card(
-                              color: Colors.white,
-                              elevation: 10,
-                              child: AddressHeader(
-                                address:
-                                    "2020 - 2021 / 8th / Maths / Term 1 / Number System / Topic 2",
-                              )),
+                           Obx(
+                          ()=> Card(
+                                color: Colors.white,
+                                elevation: 10,
+                                child: AddressHeader(
+                                  address:
+                                  "2024 - 2025 / ${_.className} / ${_.subjectName} / ${_.chapterName} / ${_.topicName}",
+                                )),
+                           ),
                           const SizedBox(
                             height: 20,
                           ),

@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 // import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
+import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../modals/tbl_institute_topic_data.dart';
@@ -57,7 +60,8 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
   late VideoPlayerController controller;
   final _controller = YoutubePlayerController();
-
+  Uint8List? docData;
+ bool  isLoading =false;
   @override
   void initState() {
     loadVideoPlayer();
@@ -73,37 +77,59 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   }
 
   void loadVideoPlayer() async {
-//TODO remove hardCoded Video
-    final filename = "6475.mp4";
+
+    setState(() {
+      isLoading=true;
+    });
+
+    if ((widget.topic?.fileNameExt == 'mp4' ||
+            widget.topic?.fileNameExt == 'html5') &&
+        widget.topic?.code != null) {
+      print("in init : ${widget.topic!.code!}");
+      if (widget.topic!.code!.contains("https://www.youtube.com")) {
+        String id = extractYouTubeVideoId(widget.topic!.code!);
+        _controller.loadVideoById(videoId: id);
+      }else if(widget.topic?.fileNameExt == 'mp4' && widget.topic?.onlineInstituteTopicDataId!=null  ){
+        final filename = "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
     String filePath =
         await BackgroundServiceController.instance.getContentDirectoryPath();
     filePath += "/$filename";
-    final file = File(filePath);
-    if (await file.exists()) {
-      controller = VideoPlayerController.file(file,
+    if (await File(filePath).exists()) {
+      final decryptedBytes = await FileEncryptor().decryptFile(File(filePath));
+     final tempPath = (await getTemporaryDirectory()).path+"/$filename";
+await File(tempPath).writeAsBytes(decryptedBytes);
+      controller = VideoPlayerController.file(File(tempPath),
           //TODO :-  check andd option if needed
           videoPlayerOptions: VideoPlayerOptions())
         ..initialize().then((value) => setState(() {
               controller.play();
             }));
     }
+      } else {
+        controller = VideoPlayerController.networkUrl(Uri.parse(
+            "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
+          ..initialize().then((_) {
+            // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+            setState(() {});
+          });
+      }
+    }
 
-    // if ((widget.topic?.fileNameExt == 'mp4' ||
-    //         widget.topic?.fileNameExt == 'html5') &&
-    //     widget.topic?.code != null) {
-    //   print("in init : ${widget.topic!.code!}");
-    //   if (widget.topic!.code!.contains("https://www.youtube.com")) {
-    //     String id = extractYouTubeVideoId(widget.topic!.code!);
-    //     _controller.loadVideoById(videoId: id);
-    //   } else {
-    //     controller = VideoPlayerController.networkUrl(Uri.parse(
-    //         "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
-    //       ..initialize().then((_) {
-    //         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-    //         setState(() {});
-    //       });
-    //   }
-    // }
+    else if((widget.topic?.fileNameExt == 'pdf'||widget.topic?.fileNameExt == 'doc') &&
+       ( widget.topic?.code??"").isEmpty){
+      final filename = "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
+      String filePath =
+      await BackgroundServiceController.instance.getContentDirectoryPath();
+      filePath += "/$filename";
+      if(await File(filePath).exists()){
+
+
+    docData= await FileEncryptor().decryptFile(File(filePath));}
+    }
+
+    setState(() {
+      isLoading=false;
+    });
   }
 
   String extractYouTubeVideoId(String url) {
@@ -136,6 +162,11 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if(isLoading){
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     print("topic data in : ${widget.topic?.instituteTopicDataId}");
     print(": ${widget.topic?.toJson()}");
 
@@ -168,14 +199,17 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
               )
             : const Center(child: CircularProgressIndicator());
       }
-    } else if (widget.topic?.fileNameExt == 'pdf' &&
-        widget.topic?.code != null) {
+    } else if ((widget.topic?.fileNameExt == 'pdf'||widget.topic?.fileNameExt == 'doc') &&
+        ( widget.topic?.code??"").isNotEmpty) {
       contentWidget = SfPdfViewer.network(widget.topic!.code!);
-    } else if (widget.topic?.fileNameExt == 'doc' &&
-        widget.topic?.code != null) {
-      contentWidget = SfPdfViewer.network(widget.topic!.code!);
-      // contentWidget = WebViewWidget(controller: controller);
-    } else {
+    }
+    else if ((widget.topic?.fileNameExt == 'pdf'||widget.topic?.fileNameExt == 'doc')&&docData!=null){
+
+    contentWidget = SfPdfViewer.memory(docData!);
+
+    }
+
+    else {
       contentWidget = controller.value.isInitialized
           ? AspectRatio(
               aspectRatio: controller.value.aspectRatio,
