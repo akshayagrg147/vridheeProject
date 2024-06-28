@@ -29,12 +29,12 @@ class VideoMainScreen extends StatefulWidget {
 }
 
 class _VideoMainScreenState extends State<VideoMainScreen> {
-
-@override
+  @override
   void initState() {
-   Get.delete<VideoMainScreenController>();
+    Get.delete<VideoMainScreenController>();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
@@ -243,14 +243,11 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                                 _.openWhiteBoard.value = false;
                                 _.openPlayWithUrl.value = false;
                                 showDialog(
-                                context: context,
-                                builder:
-                                (BuildContext context) {
-                                return showCustomDialog(
-                                context,
-                                'eMaterial',
-                                _.videotopics.value);
-                                },
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return showCustomDialog(context,
+                                        'eMaterial', _.videotopics.value);
+                                  },
                                 );
                               },
                             ),

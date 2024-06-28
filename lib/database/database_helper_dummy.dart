@@ -45,6 +45,7 @@ class DatabaseHelper {
     await db.execute(CreateTables().tbl_la_hw_cn_assessment_rel);
     await db.execute(CreateTables().tbl_syllabus);
     await db.execute(CreateTables().tbl_user_type);
+    await db.execute(CreateTables().tbl_question_bank);
   }
 
   Future<void> initializeDatabase() async {

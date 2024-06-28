@@ -319,17 +319,13 @@ class VideoMainScreenController extends GetxController {
 
   void filterTopicData() async {
     // Filter video type data
-    var videoData = topics.value
-        .where((topic) =>
-             topic.topicDataType == "MP4")
-        .toList();
-    var html5Data = topics.value
-        .where((topic) =>
-    topic.topicDataType == "HTML5")
-        .toList();
-    if(videoData.isNotEmpty){
+    var videoData =
+        topics.value.where((topic) => topic.topicDataType == "MP4").toList();
+    var html5Data =
+        topics.value.where((topic) => topic.topicDataType == "HTML5").toList();
+    if (videoData.isNotEmpty) {
       currentTopicData.value = videoData[0];
-    }else if(html5Data.isNotEmpty){
+    } else if (html5Data.isNotEmpty) {
       currentTopicData.value = html5Data[0];
     }
     // print("filter video data :${videoData.length} : ${videoData[videoData.length -1].instituteTopicId}");
@@ -349,8 +345,8 @@ class VideoMainScreenController extends GetxController {
     );
     print("fetching syllabus data 1");
 
-    List<double> existingTopicDataIds = existingSyllabusData
-        .map((entry) => entry['institute_topic_data_id'] as double)
+    List<int> existingTopicDataIds = existingSyllabusData
+        .map((entry) => entry['institute_topic_data_id'] as int)
         .toList();
 
     print(existingTopicDataIds);
@@ -360,7 +356,7 @@ class VideoMainScreenController extends GetxController {
         videotopics.value.add(video);
       }
     }
-    for (var html5 in html5Data){
+    for (var html5 in html5Data) {
       if (existingTopicDataIds.contains(html5.instituteTopicDataId)) {
         videotopics.value.add(html5);
       }

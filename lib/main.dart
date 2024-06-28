@@ -25,14 +25,13 @@ void main() async {
       ignoreSsl: true);
   await Firebase.initializeApp(
     options: const FirebaseOptions(
-      apiKey: "AIzaSyDHyF-iVu8zeas7DprEjGpfF1uZVWkDcic",
-      authDomain: "mafatlal-lms-6d7a5.firebaseapp.com",
-      projectId: "mafatlal-lms-6d7a5",
-      storageBucket: "mafatlal-lms-6d7a5.appspot.com",
-      messagingSenderId: "958680942488",
-      appId: "1:958680942488:web:94139086eb3dbe7e110ded",
-      measurementId: "G-RK6Z7F0E7K",
-    ),
+        apiKey: "AIzaSyAS-9eo7zrU6wByUHyH689k3hM4MPHrvCQ",
+        authDomain: "vridhee-lms.firebaseapp.com",
+        projectId: "vridhee-lms",
+        storageBucket: "vridhee-lms.appspot.com",
+        messagingSenderId: "445532701923",
+        appId: "1:445532701923:web:38a9e040b7cf2f858071d6",
+        measurementId: "G-CLJPMWFCQP"),
   );
 
   await SharedPrefHelper().initialize();
