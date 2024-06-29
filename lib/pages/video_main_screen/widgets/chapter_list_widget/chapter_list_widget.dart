@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:teaching_app/app_theme.dart';
+import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/controller/chapter_list_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/topic_item.dart';
 import 'package:teaching_app/widgets/text_view.dart';
@@ -94,6 +95,12 @@ class ChapterListWidget extends StatelessWidget {
                                         print(
                                             "in videos checking ${topi.topic.onlineInstituteTopicId} : ${selectedTopicId}");
                                         return TopicItemWidget(
+                                          onTap: () {
+                                            Get.find<
+                                                    VideoMainScreenController>()
+                                                .onTopicChange(chapter,
+                                                    topicData: topi);
+                                          },
                                           topic: topi,
                                           topicIndex: topicIndex,
                                           isSelected: isSelected,

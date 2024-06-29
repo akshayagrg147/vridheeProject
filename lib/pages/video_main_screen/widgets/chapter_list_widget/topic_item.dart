@@ -11,15 +11,14 @@ class TopicItemWidget extends StatefulWidget {
     this.topic,
     required this.isSelected,
     this.label,
-
-
+    this.onTap,
   });
 
   final int topicIndex;
   final LocalTopic? topic;
   final bool isSelected;
   final String? label;
-
+  final Function()? onTap;
   @override
   State<TopicItemWidget> createState() => _TopicItemWidgetState();
 }
@@ -31,61 +30,70 @@ class _TopicItemWidgetState extends State<TopicItemWidget> {
   Widget build(BuildContext context) {
     // print("inside topic list ids : ${widget.selectedTopicId} ");
     return
-    // MouseRegion(
-    //   onEnter: (_) {
-    //     setState(() {
-    //       _isHovered = true;
-    //     });
-    //   },
-    //   onExit: (_) {
-    //     setState(() {
-    //       _isHovered = false;
-    //     });
-    //   },
-    //   child:
-      InkWell(
-        onTap: () {},
-        child: Container(
-          margin: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: _isHovered ? Colors.white : Colors.transparent,
-            boxShadow: [
-              if (_isHovered)
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 3,
-                  blurRadius: 7,
-                  offset: Offset(0, 3),
-                ),
+        // MouseRegion(
+        //   onEnter: (_) {
+        //     setState(() {
+        //       _isHovered = true;
+        //     });
+        //   },
+        //   onExit: (_) {
+        //     setState(() {
+        //       _isHovered = false;
+        //     });
+        //   },
+        //   child:
+        InkWell(
+      onTap: widget.onTap,
+      child: Container(
+        margin: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: _isHovered ? Colors.white : Colors.transparent,
+          boxShadow: [
+            if (_isHovered)
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 3,
+                blurRadius: 7,
+                offset: Offset(0, 3),
+              ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              const SizedBox(width: 40),
+              widget.label == null
+                  ? widget.topic != null
+                      ? Expanded(
+                          child: TextView(
+                          "Topic ${widget.topicIndex + 1} -  ${widget.topic!.topic.topicName}",
+                          fontweight: FontWeight.bold,
+                          fontsize: 12,
+                          textColor: _isHovered
+                              ? ThemeColor.darkBlue4392
+                              : widget.isSelected
+                                  ? ThemeColor.darkBlue4392
+                                  : null,
+                        ))
+                      : SizedBox()
+                  : Expanded(
+                      child: TextView(
+                        "${widget.topicIndex + 1}. ${widget.label}",
+                        fontweight: FontWeight.bold,
+                        fontsize: 12,
+                        textColor: _isHovered
+                            ? ThemeColor.darkBlue4392
+                            : widget.isSelected
+                                ? ThemeColor.darkBlue4392
+                                : null,
+                      ),
+                    ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                const SizedBox(width: 40),
-                widget.label == null
-                ?widget.topic != null ?Expanded(
-                  child: TextView(
-                    "Topic ${widget.topicIndex + 1} -  ${widget.topic!.topic.topicName}",
-                    fontweight: FontWeight.bold,
-                    fontsize: 12,
-                    textColor: _isHovered ? ThemeColor.darkBlue4392 : widget.isSelected ? ThemeColor.darkBlue4392 :null,
-                  )
-                ) :SizedBox()
-                :Expanded(
-                  child: TextView(
-                    "${widget.topicIndex + 1}. ${widget.label}",
-                    fontweight: FontWeight.bold,
-                    fontsize: 12,
-                    textColor: _isHovered ? ThemeColor.darkBlue4392 : widget.isSelected ? ThemeColor.darkBlue4392 :null,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
+      ),
       // ),
     );
   }

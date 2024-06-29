@@ -76,6 +76,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else if (oldWidget.topic?.instituteTopicDataId !=
         widget.topic?.instituteTopicDataId) {
       loadVideoPlayer();
+      if (controller.value.isInitialized) {
+        controller.pause();
+      }
     }
   }
 

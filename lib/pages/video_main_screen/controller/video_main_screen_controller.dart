@@ -74,6 +74,18 @@ class VideoMainScreenController extends GetxController {
     // Now you can use the chapterData as needed
   }
 
+  void onTopicChange(InstituteChapter chapterData,
+      {required LocalTopic topicData}) async {
+    chapterName.value = chapterData.chapterName;
+    selectedTopic.value = topicData;
+    topicName.value = selectedTopic.value!.topic.topicName;
+    topics.value.clear();
+    topics.value.assignAll(selectedTopic.value!.topicData);
+    videotopics.value.clear();
+    ematerialtopics.value.clear();
+    filterTopicData();
+  }
+
   Future<List<LocalChapter>> fetchAllChapters(
       int courseId, int subjectId) async {
     final List<InstituteChapter> chaptersData =
