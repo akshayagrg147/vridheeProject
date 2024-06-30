@@ -5,6 +5,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:teaching_app/core/remote_config/remote_config_service.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
@@ -20,9 +21,11 @@ import 'package:teaching_app/services/background_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-      debug: true, // optional: set false to disable printing logs to console
-      ignoreSsl: true);
+  if(GetPlatform.isAndroid){
+    await FlutterDownloader.initialize(
+        debug: true, // optional: set false to disable printing logs to console
+        ignoreSsl: true);
+  }
   await Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyAS-9eo7zrU6wByUHyH689k3hM4MPHrvCQ",
@@ -33,7 +36,9 @@ void main() async {
         appId: "1:445532701923:web:38a9e040b7cf2f858071d6",
         measurementId: "G-CLJPMWFCQP"),
   );
-
+  sqfliteFfiInit();
+  // Set the database factory
+  databaseFactory = databaseFactoryFfi;
   await SharedPrefHelper().initialize();
   await RemoteConfigService.initConfig();
   // FlutterDownloader.registerCallback(downloadCallback);

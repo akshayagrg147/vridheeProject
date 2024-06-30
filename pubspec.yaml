@@ -75,6 +75,7 @@ dependencies:
   workmanager: ^0.5.2
   flutter_background_service: ^5.0.6
   encrypt: ^5.0.3
+  video_player_win: ^2.3.8
 
 dev_dependencies:
   flutter_test:

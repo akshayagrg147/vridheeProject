@@ -125,8 +125,13 @@ class LoginController extends GetxController {
         print('Error executing query: $e');
       }
     }
-    ForegroundTaskService.init();
-    startForegroundService();
+if(GetPlatform.isAndroid){
+  ForegroundTaskService.init();
+  startForegroundService();
+}
+else if(GetPlatform.isWindows){
+  BackgroundServiceController.instance.performBackgroundTask();
+}
     if (temp.trim().isNotEmpty) {
       await notifyBackend(temp.substring(0, temp.length - 1));
     } else {

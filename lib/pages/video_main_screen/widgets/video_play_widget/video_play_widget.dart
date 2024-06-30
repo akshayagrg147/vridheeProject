@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
 // import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -9,6 +10,7 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
+import 'package:video_player_win/video_player_win.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../modals/tbl_institute_topic_data.dart';
 import 'package:video_player/video_player.dart';
@@ -58,12 +60,15 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   //   }
   // }
 
-  late VideoPlayerController controller;
-  final _controller = YoutubePlayerController();
+  late dynamic controller;
+  late YoutubePlayerController _controller;
   Uint8List? docData;
   bool isLoading = false;
   @override
   void initState() {
+    if(GetPlatform.isAndroid){
+      _controller = YoutubePlayerController();
+    }
     loadVideoPlayer();
     super.initState();
   }
@@ -92,8 +97,17 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         widget.topic?.code != null) {
       print("in init : ${widget.topic!.code!}");
       if (widget.topic!.code!.contains("https://www.youtube.com")) {
-        String id = extractYouTubeVideoId(widget.topic!.code!);
-        _controller.loadVideoById(videoId: id);
+        if(GetPlatform.isAndroid){
+          String id = extractYouTubeVideoId(widget.topic!.code!);
+          _controller.loadVideoById(videoId: id);
+        }else{
+          controller = WinVideoPlayerController.network(widget.topic!.code!,
+
+             )
+            ..initialize().then((value) => setState(() {
+              controller.play();
+            }));
+        }
       } else if (widget.topic?.fileNameExt == 'mp4' &&
           widget.topic?.onlineInstituteTopicDataId != null) {
         final filename =
@@ -106,20 +120,38 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
               await FileEncryptor().decryptFile(File(filePath));
           final tempPath = (await getTemporaryDirectory()).path + "/$filename";
           await File(tempPath).writeAsBytes(decryptedBytes);
-          controller = VideoPlayerController.file(File(tempPath),
-              //TODO :-  check andd option if needed
-              videoPlayerOptions: VideoPlayerOptions())
-            ..initialize().then((value) => setState(() {
-                  controller.play();
-                }));
+
+          if(GetPlatform.isAndroid){
+           controller = VideoPlayerController.file(File(tempPath),
+               //TODO :-  check andd option if needed
+               videoPlayerOptions: VideoPlayerOptions())
+             ..initialize().then((value) => setState(() {
+               controller.play();
+             }));
+         }else{
+           controller = WinVideoPlayerController.file(File(tempPath),
+               )
+             ..initialize().then((value) => setState(() {
+               controller.play();
+             }));
+         }
         }
       } else {
-        controller = VideoPlayerController.networkUrl(Uri.parse(
-            "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
-          ..initialize().then((_) {
-            // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-            setState(() {});
-          });
+        if(GetPlatform.isAndroid){
+          controller = VideoPlayerController.networkUrl(Uri.parse(
+              "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
+            ..initialize().then((_) {
+              // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+              setState(() {});
+            });
+        }else{
+          controller = WinVideoPlayerController.network( "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+          )
+            ..initialize().then((value) => setState(() {
+              controller.play();
+            }));
+        }
+
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
@@ -157,13 +189,16 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     if ((widget.topic?.topicDataType == 'MP4' ||
             widget.topic?.topicDataType == 'HTML5') &&
         widget.topic?.code != null) {
-      if (!widget.topic!.code!.contains("https://www.youtube.com")) {
-        controller.dispose();
+      if (!widget.topic!.code!.contains("https://www.youtube.com")&&GetPlatform.isAndroid) {
+        _controller.close();
         print("in dispose 1");
+      }else{
+        controller.dispose();
       }
       // _controller.dispose();
       print("in dispose 2");
     }
+    BackgroundServiceController.clearTemporaryDirectory();
     // _controller.dispose();
     super.dispose();
   }
@@ -194,7 +229,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       if (widget.topic!.code!.contains("https://www.youtube.com")) {
         contentWidget = Center(
           // Youtube player as widget
-          child: YoutubePlayer(
+          child: GetPlatform.isWindows?WinVideoPlayer(controller): YoutubePlayer(
             controller: _controller, // Controler that we created earlier
             aspectRatio: 16 / 9, // Aspect ratio you want to take in screen
           ),
@@ -203,7 +238,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         contentWidget = controller.value.isInitialized
             ? AspectRatio(
                 aspectRatio: controller.value.aspectRatio,
-                child: VideoPlayer(controller),
+                child: GetPlatform.isAndroid? VideoPlayer(controller):WinVideoPlayer(controller),
               )
             : const Center(child: CircularProgressIndicator());
       }
