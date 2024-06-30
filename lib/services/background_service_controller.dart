@@ -90,8 +90,7 @@ class BackgroundServiceController {
   }
 
   Future<String> getContentDirectoryPath() async {
-    final directory = GetPlatform.isAndroid? await getExternalStorageDirectory():await getApplicationDocumentsDirectory();
-    final value2 = await getApplicationSupportDirectory();
+    final directory = GetPlatform.isAndroid? await getExternalStorageDirectory():await getApplicationSupportDirectory();
     return directory!.path;
   }
 
