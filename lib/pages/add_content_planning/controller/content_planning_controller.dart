@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import '../../../database/datebase_controller.dart';
 import '../../../modals/tbl_institute_topic.dart';
@@ -19,14 +20,15 @@ class ContentPlanningController extends GetxController {
 
   var allVideoList = RxList<InstituteTopicData>().obs;
   var allEMaterialList = RxList<InstituteTopicData>().obs;
-  var allQuestionList = RxList<InstituteTopicData>().obs;
+  var allQuestionList = RxList<QuestionBank>().obs;
 
   var selectedVideoList = RxList<InstituteTopicData>().obs;
   var selectedEMaterialList = RxList<InstituteTopicData>().obs;
-  var selectedQuestionList = RxList<InstituteTopicData>().obs;
+  var selectedQuestionList = RxList<QuestionBank>().obs;
 
   var initiallySelectedVideoList = <InstituteTopicData>[];
   var initiallySelectedEMaterialList = <InstituteTopicData>[];
+  var initiallySelectedQuestionList = <QuestionBank>[];
 
   var videoSelected = true.obs;
   var eMaterialSelected = false.obs;
@@ -47,17 +49,17 @@ class ContentPlanningController extends GetxController {
 
     className.value =
         await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
-    int subjectId=-1;
-    String chapter='';
-    (chapter,subjectId) =
+    int subjectId = -1;
+    String chapter = '';
+    (chapter, subjectId) =
         await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
-    chapterName.value=chapter;
+    chapterName.value = chapter;
     subjectName.value = await fetchSubjectName(subjectId);
 
     topicName.value = selectedTopic.value!.topic.topicName;
     topics.value.assignAll(selectedTopic.value!.topicData);
     filterTopicData();
-    fetchQuestion(selectedTopic.value!.topic);
+    allQuestionList.value.assignAll(selectedTopic.value!.questionData);
     fetchExistingSelections();
     // currentTopicData.value = topics.value[1];
     // Now you can use the chapterData as needed
@@ -77,11 +79,22 @@ class ContentPlanningController extends GetxController {
       isSelected
           ? selectedEMaterialList.value.add(data)
           : selectedEMaterialList.value.remove(data);
-    } else if (isQuestion) {
-      isSelected
-          ? selectedQuestionList.value.add(data)
-          : selectedQuestionList.value.remove(data);
     }
+  }
+
+  void toggleQuestionSelection(
+    QuestionBank data,
+    bool isSelected,
+  ) {
+    isSelected
+        ? selectedQuestionList.value.add(data)
+        : selectedQuestionList.value.remove(data);
+  }
+
+  bool isQuestionSelected(
+    QuestionBank data,
+  ) {
+    return selectedQuestionList.value.contains(data);
   }
 
   bool isSelected(InstituteTopicData data, bool isVideo, bool isEMaterial,
@@ -96,8 +109,6 @@ class ContentPlanningController extends GetxController {
     return false;
   }
 
-  void fetchQuestion(InstituteTopic topic) {}
-
   Future<void> fetchExistingSelections() async {
     // print(selectedTopic.value!.topic.instituteTopicId.toDouble());
 
@@ -106,21 +117,18 @@ class ContentPlanningController extends GetxController {
           await myDataController.query(
         StringConstant().tblSyllabusPlanning,
         where: 'institute_topic_id = ?',
-        whereArgs: [
-          selectedTopic.value!.topic.onlineInstituteTopicId
-        ],
+        whereArgs: [selectedTopic.value!.topic.onlineInstituteTopicId],
       );
 
       List<int> existingTopicDataIds = existingSyllabusData
-          .map((entry) => entry['institute_topic_data_id']as int)
+          .map((entry) => entry['institute_topic_data_id'] as int)
           .toList();
 
       print(existingTopicDataIds);
 
       //for video data
       for (var videoData in allVideoList.value) {
-        if (existingTopicDataIds
-            .contains(videoData.instituteTopicDataId)) {
+        if (existingTopicDataIds.contains(videoData.instituteTopicDataId)) {
           selectedVideoList.value.add(videoData);
           initiallySelectedVideoList.add(videoData);
         }
@@ -134,12 +142,11 @@ class ContentPlanningController extends GetxController {
         }
       }
 
-      //Todo Aditya
-      //for questions data
-      for (var eMaterialData in allQuestionList.value) {
-        if (existingTopicDataIds.contains(eMaterialData.instituteTopicDataId)) {
-          selectedEMaterialList.value.add(eMaterialData);
-          initiallySelectedEMaterialList.add(eMaterialData);
+      // for questions data
+      for (var quesData in allQuestionList.value) {
+        if (existingTopicDataIds.contains(quesData.onlineLmsQuesBankId)) {
+          selectedQuestionList.value.add(quesData);
+          initiallySelectedQuestionList.add(quesData);
         }
       }
     } catch (e) {
@@ -158,17 +165,10 @@ class ContentPlanningController extends GetxController {
         .toList();
     // var aiContentData = topics.value.where((topic) => topic.topicDataType == "e-Content (AI)").toList();
 
-    //Todo Aditya
-    var questionsData = topics.value
-        .where((topic) => topic.topicDataType == "questions")
-        .toList();
-
     allVideoList.value.assignAll(videoData);
     allVideoList.refresh();
 
     allEMaterialList.value.assignAll(eMaterialData);
-    //Todo Aditya
-    allQuestionList.value.assignAll(questionsData);
   }
 
   Future<String> fetchClassName(int courseId) async {
@@ -192,10 +192,11 @@ class ContentPlanningController extends GetxController {
       return ''; // Handle error case
     }
   }
+
   Future<String> fetchSubjectName(int instituteSubjectId) async {
     try {
       final List<Map<String, dynamic>> subjectDataMaps =
-      await myDataController.query(
+          await myDataController.query(
         'tbl_institute_subject',
         where: 'online_institute_subject_id = ?',
         whereArgs: [instituteSubjectId],
@@ -203,7 +204,7 @@ class ContentPlanningController extends GetxController {
 
       if (subjectDataMaps.isNotEmpty) {
         final String subjectName =
-        subjectDataMaps.first['subject_name'] as String;
+            subjectDataMaps.first['subject_name'] as String;
         return subjectName;
       } else {
         return ''; // Handle the case where no class name is found
@@ -214,7 +215,7 @@ class ContentPlanningController extends GetxController {
     }
   }
 
-  Future<(String,int)> fetchChapterName(int chapterId) async {
+  Future<(String, int)> fetchChapterName(int chapterId) async {
     try {
       final List<Map<String, dynamic>> chapterDataMaps =
           await myDataController.query(
@@ -228,14 +229,14 @@ class ContentPlanningController extends GetxController {
         final String chapterName =
             chapterDataMaps.first['chapter_name'] as String;
         final int subjectId =
-        chapterDataMaps.first['institute_subject_id'] as int;
-        return (chapterName,subjectId);
+            chapterDataMaps.first['institute_subject_id'] as int;
+        return (chapterName, subjectId);
       } else {
-        return ('',-1); // Handle the case where no chapter name is found
+        return ('', -1); // Handle the case where no chapter name is found
       }
     } catch (e) {
       print('Error fetching chapter name: $e');
-      return ('',-1); // Handle error case
+      return ('', -1); // Handle error case
     }
   }
 
@@ -278,7 +279,6 @@ class ContentPlanningController extends GetxController {
             'end_year': 2025,
             'created_date': DateTime.now().toIso8601String(),
             'updated_date': DateTime.now().toIso8601String(),
-
             'plan_priority': null
           };
 
@@ -308,8 +308,6 @@ class ContentPlanningController extends GetxController {
             'end_year': 2025,
             'created_date': DateTime.now().toIso8601String(),
             'updated_date': DateTime.now().toIso8601String(),
-
-
             'plan_priority': null
           };
 
@@ -319,7 +317,35 @@ class ContentPlanningController extends GetxController {
               "Plan inserted row id: $id : ${eMaterialData.instituteTopicId} :${eMaterialData.instituteTopicDataId} ");
         }
       }
+      for (var quesData in selectedQuestionList.value) {
+        final isInserted = initiallySelectedQuestionList.contains(quesData);
 
+        if (!isInserted) {
+          Map<String, dynamic> data = {
+            'online_syllabus_planning_id': null,
+            'institute_id': quesData.instituteId,
+            'institute_course_id': selectedTopic.value!.topic.instituteCourseId,
+            'institute_course_breakup_id': null,
+            'institute_subject_id': null,
+            'institute_chapter_id':
+                selectedTopic.value!.topic.instituteChapterId,
+            'institute_topic_id': quesData.instituteTopicId,
+            'institute_topic_data_id': quesData.onlineLmsQuesBankId,
+            'question_bank_id': null,
+            'content_type': "question",
+            'start_year': 2024,
+            'end_year': 2025,
+            'created_date': DateTime.now().toIso8601String(),
+            'updated_date': DateTime.now().toIso8601String(),
+            'plan_priority': null
+          };
+
+          int id = await myDataController.insert(
+              StringConstant().tblSyllabusPlanning, data);
+          print(
+              "Plan inserted row id: $id : ${quesData.instituteTopicId} :${quesData.onlineLmsQuesBankId} ");
+        }
+      }
       for (var videoData in initiallySelectedVideoList) {
         if (!selectedVideoList.value.contains(videoData)) {
           await myDataController.delete(
@@ -340,6 +366,16 @@ class ContentPlanningController extends GetxController {
           );
           print(
               "Plan deleted: ${eMaterialData.instituteTopicId} :${eMaterialData.instituteTopicDataId}");
+        }
+      }
+      for (var quesData in initiallySelectedQuestionList) {
+        if (!selectedQuestionList.value.contains(quesData)) {
+          await myDataController.delete(
+            StringConstant().tblSyllabusPlanning,
+            whereArgs: [quesData.onlineLmsQuesBankId],
+          );
+          print(
+              "Plan deleted: ${quesData.instituteTopicId} :${quesData.onlineLmsQuesBankId}");
         }
       }
     } catch (e) {

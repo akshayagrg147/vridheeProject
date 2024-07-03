@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:teaching_app/core/remote_config/remote_config_service.dart';
 import 'package:teaching_app/modals/tbl_institute_subject.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import '../../../../database/datebase_controller.dart';
 import '../../../../modals/tbl_institite_user_content_access_23_24.dart';
 import '../../../../modals/tbl_institute_course.dart';
@@ -184,27 +185,27 @@ class DashboardHeaderController extends GetxController {
       where: 'institute_topic_id = ?',
       whereArgs: [topicId],
     );
-
-    // print("in fetch topic data 2 ${topicsDataMaps.length}");
-
-    // try {
-    //   final List<InstituteTopicData> topicData = topicsDataMaps.map((map) {
-    //     print("Mapping topic data for topic ${topicId}: $map");
-    //     return InstituteTopicData.fromMap(map);
-    //   }).toList();
-    // }
-    //
-    // catch (e) {
-    //   print("Error during mapping topic data: $e");
-    //   return [];
-    // }
-    // return [];
-
     // print("in fetch topic data  2");
     final List<InstituteTopicData> topicData =
         topicsDataMaps.map((map) => InstituteTopicData.fromJson(map)).toList();
     // print("in fetch topic data  3 ${topicData.length}");
     return topicData;
+  }
+
+  Future<List<QuestionBank>> fetchQuestionsData(int topicId) async {
+    // print("in fetch topic data 1");
+
+    final List<Map<String, dynamic>> questionDataMap =
+        await myDataController.query(
+      'tbl_lms_ques_bank',
+      where: 'institute_topic_id = ?',
+      whereArgs: [topicId],
+    );
+    // print("in fetch topic data  2");
+    final List<QuestionBank> questionData =
+        questionDataMap.map((map) => QuestionBank.fromJson(map)).toList();
+    // print("in fetch topic data  3 ${topicData.length}");
+    return questionData;
   }
 
   Future<List<LocalChapter>> fetchAllChapters(
@@ -230,8 +231,12 @@ class DashboardHeaderController extends GetxController {
         // print("fetch all chapter topicListAdd id ${topicId}");
         final List<InstituteTopicData> topicDataList =
             await fetchTopicData(topicId);
-
-        topicList.add(LocalTopic(topic: topicMap, topicData: topicDataList));
+        final List<QuestionBank> questionList =
+            await fetchQuestionsData(topicId);
+        topicList.add(LocalTopic(
+            topic: topicMap,
+            topicData: topicDataList,
+            questionData: questionList));
         // print("topic list added for ${topicId} ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
       }
@@ -251,40 +256,38 @@ class DashboardHeaderController extends GetxController {
     );
     // print("in fetch execution 2");
 
+    final List<LaPlanExecution> executionData = executionDataMaps.map((map) {
+      // print("Mapping la plan: $map");
+      return LaPlanExecution.fromMap(map);
+    }).toList();
+    toDo.clear();
+    // print("in fetch topics list length: ${executionData.length} : ${executionData[0]}");
+    // final List<LaPlanExecution> executionData = executionDataMaps.map((map) => LaPlanExecution.fromMap(map)).toList();
+    // print("in fetch execution 3");
 
-      final List<LaPlanExecution> executionData = executionDataMaps.map((map) {
-        // print("Mapping la plan: $map");
-        return LaPlanExecution.fromMap(map);
-      }).toList();
-      toDo.clear();
-      // print("in fetch topics list length: ${executionData.length} : ${executionData[0]}");
-      // final List<LaPlanExecution> executionData = executionDataMaps.map((map) => LaPlanExecution.fromMap(map)).toList();
-      // print("in fetch execution 3");
-
-      // Filter chapters from allChapterList that match executionData
-      for (var execution in executionData) {
-        List<LocalChapter> filteredChapters = allChapterList
-            .where((chapter) =>
-                chapter.chapter.onlineInstituteChapterId ==
-                    execution.instituteChapterId &&
-                chapter.chapter.instituteSubjectId ==
-                    execution.instituteSubjectId)
-            .toList();
-        print("filteredChapters list"+filteredChapters.toString());
-        // print("in dfd ${chapter.chapter.instituteChapterId}");
-        // print("aa : ${execution.instituteSubjectId} : ${execution.instituteChapterId}");
-        // print("in execution aa");
-        if (filteredChapters.isNotEmpty) {
-          // print(" in here aa :${filteredChapters.length}");
-          // inProgress.addAll(filteredChapters);
-          toDo.addAll(filteredChapters);
-          // print(" in here if ${inProgress.length}");
-          // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
-          allChapterList
-              .removeWhere((chapter) => filteredChapters.contains(chapter));
-        }
+    // Filter chapters from allChapterList that match executionData
+    for (var execution in executionData) {
+      List<LocalChapter> filteredChapters = allChapterList
+          .where((chapter) =>
+              chapter.chapter.onlineInstituteChapterId ==
+                  execution.instituteChapterId &&
+              chapter.chapter.instituteSubjectId ==
+                  execution.instituteSubjectId)
+          .toList();
+      print("filteredChapters list" + filteredChapters.toString());
+      // print("in dfd ${chapter.chapter.instituteChapterId}");
+      // print("aa : ${execution.instituteSubjectId} : ${execution.instituteChapterId}");
+      // print("in execution aa");
+      if (filteredChapters.isNotEmpty) {
+        // print(" in here aa :${filteredChapters.length}");
+        // inProgress.addAll(filteredChapters);
+        toDo.addAll(filteredChapters);
+        // print(" in here if ${inProgress.length}");
+        // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
+        allChapterList
+            .removeWhere((chapter) => filteredChapters.contains(chapter));
       }
-
+    }
   }
 
   Future<void> filterChapterByUserAccess() async {
@@ -470,8 +473,7 @@ class DashboardHeaderController extends GetxController {
     } catch (e) {
       // Handle error
       print('Error fetching data: $e');
-    }
-    finally{
+    } finally {
       isFetchingData.value = false;
     }
   }

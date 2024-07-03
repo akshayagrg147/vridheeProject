@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import 'package:whiteboard/whiteboard.dart';
 import '../../../database/datebase_controller.dart';
@@ -17,9 +18,11 @@ class VideoMainScreenController extends GetxController {
   var topics = RxList<InstituteTopicData>().obs;
 
   var currentTopicData = Rxn<InstituteTopicData>();
+  var currentQuestionData = Rxn<QuestionBank>();
   var videotopics = RxList<InstituteTopicData>().obs;
   var ematerialtopics = RxList<InstituteTopicData>().obs;
   var aiContentTopics = RxList<InstituteTopicData>().obs;
+  var questionTopics = RxList<QuestionBank>().obs;
 
   RxBool openWhiteBoard = false.obs;
   RxBool openPlayWithUrl = false.obs;
@@ -51,6 +54,7 @@ class VideoMainScreenController extends GetxController {
       subjectName.value = chapterData!["subject"];
       chapterName.value = chapterData!["chapter"];
       topicName.value = chapterData!["topic"];
+
       fetchAllChapters(
         chapterData!["courseId"],
         chapterData!["subjectId"],
@@ -67,6 +71,8 @@ class VideoMainScreenController extends GetxController {
           await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
+      questionTopics.value.clear();
+      questionTopics.value.assignAll(selectedTopic.value!.questionData);
       filterTopicData();
       // currentTopicData.value = topics.value[0];
     }
@@ -83,6 +89,9 @@ class VideoMainScreenController extends GetxController {
     topics.value.assignAll(selectedTopic.value!.topicData);
     videotopics.value.clear();
     ematerialtopics.value.clear();
+    questionTopics.value.clear();
+    questionTopics.value.assignAll(topicData.questionData);
+
     filterTopicData();
   }
 
@@ -109,8 +118,12 @@ class VideoMainScreenController extends GetxController {
         // print("fetch all chapter topicListAdd id ${topicId}");
         final List<InstituteTopicData> topicDataList =
             await fetchTopicData(topicId);
-
-        topicList.add(LocalTopic(topic: topicMap, topicData: topicDataList));
+        final List<QuestionBank> quesDataList =
+            await fetchQuestionData(topicId);
+        topicList.add(LocalTopic(
+            topic: topicMap,
+            topicData: topicDataList,
+            questionData: quesDataList));
         // print("fetch all chapter topicListAdd ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
       }
@@ -202,6 +215,39 @@ class VideoMainScreenController extends GetxController {
     // topics.value.assignAll(topicData);
     // print("topppic ${topics.value.length}");
     return topicData;
+  }
+
+  Future<List<QuestionBank>> fetchQuestionData(int topicId) async {
+    // print("in fetch topic data 1");
+
+    final List<Map<String, dynamic>> quesDataMap = await myDataController.query(
+      'tbl_lms_ques_bank',
+      where: 'institute_topic_id = ?',
+      whereArgs: [topicId],
+    );
+
+    // print("in fetch topic data 2 ${topicsDataMaps.length}");
+
+    // try {
+    //   final List<InstituteTopicData> topicData = topicsDataMaps.map((map) {
+    //     print("Mapping topic data topic data: $map");
+    //     return InstituteTopicData.fromMap(map);
+    //   }).toList();
+    // }
+    //
+    // catch (e) {
+    //   print("Error during mapping topic data: $e");
+    //   return [];
+    // }
+    // return [];
+
+    // print("in fetch topic data  2");
+    final List<QuestionBank> quesData =
+        quesDataMap.map((map) => QuestionBank.fromJson(map)).toList();
+    // print("in fetch topic data  3 ${topicData.length}");
+    // topics.value.assignAll(topicData);
+    // print("topppic ${topics.value.length}");
+    return quesData;
   }
 
   Future<List<InstituteTopicData>> fetchOneTopicData(int topicId) async {

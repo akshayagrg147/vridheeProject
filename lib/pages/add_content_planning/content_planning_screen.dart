@@ -16,345 +16,333 @@ class ContentPlanningScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(ContentPlanningController());
-    return GetBuilder<ContentPlanningController>(
-        builder: (_) {
-          return LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth < 1000) {
-              return AppScaffold(
-                  showTopRadius: false,
-                  showAppbar: true,
-                  bgColor: ThemeColor.scaffoldBgColor,
-                  showLeading: true,
-                  body: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: Column(
-                        children: [
-                           Card(
-                              color: Colors.white,
-                              elevation: 10,
-                              child: Obx(
-                                ()=> AddressHeader(
-                                  address:
-                                      "2024 - 2025 / ${_.className} / ${_.subjectName} / ${_.chapterName} / ${_.topicName}",
-                                ),
-                              )),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Card(
-                              color: Colors.white,
-                              elevation: 10,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: ThemeColor.white,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Column(
-                                    children: [
-                                      FlagContainer(
-                                        height: 215,
-                                        flagTitle: "Type / Language",
+    return GetBuilder<ContentPlanningController>(builder: (_) {
+      return LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth < 1000) {
+          return AppScaffold(
+              showTopRadius: false,
+              showAppbar: true,
+              bgColor: ThemeColor.scaffoldBgColor,
+              showLeading: true,
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(25.0),
+                  child: Column(
+                    children: [
+                      Card(
+                          color: Colors.white,
+                          elevation: 10,
+                          child: Obx(
+                            () => AddressHeader(
+                              address:
+                                  "2024 - 2025 / ${_.className} / ${_.subjectName} / ${_.chapterName} / ${_.topicName}",
+                            ),
+                          )),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Card(
+                          color: Colors.white,
+                          elevation: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: ThemeColor.white,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  FlagContainer(
+                                    height: 215,
+                                    flagTitle: "Type / Language",
+                                    flagTitleColor: ThemeColor.darkBlue4392,
+                                    bgColor: ThemeColor.scaffoldBgColor,
+                                    child: buildLanguageTypeSelectionWidget(_),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Obx(() {
+                                    if (_.videoSelected.value) {
+                                      return FlagContainer(
+                                        height: 280,
+                                        flagTitle: "Video",
                                         flagTitleColor: ThemeColor.darkBlue4392,
                                         bgColor: ThemeColor.scaffoldBgColor,
-                                        child:
-                                            buildLanguageTypeSelectionWidget(_),
-                                      ),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Obx(() {
-                                        if (_.videoSelected.value) {
-                                          return FlagContainer(
-                                            height: 280,
-                                            flagTitle: "Video",
-                                            flagTitleColor:
-                                                ThemeColor.darkBlue4392,
-                                            bgColor: ThemeColor.scaffoldBgColor,
-                                            child: VideoMaterialSelectionWidget(
-                                              controller: _,
-                                              dataList: _.allVideoList.value,
-                                              isEMaterial: null,
-                                              isQuestion: null,
-                                              isVideo: true,
-                                            ),
-                                          );
-                                        } else {
-                                          return Container();
-                                        }
-                                      }),
-                                      Obx(() {
-                                        if (_.eMaterialSelected.value) {
-                                          return FlagContainer(
-                                            height: 280,
-                                            flagTitle: "e-Material",
-                                            flagTitleColor:
-                                                ThemeColor.darkBlue4392,
-                                            bgColor: ThemeColor.scaffoldBgColor,
-                                            child: VideoMaterialSelectionWidget(
-                                              controller: _,
-                                              dataList:
-                                                  _.allEMaterialList.value,
-                                              isEMaterial: true,
-                                              isQuestion: null,
-                                              isVideo: null,
-                                            ),
-                                          );
-                                        } else {
-                                          return Container();
-                                        }
-                                      }),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Obx(() {
-                                        if (_.questionSelected.value) {
-                                          return FlagContainer(
-                                            height: 280,
-                                            flagTitle: "Question",
-                                            flagTitleColor:
-                                                ThemeColor.darkBlue4392,
-                                            bgColor: ThemeColor.scaffoldBgColor,
-                                            child: Obx(() =>
-                                                VideoMaterialSelectionWidget(
-                                                  controller: _,
-                                                  dataList:
-                                                      _.allQuestionList.value,
-                                                  isEMaterial: null,
-                                                  isQuestion: true,
-                                                  isVideo: null,
-                                                ),),
-                                          );
-                                        } else {
-                                          return Container();
-                                        }
-                                      }),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Card(
-                                              elevation: 5,
-                                              child: AppElevatedButton(
-                                                title: "SUBMIT",
-                                                backgroundColor:
-                                                    ThemeColor.darkBlue4392,
-                                                titleTextColor:
-                                                    ThemeColor.white,
-                                                onPressed: () {
-                                                  _.submitPlan();
-                                                  Get.back();
-                                                },
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
+                                        child: VideoMaterialSelectionWidget(
+                                          controller: _,
+                                          dataList: _.allVideoList.value,
+                                          isEMaterial: null,
+                                          isQuestion: null,
+                                          isVideo: true,
+                                        ),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  }),
+                                  Obx(() {
+                                    if (_.eMaterialSelected.value) {
+                                      return FlagContainer(
+                                        height: 280,
+                                        flagTitle: "e-Material",
+                                        flagTitleColor: ThemeColor.darkBlue4392,
+                                        bgColor: ThemeColor.scaffoldBgColor,
+                                        child: VideoMaterialSelectionWidget(
+                                          controller: _,
+                                          dataList: _.allEMaterialList.value,
+                                          isEMaterial: true,
+                                          isQuestion: null,
+                                          isVideo: null,
+                                        ),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  }),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Obx(() {
+                                    if (_.questionSelected.value) {
+                                      return FlagContainer(
+                                        height: 280,
+                                        flagTitle: "Question",
+                                        flagTitleColor: ThemeColor.darkBlue4392,
+                                        bgColor: ThemeColor.scaffoldBgColor,
+                                        child: Obx(
+                                          () => VideoMaterialSelectionWidget(
+                                            controller: _,
+                                            dataList: [],
+                                            questionList:
+                                                _.allQuestionList.value,
+                                            isEMaterial: null,
+                                            isQuestion: true,
+                                            isVideo: null,
                                           ),
-                                          Card(
-                                              elevation: 5,
-                                              child: AppElevatedButton(
-                                                title: "RESET",
-                                                backgroundColor:
-                                                    ThemeColor.white,
-                                                showBorder: true,
-                                                borderColor:
-                                                    ThemeColor.darkBlue4392,
-                                                onPressed: () {},
-                                              )),
-                                        ],
-                                      ),
+                                        ),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  }),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Card(
+                                          elevation: 5,
+                                          child: AppElevatedButton(
+                                            title: "SUBMIT",
+                                            backgroundColor:
+                                                ThemeColor.darkBlue4392,
+                                            titleTextColor: ThemeColor.white,
+                                            onPressed: () {
+                                              _.submitPlan();
+                                              Get.back();
+                                            },
+                                          )),
                                       const SizedBox(
-                                        height: 20,
+                                        width: 10,
                                       ),
+                                      Card(
+                                          elevation: 5,
+                                          child: AppElevatedButton(
+                                            title: "RESET",
+                                            backgroundColor: ThemeColor.white,
+                                            showBorder: true,
+                                            borderColor:
+                                                ThemeColor.darkBlue4392,
+                                            onPressed: () {},
+                                          )),
                                     ],
                                   ),
-                                ),
-                              ))
-                        ],
-                      ),
-                    ),
-                  ));
-            } else {
-              return AppScaffold(
-                  showTopRadius: false,
-                  showAppbar: true,
-                  bgColor: ThemeColor.scaffoldBgColor,
-                  showLeading: true,
-                  body: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: Column(
-                        children: [
-                           Obx(
-                          ()=> Card(
-                                color: Colors.white,
-                                elevation: 10,
-                                child: AddressHeader(
-                                  address:
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ))
+                    ],
+                  ),
+                ),
+              ));
+        } else {
+          return AppScaffold(
+              showTopRadius: false,
+              showAppbar: true,
+              bgColor: ThemeColor.scaffoldBgColor,
+              showLeading: true,
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(25.0),
+                  child: Column(
+                    children: [
+                      Obx(
+                        () => Card(
+                            color: Colors.white,
+                            elevation: 10,
+                            child: AddressHeader(
+                              address:
                                   "2024 - 2025 / ${_.className} / ${_.subjectName} / ${_.chapterName} / ${_.topicName}",
-                                )),
-                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Card(
-                              color: Colors.white,
-                              elevation: 10,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: ThemeColor.white,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Column(
+                            )),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Card(
+                          color: Colors.white,
+                          elevation: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: ThemeColor.white,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  FlagContainer(
+                                    height: 135,
+                                    flagTitle: "Type / Language",
+                                    flagTitleColor: ThemeColor.darkBlue4392,
+                                    bgColor: ThemeColor.scaffoldBgColor,
+                                    child: buildLanguageTypeSelectionWidget(_),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Row(
                                     children: [
-                                      FlagContainer(
-                                        height: 135,
-                                        flagTitle: "Type / Language",
-                                        flagTitleColor: ThemeColor.darkBlue4392,
-                                        bgColor: ThemeColor.scaffoldBgColor,
-                                        child:
-                                            buildLanguageTypeSelectionWidget(_),
-                                      ),
+                                      Obx(() {
+                                        if (_.videoSelected.value) {
+                                          return Expanded(
+                                            child: FlagContainer(
+                                              height: 280,
+                                              flagTitle: "Video",
+                                              flagTitleColor:
+                                                  ThemeColor.darkBlue4392,
+                                              bgColor:
+                                                  ThemeColor.scaffoldBgColor,
+                                              child:
+                                                  VideoMaterialSelectionWidget(
+                                                controller: _,
+                                                dataList: _.allVideoList.value,
+                                                isEMaterial: null,
+                                                isQuestion: null,
+                                                isVideo: true,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return Container();
+                                        }
+                                      }),
                                       const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Obx(() {
-                                            if (_.videoSelected.value) {
-                                              return Expanded(
-                                                child: FlagContainer(
-                                                  height: 280,
-                                                  flagTitle: "Video",
-                                                  flagTitleColor:
-                                                      ThemeColor.darkBlue4392,
-                                                  bgColor: ThemeColor
-                                                      .scaffoldBgColor,
-                                                  child:
-                                                      VideoMaterialSelectionWidget(
-                                                    controller: _,
-                                                    dataList:
-                                                        _.allVideoList.value,
-                                                    isEMaterial: null,
-                                                    isQuestion: null,
-                                                    isVideo: true,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          }),
-                                          const SizedBox(
-                                            width: 20,
-                                          ),
-                                          Obx(() {
-                                            if (_.eMaterialSelected.value) {
-                                              return Expanded(
-                                                child: FlagContainer(
-                                                  height: 280,
-                                                  flagTitle: "e-Material",
-                                                  flagTitleColor:
-                                                      ThemeColor.darkBlue4392,
-                                                  bgColor: ThemeColor
-                                                      .scaffoldBgColor,
-                                                  child:
-                                                      VideoMaterialSelectionWidget(
-                                                    controller: _,
-                                                    dataList: _
-                                                        .allEMaterialList.value,
-                                                    isEMaterial: true,
-                                                    isQuestion: null,
-                                                    isVideo: null,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          }),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 20,
+                                        width: 20,
                                       ),
                                       Obx(() {
-                                        if (_.questionSelected.value) {
-                                          return FlagContainer(
-                                            height: 280,
-                                            flagTitle: "Question",
-                                            flagTitleColor:
-                                                ThemeColor.darkBlue4392,
-                                            bgColor: ThemeColor.scaffoldBgColor,
-                                            child: Obx(() =>
-                                                VideoMaterialSelectionWidget(
+                                        if (_.eMaterialSelected.value) {
+                                          return Expanded(
+                                            child: FlagContainer(
+                                              height: 280,
+                                              flagTitle: "e-Material",
+                                              flagTitleColor:
+                                                  ThemeColor.darkBlue4392,
+                                              bgColor:
+                                                  ThemeColor.scaffoldBgColor,
+                                              child:
+                                                  VideoMaterialSelectionWidget(
+                                                controller: _,
+                                                dataList:
+                                                    _.allEMaterialList.value,
+                                                isEMaterial: true,
+                                                isQuestion: null,
+                                                isVideo: null,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return Container();
+                                        }
+                                      }),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Obx(() {
+                                    if (_.questionSelected.value) {
+                                      return FlagContainer(
+                                        height: 280,
+                                        flagTitle: "Question",
+                                        flagTitleColor: ThemeColor.darkBlue4392,
+                                        bgColor: ThemeColor.scaffoldBgColor,
+                                        child: Obx(
+                                            () => VideoMaterialSelectionWidget(
                                                   controller: _,
-                                                  dataList:
+                                                  dataList: [],
+                                                  questionList:
                                                       _.allQuestionList.value,
                                                   isEMaterial: null,
                                                   isQuestion: true,
                                                   isVideo: null,
                                                 )),
-                                          );
-                                        } else {
-                                          return Container();
-                                        }
-                                      }),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  }),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Card(
+                                          elevation: 5,
+                                          child: AppElevatedButton(
+                                            title: "SUBMIT",
+                                            backgroundColor:
+                                                ThemeColor.darkBlue4392,
+                                            titleTextColor: ThemeColor.white,
+                                            onPressed: () {
+                                              _.submitPlan();
+                                              Get.back();
+                                            },
+                                          )),
                                       const SizedBox(
-                                        height: 20,
+                                        width: 10,
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Card(
-                                              elevation: 5,
-                                              child: AppElevatedButton(
-                                                title: "SUBMIT",
-                                                backgroundColor:
-                                                    ThemeColor.darkBlue4392,
-                                                titleTextColor:
-                                                    ThemeColor.white,
-                                                onPressed: () {
-                                                  _.submitPlan();
-                                                  Get.back();
-                                                },
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          Card(
-                                              elevation: 5,
-                                              child: AppElevatedButton(
-                                                title: "RESET",
-                                                backgroundColor:
-                                                    ThemeColor.white,
-                                                showBorder: true,
-                                                borderColor:
-                                                    ThemeColor.darkBlue4392,
-                                                onPressed: () {},
-                                              )),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
+                                      Card(
+                                          elevation: 5,
+                                          child: AppElevatedButton(
+                                            title: "RESET",
+                                            backgroundColor: ThemeColor.white,
+                                            showBorder: true,
+                                            borderColor:
+                                                ThemeColor.darkBlue4392,
+                                            onPressed: () {},
+                                          )),
                                     ],
                                   ),
-                                ),
-                              ))
-                        ],
-                      ),
-                    ),
-                  ));
-            }
-          });
-        });
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ))
+                    ],
+                  ),
+                ),
+              ));
+        }
+      });
+    });
   }
 }

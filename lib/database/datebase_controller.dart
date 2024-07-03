@@ -102,4 +102,14 @@ class DatabaseController extends GetxController {
       throw Exception("Database is not initialized");
     }
   }
+
+  Future<List<Map<String, dynamic>>> getDownloadQuestionImageList() async {
+    if (database != null) {
+      final List<Map<String, dynamic>> maps = await database!.rawQuery(
+          'SELECT online_lms_ques_bank_id as id, question_down_path as ques_url, option_1_down_path as opt_1_url, option_2_down_path as opt_2_url, option_3_down_path as opt_4_url,option_4_down_path as opt_4_url FROM tbl_lms_ques_bank');
+      return maps;
+    } else {
+      throw Exception("Database is not initialized");
+    }
+  }
 }

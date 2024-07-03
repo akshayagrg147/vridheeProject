@@ -24,18 +24,54 @@ class BackgroundServiceController {
     // Get the download list
     final response = await dbController.getDownloadList();
     final List<Map<String, dynamic>> rows = [];
-    rows.add({"url": "http://dbhjjdbh//","filename":"filename","ext":"fg"});
+    rows.add({"url": "http://dbhjjdbh//", "filename": "filename", "ext": "fg"});
     rows.addAll(response);
 
     await Future.forEach(rows, (row) async {
-
       final url = row['url'];
-      final ext = (row['ext']??"").isNotEmpty?row['ext']:getFileExtFromUrl(url);
-      if(ext=="zip"){
+      final ext =
+          (row['ext'] ?? "").isNotEmpty ? row['ext'] : getFileExtFromUrl(url);
+      if (ext == "zip") {
         return;
       }
       final fileName = "${row['filename'] ?? ""}.$ext";
       await downloadFile(url, fileName);
+    });
+
+    final questionImagesData =
+        await dbController.getDownloadQuestionImageList();
+
+    await Future.forEach(questionImagesData, (element) async {
+      final id = element['id'];
+      final quesUrl = element['ques_url'];
+      if ((quesUrl ?? "").isNotEmpty) {
+        final questionFileName = "ques_$id.${getFileExtFromUrl(quesUrl)}";
+        await downloadFile(quesUrl, questionFileName);
+      }
+
+      final opt1url = element['opt_1_url'];
+      if ((opt1url ?? "").isNotEmpty) {
+        final optionFileName = "${id}_option_1.${getFileExtFromUrl(opt1url)}";
+        await downloadFile(opt1url, optionFileName);
+      }
+
+      final opt2url = element['opt_2_url'];
+      if ((opt2url ?? "").isNotEmpty) {
+        final optionFileName = "${id}_option_2.${getFileExtFromUrl(opt2url)}";
+        await downloadFile(opt2url, optionFileName);
+      }
+
+      final opt3url = element['opt_3_url'];
+      if ((opt3url ?? "").isNotEmpty) {
+        final optionFileName = "${id}_option_3.${getFileExtFromUrl(opt3url)}";
+        await downloadFile(opt3url, optionFileName);
+      }
+
+      final opt4url = element['opt_4_url'];
+      if ((opt4url ?? "").isNotEmpty) {
+        final optionFileName = "${id}_option_4.${getFileExtFromUrl(opt4url)}";
+        await downloadFile(opt4url, optionFileName);
+      }
     });
   }
 
@@ -54,16 +90,12 @@ class BackgroundServiceController {
       try {
         final filePath = "$path/$fileName";
         await ApiClient().download(url, path: filePath,
-        onReceiveProgress: (recieved, total) {
-          if(recieved==total){
+            onReceiveProgress: (recieved, total) {
+          if (recieved == total) {
             FileEncryptor().encryptFile(File(filePath), filePath);
           }
-        }
+        });
 
-        );
-        
-        
-        
         // await FlutterDownloader.enqueue(
         //   url: url,
         //   savedDir: path,
@@ -71,7 +103,6 @@ class BackgroundServiceController {
         //   showNotification: true,
         //   openFileFromNotification: true,
         // );
-
       } catch (e) {
         log(e.toString());
       }

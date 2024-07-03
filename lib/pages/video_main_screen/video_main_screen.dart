@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/chapter_list_widget.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/dialog_content.dart';
@@ -95,8 +96,9 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
         });
   }
 
-  Widget showCustomDialog(BuildContext context, String flagTitle,
-      List<InstituteTopicData> dataList) {
+  Widget showCustomDialog(
+      BuildContext context, String flagTitle, List<InstituteTopicData> dataList,
+      {List<QuestionBank>? questionList}) {
     VideoMainScreenController controller =
         Get.find<VideoMainScreenController>();
     return AlertDialog(
@@ -128,6 +130,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                   child: VideoMainScreenTopicDataSelecter(
                     controller: controller,
                     dataList: dataList,
+                    questionList: questionList,
                   ), // Pass the appropriate controller
                 ),
               ]),
@@ -245,8 +248,9 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return showCustomDialog(context,
-                                        'eMaterial', _.videotopics.value);
+                                    return showCustomDialog(
+                                        context, 'Questions', [],
+                                        questionList: _.questionTopics.value);
                                   },
                                 );
                               },
