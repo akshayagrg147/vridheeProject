@@ -53,7 +53,7 @@ class VideoDashboardThumbnailWidget extends StatelessWidget {
                             color: Colors.transparent),
                         // Transparent triangle icon
                         onPressed: () {
-                          // Handle playing the video
+                          Get.toNamed('/videoScreen', arguments: [true, video]);
                         },
                         color: Colors.white,
                         iconSize: 50,
