@@ -67,9 +67,12 @@ class VideoMainScreenController extends GetxController {
       selectedTopic.value = args[2];
       className.value =
           await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
-      // subjectName.value = await fetchSubjectName(selectedTopic.value!.topic.);
-      chapterName.value =
+      var chapter, subject_id;
+      (chapter, subject_id) =
           await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
+      chapterName.value = chapter;
+      subjectName.value = await fetchSubjectName(subject_id);
+
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
       questionTopics.value.clear();
@@ -83,7 +86,7 @@ class VideoMainScreenController extends GetxController {
   void onTopicChange(InstituteChapter chapterData,
       {required LocalTopic topicData}) async {
     chapterName.value = chapterData.chapterName;
-    selectedTopic.value = topicData;
+    subjectName.value = await fetchSubjectName(chapterData.instituteSubjectId);
     topicName.value = selectedTopic.value!.topic.topicName;
     topics.value.clear();
     topics.value.assignAll(selectedTopic.value!.topicData);
@@ -328,7 +331,7 @@ class VideoMainScreenController extends GetxController {
     }
   }
 
-  Future<String> fetchChapterName(int chapterId) async {
+  Future<(String, int)> fetchChapterName(int chapterId) async {
     try {
       final List<Map<String, dynamic>> chapterDataMaps =
           await myDataController.query(
@@ -341,13 +344,15 @@ class VideoMainScreenController extends GetxController {
       if (chapterDataMaps.isNotEmpty) {
         final String chapterName =
             chapterDataMaps.first['chapter_name'] as String;
-        return chapterName;
+        final int subjectId =
+            chapterDataMaps.first['institute_subject_id'] as int;
+        return (chapterName, subjectId);
       } else {
-        return ''; // Handle the case where no chapter name is found
+        return ('', 0); // Handle the case where no chapter name is found
       }
     } catch (e) {
       print('Error fetching chapter name: $e');
-      return ''; // Handle error case
+      return ('', 0); // Handle error case
     }
   }
 
