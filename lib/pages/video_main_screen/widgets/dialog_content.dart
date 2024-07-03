@@ -160,6 +160,10 @@ class VideoMainScreenTopicDataSelecter extends StatelessWidget {
               onViewClick: () {
                 controller.currentTopicData.value = data;
                 controller.currentQuestionData.value = null;
+                controller.openWhiteBoard.value = false;
+                controller.openQuestionViewer.value = false;
+
+                controller.openPlayWithUrl.value = false;
                 print(
                     "topic data 2: ${controller.currentTopicData.value?.instituteTopicDataId}");
                 Get.back();
@@ -253,6 +257,9 @@ class VideoMainScreenTopicDataSelecter extends StatelessWidget {
               showViewButton: true,
               onViewClick: () {
                 controller.currentQuestionData.value = data;
+                controller.openWhiteBoard.value = false;
+                controller.openPlayWithUrl.value = false;
+                controller.openQuestionViewer.value = true;
                 print(
                     "topic data 2: ${controller.currentTopicData.value?.instituteTopicDataId}");
                 Get.back();

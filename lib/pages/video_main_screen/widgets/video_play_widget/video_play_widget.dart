@@ -175,6 +175,11 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         child: CircularProgressIndicator(),
       );
     }
+    if (widget.topic?.fileNameExt == 'html5' || widget.topic == null) {
+      return Center(
+        child: Icon(Icons.error_outline),
+      );
+    }
     print("topic data in : ${widget.topic?.instituteTopicDataId}");
     print(": ${widget.topic?.toJson()}");
 

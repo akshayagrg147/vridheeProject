@@ -9,6 +9,7 @@ import 'package:teaching_app/pages/video_main_screen/controller/video_main_scree
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/chapter_list_widget.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/dialog_content.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/play_by_url_widget.dart';
+import 'package:teaching_app/pages/video_main_screen/widgets/question_viewer.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/video_play_widget.dart';
 import 'package:teaching_app/widgets/app_scaffold.dart';
 import 'package:teaching_app/widgets/dialog_widget.dart';
@@ -217,11 +218,16 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                                         ),
                                       ),
                                     )
-                                  : Obx(() => Expanded(
-                                        child: VideoPlayWidget(
-                                          topic: _.currentTopicData.value,
-                                        ),
-                                      )),
+                                  : _.openQuestionViewer.value == true
+                                      ? Obx(() => QuestionViewer(
+                                          questionList: _.questionTopics.value,
+                                          currentQuestion:
+                                              _.currentQuestionData.value!))
+                                      : Obx(() => Expanded(
+                                            child: VideoPlayWidget(
+                                              topic: _.currentTopicData.value,
+                                            ),
+                                          )),
                         ],
                       )),
                   Expanded(
@@ -243,8 +249,6 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               backgroundColor: Colors.grey,
                               label: 'Questions',
                               onTap: () async {
-                                _.openWhiteBoard.value = false;
-                                _.openPlayWithUrl.value = false;
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -260,8 +264,6 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               backgroundColor: Colors.grey,
                               label: 'AI Content',
                               onTap: () async {
-                                _.openWhiteBoard.value = false;
-                                _.openPlayWithUrl.value = false;
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {

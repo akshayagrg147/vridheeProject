@@ -26,6 +26,7 @@ class VideoMainScreenController extends GetxController {
 
   RxBool openWhiteBoard = false.obs;
   RxBool openPlayWithUrl = false.obs;
+  RxBool openQuestionViewer = false.obs;
   WhiteBoardController whiteBoardController = WhiteBoardController();
   final TextEditingController playByUrlController = TextEditingController();
   final TextEditingController playByUrlTitleController =
@@ -49,7 +50,7 @@ class VideoMainScreenController extends GetxController {
     isContinueWatching.value = args.isNotEmpty ? args[0] : true;
 
     if (isContinueWatching.value == true) {
-      chapterData = isContinueWatching.value == true ? args[1] : null;
+      chapterData = args[1];
       className.value = chapterData!["class"];
       subjectName.value = chapterData!["subject"];
       chapterName.value = chapterData!["chapter"];
@@ -72,7 +73,6 @@ class VideoMainScreenController extends GetxController {
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
       questionTopics.value.clear();
-      questionTopics.value.assignAll(selectedTopic.value!.questionData);
       filterTopicData();
       // currentTopicData.value = topics.value[0];
     }
@@ -90,8 +90,6 @@ class VideoMainScreenController extends GetxController {
     videotopics.value.clear();
     ematerialtopics.value.clear();
     questionTopics.value.clear();
-    questionTopics.value.assignAll(topicData.questionData);
-
     filterTopicData();
   }
 
@@ -256,7 +254,7 @@ class VideoMainScreenController extends GetxController {
     final List<Map<String, dynamic>> topicsDataMaps =
         await myDataController.query(
       'tbl_institute_topic_data',
-      where: 'institute_topic_id = ?',
+      where: 'online_institute_topic_data_id = ?',
       whereArgs: [topicId],
     );
 
@@ -394,7 +392,7 @@ class VideoMainScreenController extends GetxController {
     var aiContentData = topics.value
         .where((topic) => topic.topicDataType == "e-Content (AI)")
         .toList();
-
+    var questionsData = selectedTopic.value!.questionData;
     final List<Map<String, dynamic>> existingSyllabusData =
         await myDataController.query(
       StringConstant().tblSyllabusPlanning,
@@ -426,8 +424,11 @@ class VideoMainScreenController extends GetxController {
       }
     }
 
-    // videotopics.value.assignAll(videoData);
-    // ematerialtopics.value.assignAll(ematerialData);
+    for (var question in questionsData) {
+      if (existingTopicDataIds.contains(question.onlineLmsQuesBankId)) {
+        questionTopics.value.add(question);
+      }
+    }
 
     // Do something with the filtered data, e.g., update variables or UI
     // For example:
