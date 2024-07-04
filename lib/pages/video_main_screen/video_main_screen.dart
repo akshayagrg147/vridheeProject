@@ -238,7 +238,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                         height: 20,
                         width: 40,
                         child: SpeedDial(
-                          animatedIcon: AnimatedIcons.add_event,
+                          animatedIcon: AnimatedIcons.menu_close,
                           backgroundColor: Colors.blue,
                           overlayColor: Colors.white,
                           overlayOpacity: 0,

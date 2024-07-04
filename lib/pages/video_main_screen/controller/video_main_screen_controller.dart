@@ -87,12 +87,16 @@ class VideoMainScreenController extends GetxController {
       {required LocalTopic topicData}) async {
     chapterName.value = chapterData.chapterName;
     subjectName.value = await fetchSubjectName(chapterData.instituteSubjectId);
+    selectedTopic.value = topicData;
     topicName.value = selectedTopic.value!.topic.topicName;
     topics.value.clear();
     topics.value.assignAll(selectedTopic.value!.topicData);
     videotopics.value.clear();
     ematerialtopics.value.clear();
     questionTopics.value.clear();
+    openWhiteBoard.value = false;
+    openQuestionViewer.value = false;
+    openPlayWithUrl.value = false;
     filterTopicData();
   }
 
