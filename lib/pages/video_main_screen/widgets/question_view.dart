@@ -15,7 +15,8 @@ class QuestionView extends StatefulWidget {
   State<QuestionView> createState() => _QuestionViewState();
 }
 
-class _QuestionViewState extends State<QuestionView> {
+class _QuestionViewState extends State<QuestionView>
+    with AutomaticKeepAliveClientMixin<QuestionView> {
   late QuestionBank question;
   int selectedOption = -1;
   bool showAnswer = false;
@@ -41,54 +42,56 @@ class _QuestionViewState extends State<QuestionView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          quesTile(),
-          Row(
-            children: [
-              optiontile(1,
-                  optionText: question.option1 ?? "",
-                  optionDownloadPath: question.option1DownPath),
-              optiontile(2,
-                  optionText: question.option2 ?? "",
-                  optionDownloadPath: question.option2DownPath),
-            ],
-          ),
-          if (widget.question.noOfOption > 2)
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            quesTile(),
             Row(
               children: [
-                optiontile(3,
-                    optionText: question.option3 ?? "",
-                    optionDownloadPath: question.option3DownPath),
-                if (widget.question.noOfOption > 3)
-                  optiontile(4,
-                      optionText: question.option4 ?? "",
-                      optionDownloadPath: question.option4DownPath),
+                optiontile(1,
+                    optionText: question.option1 ?? "",
+                    optionDownloadPath: question.option1DownPath),
+                optiontile(2,
+                    optionText: question.option2 ?? "",
+                    optionDownloadPath: question.option2DownPath),
               ],
             ),
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                showAnswer = true;
-                setState(() {});
-              },
-              child: Text(
-                "Show Answer",
-                style: TextStyle(color: Colors.blue, fontSize: 13),
+            if (widget.question.noOfOption > 2)
+              Row(
+                children: [
+                  optiontile(3,
+                      optionText: question.option3 ?? "",
+                      optionDownloadPath: question.option3DownPath),
+                  if (widget.question.noOfOption > 3)
+                    optiontile(4,
+                        optionText: question.option4 ?? "",
+                        optionDownloadPath: question.option4DownPath),
+                ],
+              ),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  showAnswer = true;
+                  setState(() {});
+                },
+                child: Text(
+                  "Show Answer",
+                  style: TextStyle(color: Colors.blue, fontSize: 13),
+                ),
               ),
             ),
-          ),
-          if (showAnswer)
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Text(
-                "Explanation :- ${widget.question.explanation}",
-                style: TextStyle(color: Colors.green, fontSize: 8),
-              ),
-            )
-        ],
+            if (showAnswer)
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text(
+                  "Explanation :- ${widget.question.explanation}",
+                  style: TextStyle(color: Colors.green, fontSize: 8),
+                ),
+              )
+          ],
+        ),
       ),
     );
   }
@@ -173,4 +176,7 @@ class _QuestionViewState extends State<QuestionView> {
     }
     return "";
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

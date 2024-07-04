@@ -54,7 +54,8 @@ class _QuestionViewerState extends State<QuestionViewer> {
         child: PageView.builder(
             controller: _pageController,
             itemCount: widget.questionList.length,
-            physics: NeverScrollableScrollPhysics(),
+
+            // physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               return QuestionView(
                 questionNo: index + 1,
