@@ -60,13 +60,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   //   }
   // }
 
-  late dynamic controller;
+  dynamic controller;
   late YoutubePlayerController _controller;
   Uint8List? docData;
   bool isLoading = false;
   @override
   void initState() {
-    if(GetPlatform.isAndroid){
+    if (GetPlatform.isAndroid) {
       _controller = YoutubePlayerController();
     }
     loadVideoPlayer();
@@ -81,32 +81,44 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else if (oldWidget.topic?.instituteTopicDataId !=
         widget.topic?.instituteTopicDataId) {
       loadVideoPlayer();
-      if (controller.value.isInitialized) {
-        controller.pause();
+      if (controller?.value.isInitialized == true) {
+        controller?.pause();
       }
     }
   }
 
+  showLoader() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        });
+  }
+
   void loadVideoPlayer() async {
-    setState(() {
-      isLoading = true;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      showLoader();
     });
+
+    isLoading = true;
 
     if ((widget.topic?.fileNameExt == 'mp4' ||
             widget.topic?.fileNameExt == 'html5') &&
         widget.topic?.code != null) {
       print("in init : ${widget.topic!.code!}");
       if (widget.topic!.code!.contains("https://www.youtube.com")) {
-        if(GetPlatform.isAndroid){
+        if (GetPlatform.isAndroid) {
           String id = extractYouTubeVideoId(widget.topic!.code!);
           _controller.loadVideoById(videoId: id);
-        }else{
-          controller = WinVideoPlayerController.network(widget.topic!.code!,
-
-             )
-            ..initialize().then((value) => setState(() {
-              controller.play();
-            }));
+        } else {
+          controller = WinVideoPlayerController.network(
+            widget.topic!.code!,
+          )..initialize().then((value) => setState(() {
+                controller.play();
+              }));
         }
       } else if (widget.topic?.fileNameExt == 'mp4' &&
           widget.topic?.onlineInstituteTopicDataId != null) {
@@ -121,37 +133,36 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           final tempPath = (await getTemporaryDirectory()).path + "/$filename";
           await File(tempPath).writeAsBytes(decryptedBytes);
 
-          if(GetPlatform.isAndroid){
-           controller = VideoPlayerController.file(File(tempPath),
-               //TODO :-  check andd option if needed
-               videoPlayerOptions: VideoPlayerOptions())
-             ..initialize().then((value) => setState(() {
-               controller.play();
-             }));
-         }else{
-           controller = WinVideoPlayerController.file(File(tempPath),
-               )
-             ..initialize().then((value) => setState(() {
-               controller.play();
-             }));
-         }
+          if (GetPlatform.isAndroid) {
+            controller = VideoPlayerController.file(File(tempPath),
+                //TODO :-  check andd option if needed
+                videoPlayerOptions: VideoPlayerOptions())
+              ..initialize().then((value) => setState(() {
+                    controller?.play();
+                  }));
+          } else {
+            controller = WinVideoPlayerController.file(
+              File(tempPath),
+            )..initialize().then((value) => setState(() {
+                  controller.play();
+                }));
+          }
         }
       } else {
-        if(GetPlatform.isAndroid){
+        if (GetPlatform.isAndroid) {
           controller = VideoPlayerController.networkUrl(Uri.parse(
               "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
             ..initialize().then((_) {
               // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
               setState(() {});
             });
-        }else{
-          controller = WinVideoPlayerController.network( "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
-          )
-            ..initialize().then((value) => setState(() {
-              controller.play();
-            }));
+        } else {
+          controller = WinVideoPlayerController.network(
+            "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+          )..initialize().then((value) => setState(() {
+                controller.play();
+              }));
         }
-
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
@@ -166,6 +177,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         docData = await FileEncryptor().decryptFile(File(filePath));
       }
     }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Navigator.pop(context);
+    });
 
     setState(() {
       isLoading = false;
@@ -186,19 +200,14 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   @override
   void dispose() {
     print("in dispose 3");
-    if ((widget.topic?.topicDataType == 'MP4' ||
-            widget.topic?.topicDataType == 'HTML5') &&
-        widget.topic?.code != null) {
-      if (!widget.topic!.code!.contains("https://www.youtube.com")&&GetPlatform.isAndroid) {
-        _controller.close();
-        print("in dispose 1");
-      }else{
-        controller.dispose();
-      }
-      // _controller.dispose();
-      print("in dispose 2");
+    if (!widget.topic!.code!.contains("https://www.youtube.com") &&
+        GetPlatform.isAndroid) {
+      _controller.close();
+      print("in dispose 1");
+    } else {
+      controller?.dispose();
     }
-    BackgroundServiceController.clearTemporaryDirectory();
+
     // _controller.dispose();
     super.dispose();
   }
@@ -208,6 +217,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     if (isLoading) {
       return Center(
         child: CircularProgressIndicator(),
+      );
+    }
+    if (widget.topic?.fileNameExt == 'html5' ||
+        widget.topic == null ||
+        widget.topic?.fileNameExt == '') {
+      return Center(
+        child: Icon(Icons.error_outline),
       );
     }
     print("topic data in : ${widget.topic?.instituteTopicDataId}");
@@ -229,16 +245,21 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       if (widget.topic!.code!.contains("https://www.youtube.com")) {
         contentWidget = Center(
           // Youtube player as widget
-          child: GetPlatform.isWindows?WinVideoPlayer(controller): YoutubePlayer(
-            controller: _controller, // Controler that we created earlier
-            aspectRatio: 16 / 9, // Aspect ratio you want to take in screen
-          ),
+          child: GetPlatform.isWindows
+              ? WinVideoPlayer(controller)
+              : YoutubePlayer(
+                  controller: _controller, // Controler that we created earlier
+                  aspectRatio:
+                      16 / 9, // Aspect ratio you want to take in screen
+                ),
         );
       } else {
         contentWidget = controller.value.isInitialized
             ? AspectRatio(
                 aspectRatio: controller.value.aspectRatio,
-                child: GetPlatform.isAndroid? VideoPlayer(controller):WinVideoPlayer(controller),
+                child: GetPlatform.isAndroid
+                    ? VideoPlayer(controller!)
+                    : WinVideoPlayer(controller!),
               )
             : const Center(child: CircularProgressIndicator());
       }
@@ -251,10 +272,10 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         docData != null) {
       contentWidget = SfPdfViewer.memory(docData!);
     } else {
-      contentWidget = controller.value.isInitialized
+      contentWidget = controller?.value.isInitialized == true
           ? AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: VideoPlayer(controller),
+              aspectRatio: controller!.value.aspectRatio,
+              child: VideoPlayer(controller!),
             )
           : const Center(child: CircularProgressIndicator());
       // contentWidget = const Center(child: Text('Unsupported file type'));

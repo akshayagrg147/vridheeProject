@@ -43,7 +43,7 @@ class LoginController extends GetxController {
   void startForegroundService() async {
     print("startForegroundService called");
     if (await FlutterForegroundTask.isRunningService) {
-      await FlutterForegroundTask.stopService();
+      return;
     }
     FlutterForegroundTask.startService(
       callback: startCallback,
@@ -101,16 +101,17 @@ class LoginController extends GetxController {
         print("SyncDataError: ${response?.msg}");
       }
 
-      final isLoginSuccessful = SharedPrefHelper().getIsLoginSuccessful();
-      if (isLoginSuccessful) {
-        return Get.offAllNamed("/");
-      }
       print("SyncData :- $response");
     } catch (e) {
       print("SyncDataError :- $e");
-      Get.snackbar("SyncDataError", "$e");
+      // Get.snackbar("SyncDataError", "$e");
     } finally {
       isSyncDataLoading.value = false;
+    }
+
+    final isLoginSuccessful = SharedPrefHelper().getIsLoginSuccessful();
+    if (isLoginSuccessful) {
+      return Get.offAllNamed("/");
     }
   }
 
@@ -157,11 +158,14 @@ else if(GetPlatform.isWindows){
     try {
       final response = await myDataController.getLogin(
         user: idController.text,
-        password: passwordController.text, role: selectedRole.value,
+        password: passwordController.text,
+        role: selectedRole.value,
       );
       if (response == true) {
         print("LoginDevice :- $response");
         await SharedPrefHelper().setIsLoginSuccessful(true);
+
+        await SharedPrefHelper().setLoginUserMail(idController.text);
         Get.offAllNamed("/");
       } else {
         Get.snackbar("LoginDeviceError", "User Id or Password is Wrong");

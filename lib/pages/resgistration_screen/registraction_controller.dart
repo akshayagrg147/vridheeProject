@@ -19,9 +19,11 @@ class RegistrationController extends GetxController {
     isLoading.value = true;
     try {
       final response = await RegistrationRepository.registerDevice(
-        trackingId: /*trackingIdController.text */ 'OCA-Dem-Pan--47820',
-        serialNumber: /*serialNoController.text*/ '478268375682424',
-        projectId: 54,
+        trackingId: trackingIdController.text,
+        /* 'OCA-Dem-Pan--47820'*/
+        serialNumber: serialNoController.text,
+        /*'478268375682424'*/
+        projectId: 16,
       );
       if (response != null && response.success == true) {
         print("RegisterDevice :- $response");

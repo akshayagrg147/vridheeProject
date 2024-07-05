@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/app_theme.dart';
@@ -51,7 +52,9 @@ class DashboardHeaderWidget extends StatelessWidget {
                   )
                 ],
               ),
-              const SizedBox(height: 18,),
+              const SizedBox(
+                height: 18,
+              ),
               Card(
                 elevation: 5,
                 child: Stack(
@@ -85,10 +88,6 @@ class DashboardHeaderWidget extends StatelessWidget {
                                           _.selectedClass.value = p0;
                                           if (p0 != null) {
                                             await _.fetchSubjectsForClass(p0);
-                                            await _.fetchDataForAllSubjects();
-                                            _.fetchContinueData(
-                                                p0.onlineInstituteCourseId,
-                                                null);
                                           }
                                         },
                                         hintText: "Select class",
@@ -115,13 +114,6 @@ class DashboardHeaderWidget extends StatelessWidget {
                                     child: AppDropDown<InstituteSubject>(
                                         onChange: (p0) {
                                           _.selectedSubject.value = p0;
-                                          if (p0 != null) {
-                                            _.fetchContinueData(
-                                                _.selectedClass.value!
-                                                    .onlineInstituteCourseId,
-                                                p0.onlineInstituteSubjectId);
-                                            // _.fetchData(_.selectedSubject.value!.instituteSubjectId);
-                                          }
                                         },
                                         value: _.selectedSubject.value,
                                         items: _.subjectList.dropDownItem(
@@ -156,19 +148,32 @@ class DashboardHeaderWidget extends StatelessWidget {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Container(
-                                    height: 40,
-                                    width: 50,
-                                    decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    child: const Icon(
-                                      Icons.search,
-                                      color: Colors.blue,
-                                    )),
+                                GestureDetector(
+                                  onTap: () async {
+                                    if (_.selectedClass.value != null &&
+                                        _.selectedSubject.value != null) {
+                                      _.fetchDataForAllSubjects();
+                                      _.fetchContinueData(
+                                          _.selectedClass.value!
+                                              .onlineInstituteCourseId,
+                                          _.selectedSubject.value!
+                                              .onlineInstituteSubjectId);
+                                    }
+                                  },
+                                  child: Container(
+                                      height: 40,
+                                      width: 50,
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10))),
+                                      child: const Icon(
+                                        Icons.search,
+                                        color: Colors.blue,
+                                      )),
+                                ),
                                 const SizedBox(
-                                  height: 15,
+                                  height: 18,
                                 )
                               ],
                             ),

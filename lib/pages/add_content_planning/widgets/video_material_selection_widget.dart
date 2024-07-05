@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:teaching_app/app_theme.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/add_content_planning/controller/content_planning_controller.dart';
 import 'package:teaching_app/widgets/action_button.dart';
 import 'package:teaching_app/widgets/text_view.dart';
@@ -14,6 +16,7 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
   final bool? isQuestion;
   final ContentPlanningController controller;
   final List<InstituteTopicData> dataList;
+  final List<QuestionBank>? questionList;
 
   const VideoMaterialSelectionWidget(
       {super.key,
@@ -21,7 +24,8 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
       required this.dataList,
       required this.isEMaterial,
       required this.isQuestion,
-      required this.isVideo});
+      required this.isVideo,
+      this.questionList});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +39,7 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
           Row(
             children: [
               _buildHeadingItem('#'),
-              _buildHeadingItem('Level'),
+              _buildHeadingItem(isQuestion == true ? "Difficulty" : 'Level'),
               _buildHeadingItem('Language'),
               _buildHeadingItem('Type'),
               _buildHeadingItem('Action'),
@@ -44,14 +48,14 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
           const SizedBox(
             height: 15,
           ),
-          dataList.isNotEmpty
+          isQuestion == true && questionList?.isNotEmpty == true
               ? Expanded(
                   child: ListView.separated(
                     shrinkWrap: true,
-                    itemCount: dataList.length, // Number of data rows
+                    itemCount: questionList!.length, // Number of data rows
                     itemBuilder: (context, index) {
-                      var data = dataList[index];
-                      return _dataListTile(data, index);
+                      var data = questionList![index];
+                      return _questionListTile(data, index);
                     },
                     separatorBuilder: (BuildContext context, int index) {
                       return const SizedBox(
@@ -60,7 +64,23 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
                     },
                   ),
                 )
-              : Center(child: TextView("No Data Found")),
+              : dataList.isNotEmpty
+                  ? Expanded(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: dataList.length, // Number of data rows
+                        itemBuilder: (context, index) {
+                          var data = dataList[index];
+                          return _dataListTile(data, index);
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(
+                            height: 10,
+                          );
+                        },
+                      ),
+                    )
+                  : Center(child: TextView("No Data Found")),
         ],
       ),
     );
@@ -149,6 +169,112 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
               showEdit: false,
               showDelete: false,
               showViewButton: true,
+              onViewClick: () {
+                Get.toNamed("/videoScreen", arguments: [
+                  false,
+                  controller.selectedChapter.value,
+                  controller.selectedTopic.value,
+                  data
+                ]);
+              },
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _questionListTile(QuestionBank data, int index) {
+    return Container(
+      width: double.infinity,
+      height: 50,
+      decoration: const BoxDecoration(
+          border: BorderDirectional(
+              top: BorderSide(color: ThemeColor.greyLight),
+              bottom: BorderSide(color: ThemeColor.greyLight),
+              end: BorderSide(color: ThemeColor.greyLight),
+              start: BorderSide(color: ThemeColor.darkBlue4392, width: 10)),
+          color: ThemeColor.white),
+      child: Row(
+        children: [
+          Expanded(
+              child: Center(
+                  child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.circle,
+                color: Colors.green,
+                size: 16,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Obx(() {
+                bool isSelected = controller.isQuestionSelected(
+                  data,
+                );
+                return Checkbox(
+                  value: isSelected,
+                  onChanged: (value) {
+                    if (value != null) {
+                      controller.toggleQuestionSelection(data, value);
+                    }
+                  },
+                );
+              }),
+              // Checkbox(value: false, onChanged: (value) {if(value != null);}),
+              const SizedBox(
+                width: 5,
+              ),
+              TextView(
+                (index + 1).toString(),
+                fontsize: 14,
+              ),
+            ],
+          ))),
+          Expanded(
+              child: Container(
+                  height: 50,
+                  decoration: const BoxDecoration(
+                      border: Border.symmetric(
+                          vertical: BorderSide(color: ThemeColor.greyLight))),
+                  child: Center(
+                      child: TextView(
+                    data.difficultyLevel ?? "",
+                    fontsize: 14,
+                  )))),
+          Expanded(
+              child: Center(
+                  child: TextView(
+            data.contentLang ?? "",
+            fontsize: 14,
+          ))),
+          Expanded(
+              child: Container(
+                  height: 50,
+                  decoration: const BoxDecoration(
+                      border: Border.symmetric(
+                          vertical: BorderSide(color: ThemeColor.greyLight))),
+                  child: Center(
+                      child: TextView(
+                    data.displayType,
+                    fontsize: 14,
+                  )))),
+          Expanded(
+              child: Center(
+            child: ActionButtons(
+              showEdit: false,
+              showDelete: false,
+              showViewButton: true,
+              onViewClick: () {
+                Get.toNamed("/videoScreen", arguments: [
+                  false,
+                  controller.selectedChapter.value,
+                  controller.selectedTopic.value,
+                  data
+                ]);
+              },
             ),
           )),
         ],

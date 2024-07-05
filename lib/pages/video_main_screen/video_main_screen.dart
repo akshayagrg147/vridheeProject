@@ -4,10 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/chapter_list_widget.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/dialog_content.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/play_by_url_widget.dart';
+import 'package:teaching_app/pages/video_main_screen/widgets/question_viewer.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/video_play_widget.dart';
 import 'package:teaching_app/widgets/app_scaffold.dart';
 import 'package:teaching_app/widgets/dialog_widget.dart';
@@ -95,8 +97,9 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
         });
   }
 
-  Widget showCustomDialog(BuildContext context, String flagTitle,
-      List<InstituteTopicData> dataList) {
+  Widget showCustomDialog(
+      BuildContext context, String flagTitle, List<InstituteTopicData> dataList,
+      {List<QuestionBank>? questionList}) {
     VideoMainScreenController controller =
         Get.find<VideoMainScreenController>();
     return AlertDialog(
@@ -128,6 +131,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                   child: VideoMainScreenTopicDataSelecter(
                     controller: controller,
                     dataList: dataList,
+                    questionList: questionList,
                   ), // Pass the appropriate controller
                 ),
               ]),
@@ -155,72 +159,66 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                      flex: 9,
-                      child: Column(
-                        children: [
-                          _.openWhiteBoard.value == true
-                              ? Expanded(
-                                  child: ElevatedCard(
-                                      child: Stack(
-                                    children: [
-                                      WhiteBoard(
-                                        strokeColor: _.selectedColor.value,
-                                        isErasing: _.isErasing.value,
-                                        controller: _.whiteBoardController,
-                                      ),
-                                      Positioned(
-                                          top: 10,
-                                          right: 10,
-                                          child: Column(children: [
-                                            IconButton(
-                                              icon:
-                                                  const Icon(Icons.color_lens),
-                                              onPressed: () =>
-                                                  _selectColor(context, _),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.undo),
-                                              onPressed: () {
-                                                _.undo();
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.redo),
-                                              onPressed: () {
-                                                _.redo();
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.brush),
-                                              onPressed: () {
-                                                _.isErasing.toggle();
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.clear),
-                                              onPressed: () {
-                                                _.clear();
-                                              },
-                                            ),
-                                          ])),
-                                    ],
-                                  )),
-                                )
-                              : _.openPlayWithUrl.value == true
-                                  ? Expanded(
-                                      child: ElevatedCard(
-                                        child: VideoPlayByUrlWidget(
-                                          url: _.playByUrlController.text,
-                                        ),
-                                      ),
-                                    )
-                                  : Obx(() => Expanded(
-                                        child: VideoPlayWidget(
-                                          topic: _.currentTopicData.value,
-                                        ),
-                                      )),
-                        ],
-                      )),
+                    flex: 9,
+                    child: _.openWhiteBoard.value == true
+                        ? ElevatedCard(
+                            child: Stack(
+                            children: [
+                              WhiteBoard(
+                                strokeColor: _.selectedColor.value,
+                                isErasing: _.isErasing.value,
+                                controller: _.whiteBoardController,
+                              ),
+                              Positioned(
+                                  top: 10,
+                                  right: 10,
+                                  child: Column(children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.color_lens),
+                                      onPressed: () => _selectColor(context, _),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.undo),
+                                      onPressed: () {
+                                        _.undo();
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.redo),
+                                      onPressed: () {
+                                        _.redo();
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.brush),
+                                      onPressed: () {
+                                        _.isErasing.toggle();
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        _.clear();
+                                      },
+                                    ),
+                                  ])),
+                            ],
+                          ))
+                        : _.openPlayWithUrl.value == true
+                            ? ElevatedCard(
+                                child: VideoPlayByUrlWidget(
+                                  url: _.playByUrlController.text,
+                                ),
+                              )
+                            : _.openQuestionViewer.value == true
+                                ? Obx(() => QuestionViewer(
+                                    questionList: _.questionTopics.value,
+                                    currentQuestion:
+                                        _.currentQuestionData.value!))
+                                : Obx(() => VideoPlayWidget(
+                                      topic: _.currentTopicData.value,
+                                    )),
+                  ),
                   Expanded(
                     flex: 1,
                     child: Padding(
@@ -229,7 +227,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                         height: 20,
                         width: 40,
                         child: SpeedDial(
-                          animatedIcon: AnimatedIcons.add_event,
+                          animatedIcon: AnimatedIcons.menu_close,
                           backgroundColor: Colors.blue,
                           overlayColor: Colors.white,
                           overlayOpacity: 0,
@@ -237,27 +235,24 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           children: [
                             SpeedDialChild(
                               child: const Icon(Icons.question_answer_outlined),
-                              backgroundColor: Colors.grey,
+                              backgroundColor: Colors.white,
                               label: 'Questions',
                               onTap: () async {
-                                _.openWhiteBoard.value = false;
-                                _.openPlayWithUrl.value = false;
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return showCustomDialog(context,
-                                        'eMaterial', _.videotopics.value);
+                                    return showCustomDialog(
+                                        context, 'Questions', [],
+                                        questionList: _.questionTopics.value);
                                   },
                                 );
                               },
                             ),
                             SpeedDialChild(
-                              child: const Icon(Icons.picture_as_pdf),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.notes),
+                              backgroundColor: Colors.white,
                               label: 'AI Content',
                               onTap: () async {
-                                _.openWhiteBoard.value = false;
-                                _.openPlayWithUrl.value = false;
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -268,8 +263,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child: const Icon(Icons.picture_as_pdf),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.link),
+                              backgroundColor: Colors.white,
                               label: 'Play By Url',
                               onTap: () async {
                                 _.openWhiteBoard.value = false;
@@ -294,8 +289,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child: const Icon(Icons.picture_as_pdf),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.book_outlined),
+                              backgroundColor: Colors.white,
                               label: 'eMaterial',
                               onTap: () async {
                                 _.openPlayWithUrl.value = false;
@@ -312,7 +307,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                             SpeedDialChild(
                               child:
                                   const Icon(Icons.video_collection_outlined),
-                              backgroundColor: Colors.grey,
+                              backgroundColor: Colors.white,
                               label: 'Video',
                               onTap: () async {
                                 _.openWhiteBoard.value = false;
@@ -328,9 +323,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child:
-                                  const Icon(Icons.video_collection_outlined),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.edit_document),
+                              backgroundColor: Colors.white,
                               label: 'WhiteBoard',
                               onTap: () async {
                                 _.openWhiteBoard.value = true;

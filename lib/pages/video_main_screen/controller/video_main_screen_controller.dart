@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart';
+import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import 'package:whiteboard/whiteboard.dart';
 import '../../../database/datebase_controller.dart';
@@ -17,12 +19,15 @@ class VideoMainScreenController extends GetxController {
   var topics = RxList<InstituteTopicData>().obs;
 
   var currentTopicData = Rxn<InstituteTopicData>();
+  var currentQuestionData = Rxn<QuestionBank>();
   var videotopics = RxList<InstituteTopicData>().obs;
   var ematerialtopics = RxList<InstituteTopicData>().obs;
   var aiContentTopics = RxList<InstituteTopicData>().obs;
+  var questionTopics = RxList<QuestionBank>().obs;
 
   RxBool openWhiteBoard = false.obs;
   RxBool openPlayWithUrl = false.obs;
+  RxBool openQuestionViewer = false.obs;
   WhiteBoardController whiteBoardController = WhiteBoardController();
   final TextEditingController playByUrlController = TextEditingController();
   final TextEditingController playByUrlTitleController =
@@ -46,11 +51,12 @@ class VideoMainScreenController extends GetxController {
     isContinueWatching.value = args.isNotEmpty ? args[0] : true;
 
     if (isContinueWatching.value == true) {
-      chapterData = isContinueWatching.value == true ? args[1] : null;
+      chapterData = args[1];
       className.value = chapterData!["class"];
       subjectName.value = chapterData!["subject"];
       chapterName.value = chapterData!["chapter"];
       topicName.value = chapterData!["topic"];
+
       fetchAllChapters(
         chapterData!["courseId"],
         chapterData!["subjectId"],
@@ -58,16 +64,34 @@ class VideoMainScreenController extends GetxController {
       fetchOneTopicData(chapterData!["topicDataId"]);
     } else {
       // print("in else");
-      chap.value.assignAll(args[1]);
+
+      if (args[1] is LocalChapter) {
+        chap.value.assign(args[1]);
+      } else {
+        chap.value.assignAll(args[1]);
+      }
       selectedTopic.value = args[2];
+      if (args.length > 3) {
+        final data = args[3];
+        if (data is QuestionBank) {
+          currentQuestionData.value = data;
+          openQuestionViewer.value = true;
+        } else {
+          currentTopicData.value = data;
+        }
+      }
       className.value =
           await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
-      // subjectName.value = await fetchSubjectName(selectedTopic.value!.topic.);
-      chapterName.value =
+      var chapter, subject_id;
+      (chapter, subject_id) =
           await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
+      chapterName.value = chapter;
+      subjectName.value = await fetchSubjectName(subject_id);
+
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
-      filterTopicData();
+      questionTopics.value.clear();
+      filterTopicData(args.length > 3);
       // currentTopicData.value = topics.value[0];
     }
 
@@ -77,12 +101,17 @@ class VideoMainScreenController extends GetxController {
   void onTopicChange(InstituteChapter chapterData,
       {required LocalTopic topicData}) async {
     chapterName.value = chapterData.chapterName;
+    subjectName.value = await fetchSubjectName(chapterData.instituteSubjectId);
     selectedTopic.value = topicData;
     topicName.value = selectedTopic.value!.topic.topicName;
     topics.value.clear();
     topics.value.assignAll(selectedTopic.value!.topicData);
     videotopics.value.clear();
     ematerialtopics.value.clear();
+    questionTopics.value.clear();
+    openWhiteBoard.value = false;
+    openQuestionViewer.value = false;
+    openPlayWithUrl.value = false;
     filterTopicData();
   }
 
@@ -109,8 +138,12 @@ class VideoMainScreenController extends GetxController {
         // print("fetch all chapter topicListAdd id ${topicId}");
         final List<InstituteTopicData> topicDataList =
             await fetchTopicData(topicId);
-
-        topicList.add(LocalTopic(topic: topicMap, topicData: topicDataList));
+        final List<QuestionBank> quesDataList =
+            await fetchQuestionData(topicId);
+        topicList.add(LocalTopic(
+            topic: topicMap,
+            topicData: topicDataList,
+            questionData: quesDataList));
         // print("fetch all chapter topicListAdd ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
       }
@@ -130,7 +163,7 @@ class VideoMainScreenController extends GetxController {
         await myDataController.query(
       'tbl_institute_chapter',
       where: 'institute_course_id = ? AND institute_subject_id = ?',
-      whereArgs: [courseId, 34],
+      whereArgs: [courseId, subjectId],
     );
     // print("in fetch chapter  maps${chapterDataMaps.length}");
     final List<InstituteChapter> chapterData =
@@ -147,7 +180,7 @@ class VideoMainScreenController extends GetxController {
     final List<Map<String, dynamic>> topicsMaps = await myDataController.query(
       'tbl_institute_topic',
       where: 'institute_course_id = ? AND institute_chapter_id = ?',
-      whereArgs: [10, 527],
+      whereArgs: [courseId, chapterId],
     );
     // print("in fetch topics  maps${topicsMaps.length}");
     // print("${topicsMaps}");
@@ -204,13 +237,46 @@ class VideoMainScreenController extends GetxController {
     return topicData;
   }
 
+  Future<List<QuestionBank>> fetchQuestionData(int topicId) async {
+    // print("in fetch topic data 1");
+
+    final List<Map<String, dynamic>> quesDataMap = await myDataController.query(
+      'tbl_lms_ques_bank',
+      where: 'institute_topic_id = ?',
+      whereArgs: [topicId],
+    );
+
+    // print("in fetch topic data 2 ${topicsDataMaps.length}");
+
+    // try {
+    //   final List<InstituteTopicData> topicData = topicsDataMaps.map((map) {
+    //     print("Mapping topic data topic data: $map");
+    //     return InstituteTopicData.fromMap(map);
+    //   }).toList();
+    // }
+    //
+    // catch (e) {
+    //   print("Error during mapping topic data: $e");
+    //   return [];
+    // }
+    // return [];
+
+    // print("in fetch topic data  2");
+    final List<QuestionBank> quesData =
+        quesDataMap.map((map) => QuestionBank.fromJson(map)).toList();
+    // print("in fetch topic data  3 ${topicData.length}");
+    // topics.value.assignAll(topicData);
+    // print("topppic ${topics.value.length}");
+    return quesData;
+  }
+
   Future<List<InstituteTopicData>> fetchOneTopicData(int topicId) async {
     // print("in fetch topic data 1");
     // print("topppic id ${topicId}");
     final List<Map<String, dynamic>> topicsDataMaps =
         await myDataController.query(
       'tbl_institute_topic_data',
-      where: 'institute_topic_id = ?',
+      where: 'online_institute_topic_data_id = ?',
       whereArgs: [topicId],
     );
 
@@ -284,7 +350,7 @@ class VideoMainScreenController extends GetxController {
     }
   }
 
-  Future<String> fetchChapterName(int chapterId) async {
+  Future<(String, int)> fetchChapterName(int chapterId) async {
     try {
       final List<Map<String, dynamic>> chapterDataMaps =
           await myDataController.query(
@@ -297,13 +363,15 @@ class VideoMainScreenController extends GetxController {
       if (chapterDataMaps.isNotEmpty) {
         final String chapterName =
             chapterDataMaps.first['chapter_name'] as String;
-        return chapterName;
+        final int subjectId =
+            chapterDataMaps.first['institute_subject_id'] as int;
+        return (chapterName, subjectId);
       } else {
-        return ''; // Handle the case where no chapter name is found
+        return ('', 0); // Handle the case where no chapter name is found
       }
     } catch (e) {
       print('Error fetching chapter name: $e');
-      return ''; // Handle error case
+      return ('', 0); // Handle error case
     }
   }
 
@@ -329,15 +397,15 @@ class VideoMainScreenController extends GetxController {
     }
   }
 
-  void filterTopicData() async {
+  void filterTopicData([bool isCurrentTopicDataAvailable = false]) async {
     // Filter video type data
     var videoData =
         topics.value.where((topic) => topic.topicDataType == "MP4").toList();
     var html5Data =
         topics.value.where((topic) => topic.topicDataType == "HTML5").toList();
-    if (videoData.isNotEmpty) {
+    if (videoData.isNotEmpty && !isCurrentTopicDataAvailable) {
       currentTopicData.value = videoData[0];
-    } else if (html5Data.isNotEmpty) {
+    } else if (html5Data.isNotEmpty && !isCurrentTopicDataAvailable) {
       currentTopicData.value = html5Data[0];
     }
     // print("filter video data :${videoData.length} : ${videoData[videoData.length -1].instituteTopicId}");
@@ -348,7 +416,7 @@ class VideoMainScreenController extends GetxController {
     var aiContentData = topics.value
         .where((topic) => topic.topicDataType == "e-Content (AI)")
         .toList();
-
+    var questionsData = selectedTopic.value!.questionData;
     final List<Map<String, dynamic>> existingSyllabusData =
         await myDataController.query(
       StringConstant().tblSyllabusPlanning,
@@ -380,8 +448,11 @@ class VideoMainScreenController extends GetxController {
       }
     }
 
-    // videotopics.value.assignAll(videoData);
-    // ematerialtopics.value.assignAll(ematerialData);
+    for (var question in questionsData) {
+      if (existingTopicDataIds.contains(question.onlineLmsQuesBankId)) {
+        questionTopics.value.add(question);
+      }
+    }
 
     // Do something with the filtered data, e.g., update variables or UI
     // For example:
