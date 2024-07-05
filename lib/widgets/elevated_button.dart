@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/app_theme.dart';
@@ -8,7 +10,7 @@ import 'text_view.dart';
 class AppElevatedButton extends StatelessWidget {
   Widget? child;
   String? title;
-  VoidCallback? onPressed;
+  Function()? onPressed;
   Color? backgroundColor;
   Color? titleTextColor;
   Color? borderColor;
@@ -22,7 +24,6 @@ class AppElevatedButton extends StatelessWidget {
   Alignment childAlign;
   bool? showBorder;
   FontWeight? titleFontWeight;
-
 
   AppElevatedButton({
     super.key,
@@ -54,14 +55,14 @@ class AppElevatedButton extends StatelessWidget {
       height: height,
       width: width,
       child: ElevatedButton(
-        onPressed: onPressed != null
-            ? () {
-          if (Get.isSnackbarOpen) {
-            Get.back();
+        onPressed: () {
+          if (onPressed != null) {
+            if (Get.isSnackbarOpen) {
+              Get.back();
+            }
+            onPressed!();
           }
-          onPressed?.call();
-        }
-            : null,
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           alignment: childAlign,

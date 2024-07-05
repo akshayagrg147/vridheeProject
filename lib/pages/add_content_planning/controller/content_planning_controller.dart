@@ -424,7 +424,7 @@ class ContentPlanningController extends GetxController {
             parentInstituteId: employeedata['parent_institute_id'],
             instituteTopicId: selectedTopic.value!.topic.onlineInstituteTopicId,
             topicDataKind: "",
-            topicDataType: ext.capitalize,
+            topicDataType: ext.toUpperCase(),
             topicDataFileCodeName: file.path.split('/').last.split('.').first,
             code: '',
             fileNameExt: ext,
@@ -432,7 +432,8 @@ class ContentPlanningController extends GetxController {
             referenceUrl: '',
             noOfClicks: 0,
             displayType: 'Public',
-            entryByInstituteUserId: employeedata['online_institute_user_id'],
+            entryByInstituteUserId:
+                employeedata['online_institute_user_id'].toString(),
             addedType: 'Manual',
             contentLevel: 'Basic',
             contentTag: '',
@@ -444,6 +445,7 @@ class ContentPlanningController extends GetxController {
         await myDataController.insert(
             'tbl_institute_topic_data', topicData.toJson());
         topics.value.add(topicData);
+        filterTopicData();
         Get.back();
         Get.showSnackbar(GetSnackBar(
           message: "File added successfully!",

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -124,7 +126,10 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
                       backgroundColor: ThemeColor.white,
                       showBorder: true,
                       borderColor: ThemeColor.darkBlue4392,
-                      onPressed: () {},
+                      onPressed: () {
+                        log("message");
+                        controller.addContent();
+                      },
                     )),
               ],
             )
@@ -262,6 +267,7 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
                       showBorder: true,
                       borderColor: ThemeColor.darkBlue4392,
                       onPressed: () {
+                        log("message");
                         controller.addContent();
                       },
                     )),
