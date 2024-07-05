@@ -58,7 +58,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   //   }
   // }
 
-  late VideoPlayerController controller;
+  VideoPlayerController? controller;
   final _controller = YoutubePlayerController();
   Uint8List? docData;
   bool isLoading = false;
@@ -76,16 +76,29 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else if (oldWidget.topic?.instituteTopicDataId !=
         widget.topic?.instituteTopicDataId) {
       loadVideoPlayer();
-      if (controller.value.isInitialized) {
-        controller.pause();
+      if (controller?.value.isInitialized == true) {
+        controller?.pause();
       }
     }
   }
 
+  showLoader() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        });
+  }
+
   void loadVideoPlayer() async {
-    setState(() {
-      isLoading = true;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      showLoader();
     });
+
+    isLoading = true;
 
     if ((widget.topic?.fileNameExt == 'mp4' ||
             widget.topic?.fileNameExt == 'html5') &&
@@ -106,11 +119,12 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
               await FileEncryptor().decryptFile(File(filePath));
           final tempPath = (await getTemporaryDirectory()).path + "/$filename";
           await File(tempPath).writeAsBytes(decryptedBytes);
+
           controller = VideoPlayerController.file(File(tempPath),
               //TODO :-  check andd option if needed
               videoPlayerOptions: VideoPlayerOptions())
             ..initialize().then((value) => setState(() {
-                  controller.play();
+                  controller?.play();
                 }));
         }
       } else {
@@ -134,6 +148,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         docData = await FileEncryptor().decryptFile(File(filePath));
       }
     }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Navigator.pop(context);
+    });
 
     setState(() {
       isLoading = false;
@@ -158,7 +175,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             widget.topic?.topicDataType == 'HTML5') &&
         widget.topic?.code != null) {
       if (!widget.topic!.code!.contains("https://www.youtube.com")) {
-        controller.dispose();
+        controller?.dispose();
         print("in dispose 1");
       }
       // _controller.dispose();
@@ -207,10 +224,10 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           ),
         );
       } else {
-        contentWidget = controller.value.isInitialized
+        contentWidget = controller?.value.isInitialized == true
             ? AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: VideoPlayer(controller),
+                aspectRatio: controller!.value.aspectRatio,
+                child: VideoPlayer(controller!),
               )
             : const Center(child: CircularProgressIndicator());
       }
@@ -223,10 +240,10 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         docData != null) {
       contentWidget = SfPdfViewer.memory(docData!);
     } else {
-      contentWidget = controller.value.isInitialized
+      contentWidget = controller?.value.isInitialized == true
           ? AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: VideoPlayer(controller),
+              aspectRatio: controller!.value.aspectRatio,
+              child: VideoPlayer(controller!),
             )
           : const Center(child: CircularProgressIndicator());
       // contentWidget = const Center(child: Text('Unsupported file type'));

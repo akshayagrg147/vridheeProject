@@ -23,6 +23,12 @@ class SharedPrefHelper {
     return await _prefs!.setBool('isLoginSuccessful', isSuccessful);
   }
 
+  Future<bool> setLoginUserMail(String mail) async {
+    return await _prefs!.setString('userMail', mail);
+  }
+
+  String getLoginUserMail() => _prefs!.getString('userMail') ?? "";
+
   bool getIsLoginSuccessful() => _prefs!.getBool('isLoginSuccessful') ?? false;
 
   Future<bool> setDeviceId(String deviceId) async {

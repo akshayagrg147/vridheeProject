@@ -15,7 +15,10 @@ class InstituteUserContentAccess {
   final String? noOfViews;
   final DateTime? entryDate;
   final DateTime? lastUpdateDate;
-
+  final String? className;
+  final String? subjectName;
+  final String? chapterName;
+  final String? topicName;
   InstituteUserContentAccess({
     required this.instituteUserContentAccessId,
     required this.parentInstituteId,
@@ -33,6 +36,10 @@ class InstituteUserContentAccess {
     required this.noOfViews,
     required this.entryDate,
     required this.lastUpdateDate,
+    this.className,
+    this.subjectName,
+    this.chapterName,
+    this.topicName,
   });
 
   // Factory method to create an instance from a Map
@@ -52,8 +59,15 @@ class InstituteUserContentAccess {
       lastAccessEndTime: map['last_access_end_time'],
       totalAccessTime: map['total_access_time'],
       noOfViews: map['no_of_views'],
-      entryDate: map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
-      lastUpdateDate: map['last_update_date'] != null ? DateTime.parse(map['last_update_date']) : null,
+      entryDate:
+          map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
+      lastUpdateDate: map['last_update_date'] != null
+          ? DateTime.parse(map['last_update_date'])
+          : null,
+      className: map['className'],
+      subjectName: map['subjectName'],
+      chapterName: map['chapterName'],
+      topicName: map['TopicName'],
     );
   }
 
@@ -71,8 +85,7 @@ class InstituteUserContentAccess {
       'institute_topic_id': instituteTopicId,
       'institute_topic_data_id': instituteTopicDataId,
       'last_access_start_time': lastAccessStartTime,
-      'last_access_end_time':
-      lastAccessEndTime,
+      'last_access_end_time': lastAccessEndTime,
       'total_access_time': totalAccessTime,
       'no_of_views': noOfViews,
       'entry_date': entryDate?.toIso8601String(),

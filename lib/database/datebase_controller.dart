@@ -93,6 +93,14 @@ class DatabaseController extends GetxController {
     return false;
   }
 
+  Future<List<Map<String, dynamic>>> rawQuery(String query) async {
+    if (database != null) {
+      final List<Map<String, dynamic>> maps = await database!.rawQuery(query);
+      return maps;
+    }
+    return [];
+  }
+
   Future<List<Map<String, dynamic>>> getDownloadList() async {
     if (database != null) {
       final List<Map<String, dynamic>> maps = await database!.rawQuery(

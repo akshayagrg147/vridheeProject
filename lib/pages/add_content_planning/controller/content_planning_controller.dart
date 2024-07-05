@@ -1,5 +1,13 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import '../../../database/datebase_controller.dart';
 import '../../../modals/tbl_institute_topic.dart';
@@ -10,6 +18,7 @@ class ContentPlanningController extends GetxController {
   final DatabaseController myDataController = Get.find();
 
   var selectedTopic = Rxn<LocalTopic>();
+  var selectedChapter = Rxn<LocalChapter>();
   var className = RxnString();
 
   // var subjectName = RxnString();
@@ -46,15 +55,17 @@ class ContentPlanningController extends GetxController {
 
     // print("in else");
     selectedTopic.value = args[0];
+    selectedChapter.value = args[1];
 
     className.value =
         await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
-    int subjectId = -1;
-    String chapter = '';
-    (chapter, subjectId) =
-        await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
-    chapterName.value = chapter;
-    subjectName.value = await fetchSubjectName(subjectId);
+    // int subjectId = -1;
+    // String chapter = '';
+    // (chapter, subjectId) =
+    //     await fetchChapterName(selectedTopic.value!.topic.instituteChapterId);
+    chapterName.value = selectedChapter.value?.chapter.chapterName;
+    subjectName.value = await fetchSubjectName(
+        selectedChapter.value!.chapter.instituteSubjectId);
 
     topicName.value = selectedTopic.value!.topic.topicName;
     topics.value.assignAll(selectedTopic.value!.topicData);
@@ -164,11 +175,13 @@ class ContentPlanningController extends GetxController {
         .where((topic) => topic.topicDataType == "e-Material")
         .toList();
     // var aiContentData = topics.value.where((topic) => topic.topicDataType == "e-Content (AI)").toList();
-
+    allVideoList.value.clear();
+    allEMaterialList.value.clear();
     allVideoList.value.assignAll(videoData);
     allVideoList.refresh();
 
     allEMaterialList.value.assignAll(eMaterialData);
+    allEMaterialList.refresh();
   }
 
   Future<String> fetchClassName(int courseId) async {
@@ -380,6 +393,67 @@ class ContentPlanningController extends GetxController {
       }
     } catch (e) {
       print("Error inserting plan data: $e");
+    }
+  }
+
+  void addContent() async {
+    try {
+      final result = await FilePicker.platform.pickFiles();
+      if (result?.xFiles.isNotEmpty == true) {
+        final file = result!.xFiles.first;
+        Get.dialog(
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+            barrierDismissible: false);
+        final data = await file.readAsBytes();
+        String outputDirPath = await BackgroundServiceController.instance
+            .getContentDirectoryPath();
+        final dt = DateTime.now();
+        final onlineId = dt.millisecondsSinceEpoch;
+        final ext = file.path.split('.').last;
+        final outputFilePath = "$outputDirPath/$onlineId.$ext";
+        final employeedataList = await myDataController.query('tbl_employee',
+            where: 'user_email_id = ?',
+            whereArgs: [SharedPrefHelper().getLoginUserMail()]);
+        final employeedata = employeedataList.first;
+        InstituteTopicData topicData = InstituteTopicData(
+            instituteTopicDataId: null,
+            onlineInstituteTopicDataId: onlineId,
+            instituteId: employeedata['institute_id'],
+            parentInstituteId: employeedata['parent_institute_id'],
+            instituteTopicId: selectedTopic.value!.topic.onlineInstituteTopicId,
+            topicDataKind: "",
+            topicDataType: ext.capitalize,
+            topicDataFileCodeName: file.path.split('/').last.split('.').first,
+            code: '',
+            fileNameExt: ext,
+            html5FileName: '',
+            referenceUrl: '',
+            noOfClicks: 0,
+            displayType: 'Public',
+            entryByInstituteUserId: employeedata['online_institute_user_id'],
+            addedType: 'Manual',
+            contentLevel: 'Basic',
+            contentTag: '',
+            contentLang: 'English',
+            isVerified: 'Yes',
+            isLocalContentAvailable: 1,
+            html5DownloadUrl: '');
+        await FileEncryptor().encryptFile(File(file.path), outputFilePath);
+        await myDataController.insert(
+            'tbl_institute_topic_data', topicData.toJson());
+        topics.value.add(topicData);
+        Get.back();
+        Get.showSnackbar(GetSnackBar(
+          message: "File added successfully!",
+        ));
+      }
+    } catch (e) {
+      Get.back();
+      Get.showSnackbar(GetSnackBar(
+        message: "Something went wrong",
+      ));
     }
   }
 }

@@ -159,77 +159,66 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                      flex: 9,
-                      child: Column(
-                        children: [
-                          _.openWhiteBoard.value == true
-                              ? Expanded(
-                                  child: ElevatedCard(
-                                      child: Stack(
-                                    children: [
-                                      WhiteBoard(
-                                        strokeColor: _.selectedColor.value,
-                                        isErasing: _.isErasing.value,
-                                        controller: _.whiteBoardController,
-                                      ),
-                                      Positioned(
-                                          top: 10,
-                                          right: 10,
-                                          child: Column(children: [
-                                            IconButton(
-                                              icon:
-                                                  const Icon(Icons.color_lens),
-                                              onPressed: () =>
-                                                  _selectColor(context, _),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.undo),
-                                              onPressed: () {
-                                                _.undo();
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.redo),
-                                              onPressed: () {
-                                                _.redo();
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.brush),
-                                              onPressed: () {
-                                                _.isErasing.toggle();
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.clear),
-                                              onPressed: () {
-                                                _.clear();
-                                              },
-                                            ),
-                                          ])),
-                                    ],
-                                  )),
-                                )
-                              : _.openPlayWithUrl.value == true
-                                  ? Expanded(
-                                      child: ElevatedCard(
-                                        child: VideoPlayByUrlWidget(
-                                          url: _.playByUrlController.text,
-                                        ),
-                                      ),
-                                    )
-                                  : _.openQuestionViewer.value == true
-                                      ? Obx(() => QuestionViewer(
-                                          questionList: _.questionTopics.value,
-                                          currentQuestion:
-                                              _.currentQuestionData.value!))
-                                      : Obx(() => Expanded(
-                                            child: VideoPlayWidget(
-                                              topic: _.currentTopicData.value,
-                                            ),
-                                          )),
-                        ],
-                      )),
+                    flex: 9,
+                    child: _.openWhiteBoard.value == true
+                        ? ElevatedCard(
+                            child: Stack(
+                            children: [
+                              WhiteBoard(
+                                strokeColor: _.selectedColor.value,
+                                isErasing: _.isErasing.value,
+                                controller: _.whiteBoardController,
+                              ),
+                              Positioned(
+                                  top: 10,
+                                  right: 10,
+                                  child: Column(children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.color_lens),
+                                      onPressed: () => _selectColor(context, _),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.undo),
+                                      onPressed: () {
+                                        _.undo();
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.redo),
+                                      onPressed: () {
+                                        _.redo();
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.brush),
+                                      onPressed: () {
+                                        _.isErasing.toggle();
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        _.clear();
+                                      },
+                                    ),
+                                  ])),
+                            ],
+                          ))
+                        : _.openPlayWithUrl.value == true
+                            ? ElevatedCard(
+                                child: VideoPlayByUrlWidget(
+                                  url: _.playByUrlController.text,
+                                ),
+                              )
+                            : _.openQuestionViewer.value == true
+                                ? Obx(() => QuestionViewer(
+                                    questionList: _.questionTopics.value,
+                                    currentQuestion:
+                                        _.currentQuestionData.value!))
+                                : Obx(() => VideoPlayWidget(
+                                      topic: _.currentTopicData.value,
+                                    )),
+                  ),
                   Expanded(
                     flex: 1,
                     child: Padding(
@@ -246,7 +235,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           children: [
                             SpeedDialChild(
                               child: const Icon(Icons.question_answer_outlined),
-                              backgroundColor: Colors.grey,
+                              backgroundColor: Colors.white,
                               label: 'Questions',
                               onTap: () async {
                                 showDialog(
@@ -260,8 +249,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child: const Icon(Icons.picture_as_pdf),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.notes),
+                              backgroundColor: Colors.white,
                               label: 'AI Content',
                               onTap: () async {
                                 showDialog(
@@ -274,8 +263,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child: const Icon(Icons.picture_as_pdf),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.link),
+                              backgroundColor: Colors.white,
                               label: 'Play By Url',
                               onTap: () async {
                                 _.openWhiteBoard.value = false;
@@ -300,8 +289,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child: const Icon(Icons.picture_as_pdf),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.book_outlined),
+                              backgroundColor: Colors.white,
                               label: 'eMaterial',
                               onTap: () async {
                                 _.openPlayWithUrl.value = false;
@@ -318,7 +307,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                             SpeedDialChild(
                               child:
                                   const Icon(Icons.video_collection_outlined),
-                              backgroundColor: Colors.grey,
+                              backgroundColor: Colors.white,
                               label: 'Video',
                               onTap: () async {
                                 _.openWhiteBoard.value = false;
@@ -334,9 +323,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                               },
                             ),
                             SpeedDialChild(
-                              child:
-                                  const Icon(Icons.video_collection_outlined),
-                              backgroundColor: Colors.grey,
+                              child: const Icon(Icons.edit_document),
+                              backgroundColor: Colors.white,
                               label: 'WhiteBoard',
                               onTap: () async {
                                 _.openWhiteBoard.value = true;

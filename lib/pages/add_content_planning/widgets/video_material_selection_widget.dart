@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
@@ -168,6 +169,14 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
               showEdit: false,
               showDelete: false,
               showViewButton: true,
+              onViewClick: () {
+                Get.toNamed("/videoScreen", arguments: [
+                  false,
+                  controller.selectedChapter.value,
+                  controller.selectedTopic.value,
+                  data
+                ]);
+              },
             ),
           )),
         ],
@@ -258,6 +267,14 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
               showEdit: false,
               showDelete: false,
               showViewButton: true,
+              onViewClick: () {
+                Get.toNamed("/videoScreen", arguments: [
+                  false,
+                  controller.selectedChapter.value,
+                  controller.selectedTopic.value,
+                  data
+                ]);
+              },
             ),
           )),
         ],

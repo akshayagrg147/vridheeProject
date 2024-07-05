@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import 'package:whiteboard/whiteboard.dart';
@@ -63,8 +64,22 @@ class VideoMainScreenController extends GetxController {
       fetchOneTopicData(chapterData!["topicDataId"]);
     } else {
       // print("in else");
-      chap.value.assignAll(args[1]);
+
+      if (args[1] is LocalChapter) {
+        chap.value.assign(args[1]);
+      } else {
+        chap.value.assignAll(args[1]);
+      }
       selectedTopic.value = args[2];
+      if (args.length > 3) {
+        final data = args[3];
+        if (data is QuestionBank) {
+          currentQuestionData.value = data;
+          openQuestionViewer.value = true;
+        } else {
+          currentTopicData.value = data;
+        }
+      }
       className.value =
           await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
       var chapter, subject_id;
@@ -76,7 +91,7 @@ class VideoMainScreenController extends GetxController {
       topicName.value = selectedTopic.value!.topic.topicName;
       topics.value.assignAll(selectedTopic.value!.topicData);
       questionTopics.value.clear();
-      filterTopicData();
+      filterTopicData(args.length > 3);
       // currentTopicData.value = topics.value[0];
     }
 
@@ -148,7 +163,7 @@ class VideoMainScreenController extends GetxController {
         await myDataController.query(
       'tbl_institute_chapter',
       where: 'institute_course_id = ? AND institute_subject_id = ?',
-      whereArgs: [courseId, 34],
+      whereArgs: [courseId, subjectId],
     );
     // print("in fetch chapter  maps${chapterDataMaps.length}");
     final List<InstituteChapter> chapterData =
@@ -165,7 +180,7 @@ class VideoMainScreenController extends GetxController {
     final List<Map<String, dynamic>> topicsMaps = await myDataController.query(
       'tbl_institute_topic',
       where: 'institute_course_id = ? AND institute_chapter_id = ?',
-      whereArgs: [10, 527],
+      whereArgs: [courseId, chapterId],
     );
     // print("in fetch topics  maps${topicsMaps.length}");
     // print("${topicsMaps}");
@@ -382,15 +397,15 @@ class VideoMainScreenController extends GetxController {
     }
   }
 
-  void filterTopicData() async {
+  void filterTopicData([bool isCurrentTopicDataAvailable = false]) async {
     // Filter video type data
     var videoData =
         topics.value.where((topic) => topic.topicDataType == "MP4").toList();
     var html5Data =
         topics.value.where((topic) => topic.topicDataType == "HTML5").toList();
-    if (videoData.isNotEmpty) {
+    if (videoData.isNotEmpty && !isCurrentTopicDataAvailable) {
       currentTopicData.value = videoData[0];
-    } else if (html5Data.isNotEmpty) {
+    } else if (html5Data.isNotEmpty && !isCurrentTopicDataAvailable) {
       currentTopicData.value = html5Data[0];
     }
     // print("filter video data :${videoData.length} : ${videoData[videoData.length -1].instituteTopicId}");

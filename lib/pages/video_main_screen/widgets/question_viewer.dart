@@ -51,16 +51,21 @@ class _QuestionViewerState extends State<QuestionViewer> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: PageView.builder(
-            controller: _pageController,
-            itemCount: widget.questionList.length,
+        child: widget.questionList.isNotEmpty
+            ? PageView.builder(
+                controller: _pageController,
+                itemCount: widget.questionList.length,
 
-            // physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return QuestionView(
-                questionNo: index + 1,
-                question: widget.questionList[index],
-              );
-            }));
+                // physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return QuestionView(
+                    questionNo: index + 1,
+                    question: widget.questionList[index],
+                  );
+                })
+            : QuestionView(
+                questionNo: 1,
+                question: widget.currentQuestion,
+              ));
   }
 }

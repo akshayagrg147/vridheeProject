@@ -43,7 +43,7 @@ class LoginController extends GetxController {
   void startForegroundService() async {
     print("startForegroundService called");
     if (await FlutterForegroundTask.isRunningService) {
-      await FlutterForegroundTask.stopService();
+      return;
     }
     FlutterForegroundTask.startService(
       callback: startCallback,
@@ -159,6 +159,8 @@ class LoginController extends GetxController {
       if (response == true) {
         print("LoginDevice :- $response");
         await SharedPrefHelper().setIsLoginSuccessful(true);
+
+        await SharedPrefHelper().setLoginUserMail(idController.text);
         Get.offAllNamed("/");
       } else {
         Get.snackbar("LoginDeviceError", "User Id or Password is Wrong");

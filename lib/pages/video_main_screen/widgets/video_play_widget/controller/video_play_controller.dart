@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayController extends GetxController {
@@ -17,6 +21,13 @@ class VideoPlayController extends GetxController {
   void onClose() {
     vlcPlayerController?.dispose();
     super.onClose();
+  }
+
+  Future<String> getDecryptedFilePath(String filePath, String fileName) async {
+    final decryptedBytes = await FileEncryptor().decryptFile(File(filePath));
+    final tempPath = (await getTemporaryDirectory()).path + "/$fileName";
+    await File(tempPath).writeAsBytes(decryptedBytes);
+    return tempPath;
   }
 
   void initializePlayer() {

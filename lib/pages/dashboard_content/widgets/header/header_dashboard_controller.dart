@@ -442,27 +442,29 @@ class DashboardHeaderController extends GetxController {
           await fetchContentAccessData(classId, subjectId);
       // print("in data length: ${data.length}");
       // Transform data to the required format
-
+      final topicIds = data.map((e) => e.instituteTopicDataId).toList();
+      List<InstituteTopicData> topicDatas =
+          topicIds.isEmpty ? [] : await fetchContinueTopicData(topicIds);
       List<Map<String, dynamic>> fetchedVideos = [];
       for (var item in data) {
         // print("In loop");
-        String className = await fetchClassName(item.instituteCourseId);
-        String subjectName = await fetchSubjectName(item.instituteSubjectId);
-        String chapterName = await fetchChapterName(item.instituteChapterId);
-        String topicName = await fetchTopicName(item.instituteTopicId);
-        InstituteTopicData? topicData =
-            await fetchContinueTopicData(item.instituteTopicDataId);
+        // String className = await fetchClassName(item.instituteCourseId);
+        // String subjectName = await fetchSubjectName(item.instituteSubjectId);
+        // String chapterName = await fetchChapterName(item.instituteChapterId);
+        // String topicName = await fetchTopicName(item.instituteTopicId);
+
         fetchedVideos.add({
-          'class': className,
-          'subject': subjectName,
+          'class': item.className,
+          'subject': item.subjectName,
           'subjectId': item.instituteSubjectId,
           'chapterId': item.instituteChapterId,
           'courseId': item.instituteCourseId,
           'topicId': item.instituteTopicId,
           'topicDataId': item.instituteTopicDataId,
-          'chapter': chapterName,
-          'topic': topicName,
-          'topicData': topicData,
+          'chapter': item.chapterName,
+          'topic': item.topicName,
+          'topicData': topicDatas.firstWhereOrNull((element) =>
+              element.onlineInstituteTopicDataId == item.instituteTopicDataId),
         });
       }
       cData.clear();
@@ -482,49 +484,40 @@ class DashboardHeaderController extends GetxController {
       int? classId, int? subjectId) async {
     // Construct the SQL query with optional filters
     String whereClause = '';
-    List<dynamic> whereArgs = [];
 
     if (classId != null) {
-      whereClause += 'institute_course_id = ?';
-      whereArgs.add(classId);
+      whereClause += 'where ta.institute_course_id = $classId';
     }
 
     if (subjectId != null) {
-      if (whereClause.isNotEmpty) whereClause += ' AND ';
-      whereClause += 'institute_subject_id = ?';
-      whereArgs.add(subjectId);
+      if (whereClause.isNotEmpty)
+        whereClause += ' AND ';
+      else
+        whereClause += ' where ';
+      whereClause += 'ta.institute_subject_id = $subjectId';
     }
-    // print("inserted1");
 
-    final Map<String, dynamic> newData = {
-      "la_plan_execution_id": 34,
-      "online_la_plan_execution_id": null,
-      "parent_institute_id": 17,
-      "institute_id": 10967,
-      "institute_course_id": 8,
-      "institute_course_breakup_id": null,
-      "institute_subject_id": 131,
-      "institute_chapter_id": 580,
-      "period_num": 1,
-      "session": 2024 - 2025,
-      "execution_date": null,
-      "institute_topic_ids": null,
-      "execution_by_teacher_user_id": null,
-      "entry_date": null,
-      "last_update_date": null,
-      "update_flag": null
-    };
-    // print("inserted2");
+    final List<Map<String, dynamic>> dataMaps =
+        await myDataController.rawQuery('''
+    select * , tc.institute_course_name as className ,
+     ts.subject_name as subjectName ,
+     tch.chapter_name as chapterName, tt.topic_name as TopicName
+     from tbl_institute_user_content_access_2024_2025 ta
+    left join tbl_institute_course tc on ta.institute_course_id = tc.online_institute_course_id
+    left join tbl_institute_subject ts on ta.institute_subject_id = ts.online_institute_subject_id
+    left join tbl_institute_chapter tch on ta.institute_chapter_id = tch.online_institute_chapter_id
+    left join tbl_institute_topic tt on ta.institute_topic_id = tt.online_institute_topic_id
+    $whereClause
+    ''');
 
-    // await myDataController.insert('tbl_la_plan_execution_2024_2025', newData);
-    // print("inserted3");
+    // final List<Map<String, dynamic>> dataMaps = await myDataController.
 
-    final List<Map<String, dynamic>> dataMaps = await myDataController.query(
-      'tbl_institute_user_content_access_2024_2025',
-      where: whereClause.isEmpty ? null : whereClause,
-      whereArgs: whereArgs.isEmpty ? null : whereArgs,
-      // orderBy: 'institute_user_content_access_id  DESC',
-    );
+    // final List<Map<String, dynamic>> dataMaps = await myDataController.query(
+    //   'tbl_institute_user_content_access_2024_2025',
+    //   where: whereClause.isEmpty ? null : whereClause,
+    //   whereArgs: whereArgs.isEmpty ? null : whereArgs,
+    //   // orderBy: 'institute_user_content_access_id  DESC',
+    // );
     // print(dataMaps);
     print("FetchDataContent :- $dataMaps");
     // print("in continue data ${dataMaps.length}");
@@ -535,25 +528,27 @@ class DashboardHeaderController extends GetxController {
     return data;
   }
 
-  Future<InstituteTopicData?> fetchContinueTopicData(int topicId) async {
+  Future<List<InstituteTopicData>> fetchContinueTopicData(
+      List<int> topicIds) async {
     try {
-      final List<Map<String, dynamic>> topicDataMaps =
-          await myDataController.query(
-        'tbl_institute_topic_data',
-        where: 'online_institute_topic_data_id = ?',
-        whereArgs: [topicId],
-      );
+      String subQuery = '';
+      if (topicIds.isNotEmpty) {
+        final ids = topicIds.join(',');
+        subQuery = "where online_institute_topic_data_id in ($ids)";
+      }
+      final List<Map<String, dynamic>> topicDataMaps = await myDataController
+          .rawQuery('select * from tbl_institute_topic_data $subQuery');
 
       print('success fetching topic data: $topicDataMaps');
 
       final List<InstituteTopicData> topicData =
           topicDataMaps.map((map) => InstituteTopicData.fromJson(map)).toList();
 
-      return topicData[0];
+      return topicData;
     } catch (e) {
       print('Error fetching topic data');
       // print('Error fetching topic data: $e');
-      return null; // Handle error case
+      return []; // Handle error case
     }
   }
 
