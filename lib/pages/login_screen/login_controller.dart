@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
+import 'package:teaching_app/core/api_client/api_client.dart';
+import 'package:teaching_app/core/api_client/api_exception.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/sync_data/sync_data_response.dart';
@@ -126,8 +128,14 @@ class LoginController extends GetxController {
         print('Error executing query: $e');
       }
     }
-    ForegroundTaskService.init();
-    startForegroundService();
+    if (!(await ApiClient().isInternetAvailable())) {
+      if (GetPlatform.isAndroid) {
+        ForegroundTaskService.init();
+        startForegroundService();
+      } else if (GetPlatform.isWindows) {
+        BackgroundServiceController.instance.performBackgroundTask();
+      }
+    }
     if (temp.trim().isNotEmpty) {
       await notifyBackend(temp.substring(0, temp.length - 1));
     } else {

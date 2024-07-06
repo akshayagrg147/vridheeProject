@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart' as getP;
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
 import 'package:teaching_app/core/api_client/header_interceptor.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
@@ -13,7 +17,7 @@ class ApiClient {
   static final ApiClient _instance = ApiClient.internal();
   static late Dio _dio;
   static ApiResult apiResult = ApiResult();
-
+  String noInternet = "No Internet Available";
   ApiClient.internal() {
     _dio = Dio()
       ..interceptors.add(AuthInterceptor())
@@ -29,6 +33,9 @@ class ApiClient {
       Map<String, dynamic>? queryParams}) async {
     try {
       url = url;
+      if (!(await isInternetAvailable())) {
+        throw noInternet;
+      }
       Response response = await _dio.get(
         url,
         queryParameters: queryParams,
@@ -47,6 +54,9 @@ class ApiClient {
       Map<String, dynamic>? queryParams}) async {
     try {
       url = url;
+      if (!(await isInternetAvailable())) {
+        throw noInternet;
+      }
       Response response = await _dio.post(
         url,
         data: body,
@@ -73,6 +83,9 @@ class ApiClient {
   }) async {
     try {
       url = url;
+      if (!(await isInternetAvailable())) {
+        throw noInternet;
+      }
       Response response = await _dio.put(
         url,
         data: body,
@@ -93,6 +106,9 @@ class ApiClient {
   }) async {
     try {
       url = url;
+      if (!(await isInternetAvailable())) {
+        throw noInternet;
+      }
       Response response = await _dio.delete(
         url,
         data: body,
@@ -135,7 +151,11 @@ class ApiClient {
       );
     } else {
       int errorCode = 0; //We will send a default error code as 0
-
+      if (error == noInternet) {
+        getP.Get.showSnackbar(GetSnackBar(
+          message: error.toString(),
+        ));
+      }
       throw ApiException(
         path: path,
         message: 'received server error $errorCode',
@@ -164,14 +184,24 @@ class ApiClient {
       {required String path,
       void Function(int, int)? onReceiveProgress}) async {
     try {
-  final response=    await Dio().download(url, path,
+      if (!(await isInternetAvailable())) {
+        throw noInternet;
+      }
+      final response = await Dio().download(url, path,
           onReceiveProgress: onReceiveProgress,
           cancelToken: _cancelToken,
           options: Options(followRedirects: false));
-
     } catch (error) {
       return _handleError(url, error);
     }
   }
 
+  Future<bool> isInternetAvailable() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
+  }
 }

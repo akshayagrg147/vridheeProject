@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:teaching_app/core/api_client/api_client.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 
 class BackgroundServiceController {
@@ -76,6 +77,7 @@ class BackgroundServiceController {
           await downloadFile(opt4url, optionFileName);
         }
       });
+      await SharedPrefHelper().setIsSynced(true);
     } catch (e) {
       print("$e");
     } finally {
