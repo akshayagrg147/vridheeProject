@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:teaching_app/core/api_client/api_client.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/download_progress_dialog.dart';
 
@@ -99,6 +100,7 @@ class BackgroundServiceController {
           filesDownloaded.value += 1;
         }
       });
+      await SharedPrefHelper().setIsSynced(true);
     } catch (e) {
       print("$e");
     } finally {
@@ -126,14 +128,6 @@ class BackgroundServiceController {
             FileEncryptor().encryptFile(File(filePath), filePath);
           }
         });
-
-        // await FlutterDownloader.enqueue(
-        //   url: url,
-        //   savedDir: path,
-        //   fileName: fileName,
-        //   showNotification: true,
-        //   openFileFromNotification: true,
-        // );
       } catch (e) {
         log(e.toString());
       }

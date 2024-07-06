@@ -29,6 +29,12 @@ class SharedPrefHelper {
 
   String getLoginUserMail() => _prefs!.getString('userMail') ?? "";
 
+  Future<bool> setIsSynced(bool isSynced) async {
+    return await _prefs!.setBool('isSynced', isSynced);
+  }
+
+  bool getIsSynced() => _prefs!.getBool('isSynced') ?? false;
+
   bool getIsLoginSuccessful() => _prefs!.getBool('isLoginSuccessful') ?? false;
 
   Future<bool> setDeviceId(String deviceId) async {
