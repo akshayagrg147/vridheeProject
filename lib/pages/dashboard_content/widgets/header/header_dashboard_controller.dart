@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -43,6 +44,7 @@ class DashboardHeaderController extends GetxController {
     super.onInit();
     fetchClassData();
     fetchContinueData(null, null);
+
     _checkForUpdate();
   }
 
@@ -640,8 +642,18 @@ class DashboardHeaderController extends GetxController {
       return ''; // Handle error case
     }
   }
-
+  Future<bool> isInternetAvailable() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
+  }
   Future<void> _checkForUpdate() async {
+    if (!(await isInternetAvailable())) {
+      return;
+    }
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion = packageInfo.version;
     final String remoteVersion = RemoteConfigService.getAppVersion;
@@ -698,7 +710,7 @@ class DashboardHeaderController extends GetxController {
 
   void _launchURL() async {
     const url =
-        'https://play.google.com/store/apps/details?id=your.package.name';
+        'https://track.vridhee.com/Installer/VridheeEDU/VridheeLMSOffline.apk';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
