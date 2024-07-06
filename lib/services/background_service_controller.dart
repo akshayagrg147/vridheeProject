@@ -46,16 +46,27 @@ class BackgroundServiceController {
           return;
         }
         final fileName = "${row['filename'] ?? ""}.$ext";
+        final isInternetAvailable = await ApiClient().isInternetAvailable();
+        if (!isInternetAvailable) {
+          return;
+        }
         await downloadFile(url, fileName);
         filesDownloaded.value += 1;
       });
-
+      final isInternetAvailable = await ApiClient().isInternetAvailable();
+      if (!isInternetAvailable) {
+        return;
+      }
       final questionImagesData =
           await dbController.getDownloadQuestionImageList();
 
       await Future.forEach(questionImagesData, (element) async {
         final id = element['id'];
         final quesUrl = element['ques_url'];
+        final isInternetAvailable = await ApiClient().isInternetAvailable();
+        if (!isInternetAvailable) {
+          return;
+        }
         if ((quesUrl ?? "").isNotEmpty) {
           final questionFileName = "ques_$id.${getFileExtFromUrl(quesUrl)}";
           totalFilesTOBeDownload += 1;
@@ -100,6 +111,10 @@ class BackgroundServiceController {
           filesDownloaded.value += 1;
         }
       });
+      final isInternetAvailable1 = await ApiClient().isInternetAvailable();
+      if (!isInternetAvailable1) {
+        return;
+      }
       await SharedPrefHelper().setIsSynced(true);
     } catch (e) {
       print("$e");
