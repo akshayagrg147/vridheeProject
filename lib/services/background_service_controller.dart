@@ -38,16 +38,28 @@ class BackgroundServiceController {
         if (ext == "zip") {
           return;
         }
+
         final fileName = "${row['filename'] ?? ""}.$ext";
+        final isInternetAvailable = await ApiClient().isInternetAvailable();
+        if (!isInternetAvailable) {
+          return;
+        }
         await downloadFile(url, fileName);
       });
-
+      final isInternetAvailable = await ApiClient().isInternetAvailable();
+      if (!isInternetAvailable) {
+        return;
+      }
       final questionImagesData =
           await dbController.getDownloadQuestionImageList();
 
       await Future.forEach(questionImagesData, (element) async {
         final id = element['id'];
         final quesUrl = element['ques_url'];
+        final isInternetAvailable = await ApiClient().isInternetAvailable();
+        if (!isInternetAvailable) {
+          return;
+        }
         if ((quesUrl ?? "").isNotEmpty) {
           final questionFileName = "ques_$id.${getFileExtFromUrl(quesUrl)}";
           await downloadFile(quesUrl, questionFileName);
@@ -77,6 +89,10 @@ class BackgroundServiceController {
           await downloadFile(opt4url, optionFileName);
         }
       });
+      final isInternetAvailable2 = await ApiClient().isInternetAvailable();
+      if (!isInternetAvailable2) {
+        return;
+      }
       await SharedPrefHelper().setIsSynced(true);
     } catch (e) {
       print("$e");
@@ -94,24 +110,20 @@ class BackgroundServiceController {
   }
 
   Future<void> downloadFile(String url, String fileName) async {
-    log("Forground Service Download Url :- $url");
-    final path = await getContentDirectoryPath();
-    if (url.isNotEmpty) {
-      final filePath = "$path/$fileName";
-      await ApiClient().download(url, path: filePath,
-          onReceiveProgress: (recieved, total) {
-        if (recieved == total) {
-          FileEncryptor().encryptFile(File(filePath), filePath);
-        }
-      });
-
-      // await FlutterDownloader.enqueue(
-      //   url: url,
-      //   savedDir: path,
-      //   fileName: fileName,
-      //   showNotification: true,
-      //   openFileFromNotification: true,
-      // );
+    try {
+      log("Forground Service Download Url :- $url");
+      final path = await getContentDirectoryPath();
+      if (url.isNotEmpty) {
+        final filePath = "$path/$fileName";
+        await ApiClient().download(url, path: filePath,
+            onReceiveProgress: (recieved, total) {
+          if (recieved == total) {
+            FileEncryptor().encryptFile(File(filePath), filePath);
+          }
+        });
+      }
+    } catch (e) {
+      log(e.toString());
     }
   }
 

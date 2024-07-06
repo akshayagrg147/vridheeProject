@@ -129,7 +129,8 @@ class LoginController extends GetxController {
       }
     }
     final isSynced = SharedPrefHelper().getIsSynced();
-    if (isSynced == false) {
+    final isInternetAvailable = await ApiClient().isInternetAvailable();
+    if (isSynced == false && isInternetAvailable) {
       if (GetPlatform.isAndroid) {
         ForegroundTaskService.init();
         startForegroundService();
