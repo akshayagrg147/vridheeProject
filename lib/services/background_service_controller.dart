@@ -42,13 +42,13 @@ class BackgroundServiceController {
         final fileName = "${row['filename'] ?? ""}.$ext";
         final isInternetAvailable = await ApiClient().isInternetAvailable();
         if (!isInternetAvailable) {
-          return;
+          throw ApiClient().noInternet;
         }
         await downloadFile(url, fileName);
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
       if (!isInternetAvailable) {
-        return;
+        throw ApiClient().noInternet;
       }
       final questionImagesData =
           await dbController.getDownloadQuestionImageList();
@@ -58,7 +58,7 @@ class BackgroundServiceController {
         final quesUrl = element['ques_url'];
         final isInternetAvailable = await ApiClient().isInternetAvailable();
         if (!isInternetAvailable) {
-          return;
+          throw ApiClient().noInternet;
         }
         if ((quesUrl ?? "").isNotEmpty) {
           final questionFileName = "ques_$id.${getFileExtFromUrl(quesUrl)}";
@@ -91,7 +91,7 @@ class BackgroundServiceController {
       });
       final isInternetAvailable2 = await ApiClient().isInternetAvailable();
       if (!isInternetAvailable2) {
-        return;
+        throw ApiClient().noInternet;
       }
       await SharedPrefHelper().setIsSynced(true);
     } catch (e) {
