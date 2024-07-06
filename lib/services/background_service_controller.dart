@@ -97,25 +97,21 @@ class BackgroundServiceController {
     log("Forground Service Download Url :- $url");
     final path = await getContentDirectoryPath();
     if (url.isNotEmpty) {
-      try {
-        final filePath = "$path/$fileName";
-        await ApiClient().download(url, path: filePath,
-            onReceiveProgress: (recieved, total) {
-          if (recieved == total) {
-            FileEncryptor().encryptFile(File(filePath), filePath);
-          }
-        });
+      final filePath = "$path/$fileName";
+      await ApiClient().download(url, path: filePath,
+          onReceiveProgress: (recieved, total) {
+        if (recieved == total) {
+          FileEncryptor().encryptFile(File(filePath), filePath);
+        }
+      });
 
-        // await FlutterDownloader.enqueue(
-        //   url: url,
-        //   savedDir: path,
-        //   fileName: fileName,
-        //   showNotification: true,
-        //   openFileFromNotification: true,
-        // );
-      } catch (e) {
-        log(e.toString());
-      }
+      // await FlutterDownloader.enqueue(
+      //   url: url,
+      //   savedDir: path,
+      //   fileName: fileName,
+      //   showNotification: true,
+      //   openFileFromNotification: true,
+      // );
     }
   }
 

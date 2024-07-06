@@ -184,9 +184,6 @@ class ApiClient {
       {required String path,
       void Function(int, int)? onReceiveProgress}) async {
     try {
-      if (!(await isInternetAvailable())) {
-        throw noInternet;
-      }
       final response = await Dio().download(url, path,
           onReceiveProgress: onReceiveProgress,
           cancelToken: _cancelToken,
