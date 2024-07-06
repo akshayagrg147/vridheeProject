@@ -128,7 +128,8 @@ class LoginController extends GetxController {
         print('Error executing query: $e');
       }
     }
-    if (!(await ApiClient().isInternetAvailable())) {
+    final isSynced = SharedPrefHelper().getIsSynced();
+    if (isSynced == false) {
       if (GetPlatform.isAndroid) {
         ForegroundTaskService.init();
         startForegroundService();
