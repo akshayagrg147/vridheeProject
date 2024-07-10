@@ -76,7 +76,7 @@ dependencies:
   flutter_background_service: ^5.0.6
   encrypt: ^5.0.3
   video_player_win: ^2.3.8
-  connectivity: ^3.0.6
+
 
 dev_dependencies:
   flutter_test:
@@ -93,7 +93,13 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/icon.png"
+  image_path: "assets/icons/logo.png"
+
+  windows:
+    generate: true
+    image_path: "assets/icons/logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

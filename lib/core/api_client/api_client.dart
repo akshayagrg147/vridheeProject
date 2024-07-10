@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
 import 'package:teaching_app/core/api_client/header_interceptor.dart';
-import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'api_exception.dart';
 
 typedef JsonMap = Map<String, dynamic>;
@@ -191,8 +190,9 @@ class ApiClient {
 
   Future<bool> isInternetAvailable() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult.contains(ConnectivityResult.mobile) ||
+        connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet)) {
       return true;
     }
     return false;
