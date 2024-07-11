@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:video_player_win/video_player_win.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -246,7 +247,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         contentWidget = Center(
           // Youtube player as widget
           child: GetPlatform.isWindows
-              ? WinVideoPlayer(controller)
+              ? CustomVideoPlayer(
+                  controller: controller!,
+                )
               : YoutubePlayer(
                   controller: _controller, // Controler that we created earlier
                   aspectRatio:
@@ -255,12 +258,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         );
       } else {
         contentWidget = controller.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: GetPlatform.isAndroid
-                    ? VideoPlayer(controller!)
-                    : WinVideoPlayer(controller!),
-              )
+            ? CustomVideoPlayer(controller: controller!)
             : const Center(child: CircularProgressIndicator());
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
@@ -273,10 +271,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       contentWidget = SfPdfViewer.memory(docData!);
     } else {
       contentWidget = controller?.value.isInitialized == true
-          ? AspectRatio(
-              aspectRatio: controller!.value.aspectRatio,
-              child: VideoPlayer(controller!),
-            )
+          ? CustomVideoPlayer(controller: controller!)
           : const Center(child: CircularProgressIndicator());
       // contentWidget = const Center(child: Text('Unsupported file type'));
     }
