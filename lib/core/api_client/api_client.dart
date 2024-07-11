@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' as getP;
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
 import 'package:teaching_app/core/api_client/header_interceptor.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
@@ -118,7 +120,7 @@ class ApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> _handleError(String path, Object error) {
+  Future<Map<String, dynamic>> _handleError(String path, Object error)async {
     if (error is DioError) {
       final method = error.requestOptions.method;
       final response = error.response;
@@ -148,7 +150,10 @@ class ApiClient {
       );
     } else {
       int errorCode = 0; //We will send a default error code as 0
-
+      if(error==noInternet){
+        getP.Get.showSnackbar(GetSnackBar(message: noInternet,));
+        return {};
+      }
       throw ApiException(
         path: path,
         message: 'received server error $errorCode',
@@ -191,8 +196,8 @@ class ApiClient {
 
   Future<bool> isInternetAvailable() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult.contains( ConnectivityResult.mobile) ||
+        connectivityResult.contains( ConnectivityResult.wifi)||connectivityResult.contains( ConnectivityResult.ethernet)) {
       return true;
     }
     return false;
