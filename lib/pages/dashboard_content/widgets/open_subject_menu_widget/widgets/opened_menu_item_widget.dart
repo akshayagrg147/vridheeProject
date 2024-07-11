@@ -426,34 +426,6 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
             }),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppElevatedButton(
-                title: "Quiz",
-                showBorder: true,
-                onPressed: () {},
-              ),
-              AppElevatedButton(
-                title: "Assignment",
-                showBorder: true,
-                onPressed: () {},
-              ),
-              AppElevatedButton(
-                title: "Test",
-                showBorder: true,
-                onPressed: () {},
-              ),
-              AppElevatedButton(
-                title: "Feedback",
-                showBorder: true,
-                onPressed: () {},
-              ),
-            ],
-          ),
-        )
       ],
     );
   }
