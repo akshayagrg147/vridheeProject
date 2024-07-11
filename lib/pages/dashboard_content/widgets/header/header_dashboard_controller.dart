@@ -1,4 +1,4 @@
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -642,6 +642,7 @@ class DashboardHeaderController extends GetxController {
       return ''; // Handle error case
     }
   }
+
   Future<bool> isInternetAvailable() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile ||
@@ -650,6 +651,7 @@ class DashboardHeaderController extends GetxController {
     }
     return false;
   }
+
   Future<void> _checkForUpdate() async {
     if (!(await isInternetAvailable())) {
       return;

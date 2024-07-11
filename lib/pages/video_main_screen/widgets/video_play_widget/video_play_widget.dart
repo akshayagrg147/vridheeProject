@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../modals/tbl_institute_topic_data.dart';
@@ -225,10 +226,12 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         );
       } else {
         contentWidget = controller?.value.isInitialized == true
-            ? AspectRatio(
-                aspectRatio: controller!.value.aspectRatio,
-                child: VideoPlayer(controller!),
-              )
+            ? CustomVideoPlayer(controller: controller!)
+
+            // AspectRatio(
+            //         aspectRatio: controller!.value.aspectRatio,
+            //         child: VideoPlayer(controller!),
+            //       )
             : const Center(child: CircularProgressIndicator());
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
@@ -241,15 +244,17 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       contentWidget = SfPdfViewer.memory(docData!);
     } else {
       contentWidget = controller?.value.isInitialized == true
-          ? AspectRatio(
-              aspectRatio: controller!.value.aspectRatio,
-              child: VideoPlayer(controller!),
-            )
+          ? CustomVideoPlayer(controller: controller!)
+          // AspectRatio(
+          //         aspectRatio: controller!.value.aspectRatio,
+          //         child: VideoPlayer(controller!),
+          //       )
           : const Center(child: CircularProgressIndicator());
       // contentWidget = const Center(child: Text('Unsupported file type'));
     }
 
     return Container(
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         border: Border.all(
           color: ThemeColor.greyLight,
@@ -259,16 +264,12 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       ),
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.72,
-      child: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                contentWidget,
-              ],
-            ),
-          ),
-        ],
+      child: Expanded(
+        child: Stack(
+          children: [
+            contentWidget,
+          ],
+        ),
       ),
     );
   }
