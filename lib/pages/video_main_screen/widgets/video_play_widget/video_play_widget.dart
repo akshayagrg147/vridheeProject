@@ -249,7 +249,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           //         aspectRatio: controller!.value.aspectRatio,
           //         child: VideoPlayer(controller!),
           //       )
-          : const Center(child: CircularProgressIndicator());
+          : Center(
+              child: Icon(Icons.error_outline),
+            );
       // contentWidget = const Center(child: Text('Unsupported file type'));
     }
 
@@ -264,12 +266,10 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       ),
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.72,
-      child: Expanded(
-        child: Stack(
-          children: [
-            contentWidget,
-          ],
-        ),
+      child: Stack(
+        children: [
+          contentWidget,
+        ],
       ),
     );
   }
