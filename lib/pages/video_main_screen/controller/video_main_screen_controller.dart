@@ -425,9 +425,14 @@ class VideoMainScreenController extends GetxController {
     );
     print("fetching syllabus data 1");
 
-    List<int> existingTopicDataIds = existingSyllabusData
-        .map((entry) => entry['institute_topic_data_id'] as int)
-        .toList();
+    List<int> existingTopicDataIds = [];
+
+    existingSyllabusData.forEach((element) {
+      final id = element['institute_topic_data_id'];
+      if (id != null) {
+        existingTopicDataIds.add(id);
+      }
+    });
 
     print(existingTopicDataIds);
 

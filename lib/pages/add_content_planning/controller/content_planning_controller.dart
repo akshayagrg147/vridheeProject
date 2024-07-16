@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/pages/dashboard_content/widgets/header/header_dashboard_controller.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import '../../../database/datebase_controller.dart';
@@ -46,7 +47,7 @@ class ContentPlanningController extends GetxController {
   var englishSelected = false.obs;
   var hindiSelected = false.obs;
   var odiaSelected = false.obs;
-
+  String? type;
   @override
   void onInit() async {
     super.onInit();
@@ -56,7 +57,7 @@ class ContentPlanningController extends GetxController {
     // print("in else");
     selectedTopic.value = args[0];
     selectedChapter.value = args[1];
-
+    type = args[2] ?? "";
     className.value =
         await fetchClassName(selectedTopic.value!.topic.instituteCourseId);
     // int subjectId = -1;
@@ -131,9 +132,14 @@ class ContentPlanningController extends GetxController {
         whereArgs: [selectedTopic.value!.topic.onlineInstituteTopicId],
       );
 
-      List<int> existingTopicDataIds = existingSyllabusData
-          .map((entry) => entry['institute_topic_data_id'] as int)
-          .toList();
+      List<int> existingTopicDataIds = [];
+
+      existingSyllabusData.forEach((element) {
+        final id = element['institute_topic_data_id'];
+        if (id != null) {
+          existingTopicDataIds.add(id);
+        }
+      });
 
       print(existingTopicDataIds);
 
@@ -442,9 +448,19 @@ class ContentPlanningController extends GetxController {
             isLocalContentAvailable: 1,
             html5DownloadUrl: '');
         await FileEncryptor().encryptFile(File(file.path), outputFilePath);
-        await myDataController.insert(
+        final id = await myDataController.insert(
             'tbl_institute_topic_data', topicData.toJson());
+        topicData.instituteTopicDataId = id;
         topics.value.add(topicData);
+        Get.find<DashboardHeaderController>().updateAddedContent(
+            data: topicData,
+            progressType: type ?? "",
+            onlineInstituteSubjectId:
+                selectedChapter.value!.chapter.instituteSubjectId,
+            onlineInstituteChapterId:
+                selectedChapter.value!.chapter.onlineInstituteChapterId,
+            onlineInstituteTopicId:
+                selectedTopic.value!.topic.onlineInstituteTopicId);
         filterTopicData();
         Get.back();
         Get.showSnackbar(GetSnackBar(

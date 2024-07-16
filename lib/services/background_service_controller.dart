@@ -41,16 +41,13 @@ class BackgroundServiceController {
         final url = row['url'];
         final ext =
             (row['ext'] ?? "").isNotEmpty ? row['ext'] : getFileExtFromUrl(url);
-        if (ext == "zip") {
-          filesDownloaded.value += 1;
-          return;
-        }
+
         final fileName = "${row['filename'] ?? ""}.$ext";
         final isInternetAvailable = await ApiClient().isInternetAvailable();
         if (!isInternetAvailable) {
           throw ApiClient().noInternet;
         }
-        await downloadFile(url, fileName);
+        await downloadFile(url, fileName, ext);
         filesDownloaded.value += 1;
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
@@ -68,46 +65,51 @@ class BackgroundServiceController {
           throw ApiClient().noInternet;
         }
         if ((quesUrl ?? "").isNotEmpty) {
-          final questionFileName = "ques_$id.${getFileExtFromUrl(quesUrl)}";
+          final ext = getFileExtFromUrl(quesUrl);
+          final questionFileName = "ques_$id.${ext}";
           totalFilesTOBeDownload += 1;
 
-          await downloadFile(quesUrl, questionFileName);
+          await downloadFile(quesUrl, questionFileName, ext);
           filesDownloaded.value += 1;
         }
 
         final opt1url = element['opt_1_url'];
         if ((opt1url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_1.${getFileExtFromUrl(opt1url)}";
+          final ext = getFileExtFromUrl(opt1url);
+          final optionFileName = "${id}_option_1.${ext}";
           totalFilesTOBeDownload += 1;
 
-          await downloadFile(opt1url, optionFileName);
+          await downloadFile(opt1url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
 
         final opt2url = element['opt_2_url'];
         if ((opt2url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_2.${getFileExtFromUrl(opt2url)}";
+          final ext = getFileExtFromUrl(opt2url);
+          final optionFileName = "${id}_option_2.${ext}";
           totalFilesTOBeDownload += 1;
 
-          await downloadFile(opt2url, optionFileName);
+          await downloadFile(opt2url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
 
         final opt3url = element['opt_3_url'];
         if ((opt3url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_3.${getFileExtFromUrl(opt3url)}";
+          final ext = getFileExtFromUrl(opt3url);
+          final optionFileName = "${id}_option_3.${ext}";
           totalFilesTOBeDownload += 1;
 
-          await downloadFile(opt3url, optionFileName);
+          await downloadFile(opt3url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
 
         final opt4url = element['opt_4_url'];
         if ((opt4url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_4.${getFileExtFromUrl(opt4url)}";
+          final ext = getFileExtFromUrl(opt4url);
+          final optionFileName = "${id}_option_4.${ext}";
           totalFilesTOBeDownload += 1;
 
-          await downloadFile(opt4url, optionFileName);
+          await downloadFile(opt4url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
       });
@@ -121,8 +123,7 @@ class BackgroundServiceController {
     } finally {
       if (GetPlatform.isWindows) {
         Get.back();
-      }else{
-
+      } else {
         FlutterForegroundTask.stopService();
       }
     }
@@ -136,7 +137,7 @@ class BackgroundServiceController {
     return url.split('/').last.split(".").last;
   }
 
-  Future<void> downloadFile(String url, String fileName) async {
+  Future<void> downloadFile(String url, String fileName, String ext) async {
     log("Forground Service Download Url :- $url");
     final path = await getContentDirectoryPath();
     if (url.isNotEmpty) {

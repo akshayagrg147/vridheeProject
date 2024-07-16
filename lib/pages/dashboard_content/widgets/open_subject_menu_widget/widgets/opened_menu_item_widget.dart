@@ -16,11 +16,12 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
   final List<LocalChapter> model;
   final bool isToDo;
   final int selectedSubject;
-
+  final String type;
   const DashboardOpenedSubjectMenuItemWidget(
       {super.key,
       required this.selectedSubject,
       required this.model,
+      required this.type,
       required this.isToDo});
 
   @override
@@ -266,7 +267,8 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                                             Get.toNamed('/contentPlanning',
                                                 arguments: [
                                                   topic,
-                                                  localChapter
+                                                  localChapter,
+                                                  type
                                                 ]);
                                           },
                                           icon: Icon(
