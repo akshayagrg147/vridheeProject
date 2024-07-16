@@ -385,6 +385,24 @@ class DashboardHeaderController extends GetxController {
   //   // Remaining chapters in allChapterList will be considered as completed
   //   completed.assignAll(allChapterList);
   // }
+  void updateAddedContent(
+      {required InstituteTopicData data,
+      required String progressType,
+      required int onlineInstituteSubjectId,
+      required int onlineInstituteChapterId,
+      required int onlineInstituteTopicId}) {
+    try {
+      final chapter = allSubjectsData[onlineInstituteSubjectId]![progressType]
+          ?.firstWhereOrNull((element) =>
+              element.chapter.onlineInstituteChapterId ==
+              onlineInstituteChapterId);
+      final topic = chapter!.topics.firstWhereOrNull((element) =>
+          element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
+      topic?.topicData.add(data);
+    } catch (e) {
+      print("Error Updating added content :- $e");
+    }
+  }
 
   Future<void> fetchDataForAllSubjects() async {
     var tempData = <int, Map<String, List<LocalChapter>>>{};

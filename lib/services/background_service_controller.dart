@@ -35,16 +35,13 @@ class BackgroundServiceController {
         final url = row['url'];
         final ext =
             (row['ext'] ?? "").isNotEmpty ? row['ext'] : getFileExtFromUrl(url);
-        if (ext == "zip") {
-          return;
-        }
 
         final fileName = "${row['filename'] ?? ""}.$ext";
         final isInternetAvailable = await ApiClient().isInternetAvailable();
         if (!isInternetAvailable) {
           throw ApiClient().noInternet;
         }
-        await downloadFile(url, fileName);
+        await downloadFile(url, fileName, ext);
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
       if (!isInternetAvailable) {
@@ -61,32 +58,37 @@ class BackgroundServiceController {
           throw ApiClient().noInternet;
         }
         if ((quesUrl ?? "").isNotEmpty) {
-          final questionFileName = "ques_$id.${getFileExtFromUrl(quesUrl)}";
-          await downloadFile(quesUrl, questionFileName);
+          final ext = getFileExtFromUrl(quesUrl);
+          final questionFileName = "ques_$id.${ext}";
+          await downloadFile(quesUrl, questionFileName, ext);
         }
 
         final opt1url = element['opt_1_url'];
         if ((opt1url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_1.${getFileExtFromUrl(opt1url)}";
-          await downloadFile(opt1url, optionFileName);
+          final ext = getFileExtFromUrl(opt1url);
+          final optionFileName = "${id}_option_1.${ext}";
+          await downloadFile(opt1url, optionFileName, ext);
         }
 
         final opt2url = element['opt_2_url'];
         if ((opt2url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_2.${getFileExtFromUrl(opt2url)}";
-          await downloadFile(opt2url, optionFileName);
+          final ext = getFileExtFromUrl(opt2url);
+          final optionFileName = "${id}_option_2.${ext}";
+          await downloadFile(opt2url, optionFileName, ext);
         }
 
         final opt3url = element['opt_3_url'];
         if ((opt3url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_3.${getFileExtFromUrl(opt3url)}";
-          await downloadFile(opt3url, optionFileName);
+          final ext = getFileExtFromUrl(opt3url);
+          final optionFileName = "${id}_option_3.${ext}";
+          await downloadFile(opt3url, optionFileName, ext);
         }
 
         final opt4url = element['opt_4_url'];
         if ((opt4url ?? "").isNotEmpty) {
-          final optionFileName = "${id}_option_4.${getFileExtFromUrl(opt4url)}";
-          await downloadFile(opt4url, optionFileName);
+          final ext = getFileExtFromUrl(opt4url);
+          final optionFileName = "${id}_option_4.${ext}";
+          await downloadFile(opt4url, optionFileName, ext);
         }
       });
       final isInternetAvailable2 = await ApiClient().isInternetAvailable();
@@ -109,7 +111,7 @@ class BackgroundServiceController {
     return url.split('/').last.split(".").last;
   }
 
-  Future<void> downloadFile(String url, String fileName) async {
+  Future<void> downloadFile(String url, String fileName, String ext) async {
     try {
       log("Forground Service Download Url :- $url");
       final path = await getContentDirectoryPath();
@@ -147,6 +149,13 @@ class BackgroundServiceController {
         // Use a method to show a dialog or a snackbar
         Get.snackbar("Grant Permission", "Allow permission to download file");
       }
+    }
+  }
+
+  Future<void> clearTemporaryDirectory() async {
+    final tempDir = await getTemporaryDirectory();
+    if (tempDir.existsSync()) {
+      tempDir.deleteSync(recursive: true);
     }
   }
 }
