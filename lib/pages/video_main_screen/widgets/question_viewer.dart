@@ -50,7 +50,7 @@ class _QuestionViewerState extends State<QuestionViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return SizedBox(
         child: widget.questionList.isNotEmpty
             ? PageView.builder(
                 controller: _pageController,

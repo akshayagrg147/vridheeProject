@@ -403,11 +403,7 @@ class VideoMainScreenController extends GetxController {
         topics.value.where((topic) => topic.topicDataType == "MP4").toList();
     var html5Data =
         topics.value.where((topic) => topic.topicDataType == "HTML5").toList();
-    if (videoData.isNotEmpty && !isCurrentTopicDataAvailable) {
-      currentTopicData.value = videoData[0];
-    } else if (html5Data.isNotEmpty && !isCurrentTopicDataAvailable) {
-      currentTopicData.value = html5Data[0];
-    }
+
     // print("filter video data :${videoData.length} : ${videoData[videoData.length -1].instituteTopicId}");
     // Filter ematerial type data
     var ematerialData = topics.value
@@ -457,6 +453,31 @@ class VideoMainScreenController extends GetxController {
       if (existingTopicDataIds.contains(question.onlineLmsQuesBankId)) {
         questionTopics.value.add(question);
       }
+    }
+
+    if (videotopics.value.isNotEmpty) {
+      currentTopicData.value = videotopics.value.first;
+    } else if (ematerialtopics.value.isNotEmpty) {
+      currentTopicData.value = ematerialtopics.value.first;
+    } else if (questionTopics.value.isNotEmpty) {
+      currentQuestionData.value = questionTopics.value.first;
+      openQuestionViewer.value = true;
+    } else {
+      if (videoData.isNotEmpty && !isCurrentTopicDataAvailable) {
+        currentTopicData.value = videoData[0];
+      } else if (html5Data.isNotEmpty && !isCurrentTopicDataAvailable) {
+        currentTopicData.value = html5Data[0];
+      }
+    }
+
+    if (videotopics.value.isEmpty) {
+      videotopics.value.assignAll(videoData);
+    }
+    if (ematerialtopics.value.isEmpty) {
+      ematerialtopics.value.assignAll(ematerialData);
+    }
+    if (questionTopics.value.isEmpty) {
+      questionTopics.value.assignAll(questionsData);
     }
 
     // Do something with the filtered data, e.g., update variables or UI

@@ -178,14 +178,15 @@ class DashboardHeaderController extends GetxController {
     // return topic;
   }
 
-  Future<List<InstituteTopicData>> fetchTopicData(int topicId) async {
+  Future<List<InstituteTopicData>> fetchTopicData(int topicId,
+      {required String language}) async {
     // print("in fetch topic data 1");
 
     final List<Map<String, dynamic>> topicsDataMaps =
         await myDataController.query(
       'tbl_institute_topic_data',
-      where: 'institute_topic_id = ?',
-      whereArgs: [topicId],
+      where: 'institute_topic_id = ? and content_lang = ? ',
+      whereArgs: [topicId, language],
     );
     // print("in fetch topic data  2");
     final List<InstituteTopicData> topicData =
@@ -194,14 +195,15 @@ class DashboardHeaderController extends GetxController {
     return topicData;
   }
 
-  Future<List<QuestionBank>> fetchQuestionsData(int topicId) async {
+  Future<List<QuestionBank>> fetchQuestionsData(int topicId,
+      {required String language}) async {
     // print("in fetch topic data 1");
 
     final List<Map<String, dynamic>> questionDataMap =
         await myDataController.query(
       'tbl_lms_ques_bank',
-      where: 'institute_topic_id = ?',
-      whereArgs: [topicId],
+      where: 'institute_topic_id = ? and content_lang = ? ',
+      whereArgs: [topicId, language],
     );
     // print("in fetch topic data  2");
     final List<QuestionBank> questionData =
@@ -231,10 +233,12 @@ class DashboardHeaderController extends GetxController {
       for (var topicMap in topicsList) {
         final int topicId = topicMap.onlineInstituteTopicId;
         // print("fetch all chapter topicListAdd id ${topicId}");
-        final List<InstituteTopicData> topicDataList =
-            await fetchTopicData(topicId);
-        final List<QuestionBank> questionList =
-            await fetchQuestionsData(topicId);
+        final List<InstituteTopicData> topicDataList = await fetchTopicData(
+            topicId,
+            language: selectedLanguage.value ?? "");
+        final List<QuestionBank> questionList = await fetchQuestionsData(
+            topicId,
+            language: selectedLanguage.value ?? "");
         topicList.add(LocalTopic(
             topic: topicMap,
             topicData: topicDataList,
@@ -419,6 +423,7 @@ class DashboardHeaderController extends GetxController {
       List<LocalChapter> chapters = await fetchAllChapters(
           selectedClass.value?.onlineInstituteCourseId ?? 0,
           subject.onlineInstituteSubjectId);
+      allChapterList.clear();
       allChapterList.assignAll(chapters);
       // print("chapter list for : ${subject.onlineInstituteSubjectId} : ${allChapterList.length}");
       await filterChapterByUserAccess();

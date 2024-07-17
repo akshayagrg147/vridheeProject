@@ -190,6 +190,7 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                                       },
                                     ),
                                     IconButton(
+                                      isSelected: true,
                                       icon: const Icon(Icons.brush),
                                       onPressed: () {
                                         _.isErasing.toggle();

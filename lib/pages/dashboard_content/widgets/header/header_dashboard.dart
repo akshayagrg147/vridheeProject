@@ -136,7 +136,7 @@ class DashboardHeaderWidget extends StatelessWidget {
                                     ),
                                     child: AppDropDown<String>(
                                         onChange: (p0) {
-                                          _.selectedLanguage.value = p0;
+                                          _.selectedLanguage.value = p0!;
                                         },
                                         value: _.selectedLanguage.value,
                                         items: _.languageList

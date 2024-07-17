@@ -20,6 +20,33 @@ class _QuestionViewState extends State<QuestionView>
   late QuestionBank question;
   int selectedOption = -1;
   bool showAnswer = false;
+
+  String getCorrectAnswer() {
+    String answer = "";
+    if (widget.question.answer1IsCorrect) {
+      answer += widget.question.option1 ?? "";
+    }
+    if (widget.question.answer2IsCorrect) {
+      if (answer.isNotEmpty) {
+        answer += "\t,\t";
+      }
+      answer += widget.question.option2 ?? "";
+    }
+    if (widget.question.answer3IsCorrect) {
+      if (answer.isNotEmpty) {
+        answer += "\t,\t";
+      }
+      answer += widget.question.option3 ?? "";
+    }
+    if (widget.question.answer4IsCorrect) {
+      if (answer.isNotEmpty) {
+        answer += "\t,\t";
+      }
+      answer += widget.question.option4 ?? "";
+    }
+    return answer;
+  }
+
   @override
   void didUpdateWidget(covariant QuestionView oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -41,57 +68,62 @@ class _QuestionViewState extends State<QuestionView>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            quesTile(),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          quesTile(),
+          Row(
+            children: [
+              optiontile(1,
+                  optionText: question.option1 ?? "",
+                  optionDownloadPath: question.option1DownPath),
+              optiontile(2,
+                  optionText: question.option2 ?? "",
+                  optionDownloadPath: question.option2DownPath),
+            ],
+          ),
+          if (widget.question.noOfOption > 2)
             Row(
               children: [
-                optiontile(1,
-                    optionText: question.option1 ?? "",
-                    optionDownloadPath: question.option1DownPath),
-                optiontile(2,
-                    optionText: question.option2 ?? "",
-                    optionDownloadPath: question.option2DownPath),
+                optiontile(3,
+                    optionText: question.option3 ?? "",
+                    optionDownloadPath: question.option3DownPath),
+                if (widget.question.noOfOption > 3)
+                  optiontile(4,
+                      optionText: question.option4 ?? "",
+                      optionDownloadPath: question.option4DownPath),
               ],
             ),
-            if (widget.question.noOfOption > 2)
-              Row(
-                children: [
-                  optiontile(3,
-                      optionText: question.option3 ?? "",
-                      optionDownloadPath: question.option3DownPath),
-                  if (widget.question.noOfOption > 3)
-                    optiontile(4,
-                        optionText: question.option4 ?? "",
-                        optionDownloadPath: question.option4DownPath),
-                ],
-              ),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  showAnswer = true;
-                  setState(() {});
-                },
-                child: Text(
-                  "Show Answer",
-                  style: TextStyle(color: Colors.blue, fontSize: 13),
-                ),
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                showAnswer = true;
+                setState(() {});
+              },
+              child: Text(
+                "Show Answer",
+                style: TextStyle(color: Colors.blue, fontSize: 13),
               ),
             ),
-            if (showAnswer)
-              Padding(
+          ),
+          if (showAnswer)
+            Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: Text(
-                  "Explanation :- ${widget.question.explanation}",
-                  style: TextStyle(color: Colors.green, fontSize: 8),
-                ),
-              )
-          ],
-        ),
+                child: RichText(
+                    text: TextSpan(children: [
+                  TextSpan(
+                    text: "Answer :- ${getCorrectAnswer()}",
+                    style: TextStyle(color: Colors.green, fontSize: 8),
+                  ),
+                  TextSpan(text: "\n"),
+                  TextSpan(
+                    text: "Explanation :- ${widget.question.explanation}",
+                    style: TextStyle(color: Colors.green, fontSize: 8),
+                  ),
+                ])))
+        ],
       ),
     );
   }
@@ -118,7 +150,7 @@ class _QuestionViewState extends State<QuestionView>
 
   Widget optiontile(int index,
       {required String optionText, required String? optionDownloadPath}) {
-    return Expanded(
+    return Flexible(
       flex: 1,
       child: GestureDetector(
         onTap: () {

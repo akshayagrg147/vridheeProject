@@ -83,6 +83,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       loadVideoPlayer();
       if (controller?.value.isInitialized == true) {
         controller?.pause();
+        controller = null;
       }
     }
   }
@@ -223,6 +224,16 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     super.dispose();
   }
 
+  Widget noFileFound() {
+    return const Center(
+      child: Text(
+        "File Not Found",
+        style: TextStyle(
+            color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -266,14 +277,12 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             htmlFilePath: html5FilePath!,
           );
         } else {
-          contentWidget = const Center(
-            child: Icon(Icons.error_outline),
-          );
+          contentWidget = noFileFound();
         }
       } else {
         contentWidget = controller?.value.isInitialized == true
             ? CustomVideoPlayer(controller: controller!)
-            : const Center(child: CircularProgressIndicator());
+            : noFileFound();
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
@@ -290,9 +299,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           //         aspectRatio: controller!.value.aspectRatio,
           //         child: VideoPlayer(controller!),
           //       )
-          : Center(
-              child: Icon(Icons.error_outline),
-            );
+          : noFileFound();
       // contentWidget = const Center(child: Text('Unsupported file type'));
     }
 
