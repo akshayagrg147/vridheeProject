@@ -41,15 +41,16 @@ class DashboardHeaderWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed('/contentPlanning');
-                    },
-                    child: TextView(
-                      "See History >",
-                      textColor: ThemeColor.commonDarkBlueColor,
-                    ),
-                  )
+                  SizedBox()
+                  // InkWell(
+                  //   onTap: () {
+                  //     Get.toNamed('/contentPlanning');
+                  //   },
+                  //   child: TextView(
+                  //     "See History >",
+                  //     textColor: ThemeColor.commonDarkBlueColor,
+                  //   ),
+                  // )
                 ],
               ),
               const SizedBox(

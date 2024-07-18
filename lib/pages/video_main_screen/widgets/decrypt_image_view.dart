@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/services/background_service_controller.dart';
 
 class DecryptImageView extends StatefulWidget {
   final String path;
@@ -23,7 +24,9 @@ class _DecryptImageViewState extends State<DecryptImageView> {
     setState(() {
       isLoading = true;
     });
-    final file = File(widget.path);
+    final downloadDirPath =
+        await BackgroundServiceController.instance.getContentDirectoryPath();
+    final file = File("$downloadDirPath/${widget.path}");
     if (await file.exists()) {
       imageBuffer = await FileEncryptor().decryptFile(file);
     }

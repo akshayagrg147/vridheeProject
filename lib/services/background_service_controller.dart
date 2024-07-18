@@ -22,6 +22,7 @@ class BackgroundServiceController {
 
   Future<void> performBackgroundTask() async {
     try {
+      await SharedPrefHelper().initialize();
       final DatabaseController dbController = Get.put(DatabaseController());
       await dbController.initializeDatabase();
       // Get the download list
@@ -130,9 +131,13 @@ class BackgroundServiceController {
   }
 
   Future<String> getContentDirectoryPath() async {
-    final directory = await getExternalStorageDirectory();
+    String choosenLocationPath = SharedPrefHelper().getDownLoadFolderLocation();
+    if (choosenLocationPath.isEmpty) {
+      final directory = await getExternalStorageDirectory();
+      choosenLocationPath = directory!.path;
+    }
 
-    return directory!.path;
+    return choosenLocationPath;
   }
 
   Future<void> checkPermissions() async {

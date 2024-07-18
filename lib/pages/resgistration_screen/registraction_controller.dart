@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:easy_folder_picker/FolderPicker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/sync_data/sync_data_response.dart';
@@ -13,9 +17,17 @@ class RegistrationController extends GetxController {
   Rx<RegisterDeviceResponse> registerDeviceResponse =
       RegisterDeviceResponse().obs;
   RxBool isLoading = false.obs;
-
+  Rxn<String> downloadFolderLocation = Rxn<String>(null);
   void registerDevice() async {
     //Initial loading start
+    if (downloadFolderLocation.value == null) {
+      Get.showSnackbar(const GetSnackBar(
+        message: "Please select a folder for downloading data",
+        duration: Duration(seconds: 2),
+      ));
+      return;
+    }
+
     isLoading.value = true;
     try {
       final response = await RegistrationRepository.registerDevice(
@@ -31,6 +43,8 @@ class RegistrationController extends GetxController {
         //Now sync the data
         if (response.data != null && response.data! > 0) {
           //Save Data in shared Preference and marked as registered
+          await SharedPrefHelper()
+              .setDownLoadFolderLocation(downloadFolderLocation.value!);
           await SharedPrefHelper().setDeviceId(response.data.toString());
           await SharedPrefHelper().setIsRegistrationCompleted(true);
           Get.offAllNamed("/loginPage");
@@ -49,5 +63,57 @@ class RegistrationController extends GetxController {
       //Stop the loading or loader
       isLoading.value = false;
     }
+  }
+
+  void chooseDownloadFolderLocation() async {
+    try {
+      final isStoragePermissionGranted = await requestStoragePermission();
+      // if (isStoragePermissionGranted == false) {
+      //   openAppSettings();
+      //   return;
+      // }
+      final isManageStoragePermissionGranted =
+          await requestManageStoragepermission();
+      if (!isManageStoragePermissionGranted) {
+        return;
+      }
+      final path = await chooseFolder();
+      if (path == null) {
+        return;
+      }
+      downloadFolderLocation.value = path;
+    } catch (e) {}
+  }
+
+  Future<String?> chooseFolder() async {
+    Directory? directory = Directory(FolderPicker.rootPath);
+
+    Directory? newDirectory = await FolderPicker.pick(
+        allowFolderCreation: true,
+        context: Get.context!,
+        rootDirectory: directory,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))));
+
+    print(newDirectory?.path ?? "--no file Chosen");
+    return newDirectory?.path;
+  }
+
+  // Request storage permission
+  static Future<bool> requestStoragePermission() async {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      status = await Permission.storage.request();
+    }
+
+    return status.isGranted;
+  }
+
+  static Future<bool> requestManageStoragepermission() async {
+    var status = await Permission.manageExternalStorage.status;
+    if (status.isRestricted || status.isDenied) {
+      status = await Permission.manageExternalStorage.request();
+    }
+    return status.isGranted;
   }
 }

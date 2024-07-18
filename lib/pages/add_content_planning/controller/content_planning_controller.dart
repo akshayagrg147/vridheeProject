@@ -486,14 +486,16 @@ class ContentPlanningController extends GetxController {
                 selectedTopic.value!.topic.onlineInstituteTopicId);
         filterTopicData();
         Get.back();
-        Get.showSnackbar(GetSnackBar(
+        Get.showSnackbar(const GetSnackBar(
           message: "File added successfully!",
+          duration: Duration(seconds: 2),
         ));
       }
     } catch (e) {
       Get.back();
-      Get.showSnackbar(GetSnackBar(
+      Get.showSnackbar(const GetSnackBar(
         message: "Something went wrong",
+        duration: const Duration(seconds: 2),
       ));
     }
   }

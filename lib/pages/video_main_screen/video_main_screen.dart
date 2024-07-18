@@ -189,12 +189,19 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                                         _.redo();
                                       },
                                     ),
-                                    IconButton(
-                                      isSelected: true,
-                                      icon: const Icon(Icons.brush),
-                                      onPressed: () {
-                                        _.isErasing.toggle();
-                                      },
+                                    Obx(
+                                      () => IconButton(
+                                        isSelected: false,
+                                        icon: Icon(
+                                          Icons.brush,
+                                          color: _.isErasing.value
+                                              ? Colors.black
+                                              : Colors.amber,
+                                        ),
+                                        onPressed: () {
+                                          _.isErasing.toggle();
+                                        },
+                                      ),
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.clear),

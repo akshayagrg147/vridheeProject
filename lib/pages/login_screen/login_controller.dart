@@ -125,6 +125,9 @@ class LoginController extends GetxController {
             query: item.queryStatement ?? '');
         temp = '$temp${item.offlineDeviceSyncRelId ?? ''},';
       } catch (e) {
+        print(
+            "Query Id :- ${item.offlineSyncQueryId}  ,,  ${item.offlineDeviceSyncRelId}  ");
+
         print('Error executing query: $e');
       }
     }

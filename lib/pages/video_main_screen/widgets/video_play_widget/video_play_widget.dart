@@ -83,6 +83,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       loadVideoPlayer();
       if (controller?.value.isInitialized == true) {
         controller?.pause();
+      }
+      if (controller?.value.isInitialized == true &&
+          widget.topic?.fileNameExt != 'mp4') {
         controller = null;
       }
     }

@@ -29,6 +29,13 @@ class SharedPrefHelper {
 
   String getLoginUserMail() => _prefs!.getString('userMail') ?? "";
 
+  Future<bool> setDownLoadFolderLocation(String locationPath) async {
+    return await _prefs!.setString('DownloadFolderLocation', locationPath);
+  }
+
+  String getDownLoadFolderLocation() =>
+      _prefs!.getString('DownloadFolderLocation') ?? "";
+
   Future<bool> setIsSynced(bool isSynced) async {
     return await _prefs!.setBool('isSynced', isSynced);
   }

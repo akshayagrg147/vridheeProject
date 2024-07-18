@@ -154,6 +154,7 @@ class ApiClient {
       if (error == noInternet) {
         getP.Get.showSnackbar(GetSnackBar(
           message: error.toString(),
+          duration: const Duration(seconds: 2),
         ));
       }
       throw ApiException(

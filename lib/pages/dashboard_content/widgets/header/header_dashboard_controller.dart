@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -44,7 +47,7 @@ class DashboardHeaderController extends GetxController {
     super.onInit();
     fetchClassData();
     fetchContinueData(null, null);
-
+    fetchLanguageData();
     _checkForUpdate();
   }
 
@@ -57,6 +60,24 @@ class DashboardHeaderController extends GetxController {
       classList.assignAll(classData);
     } catch (e) {
       // print('Error fetching data from database: $e');
+    }
+  }
+
+  Future<void> fetchLanguageData() async {
+    try {
+      final List<Map<String, dynamic>> languageDataMaps =
+          await myDataController.rawQuery('''SELECT DISTINCT content_lang
+          FROM tbl_institute_topic_data
+
+          UNION
+
+          SELECT DISTINCT content_lang
+          FROM tbl_lms_ques_bank''');
+      languageList.value =
+          languageDataMaps.map((e) => e['content_lang'].toString()).toList();
+      selectedLanguage.value = languageList.first;
+    } catch (e) {
+      log(e.toString());
     }
   }
 

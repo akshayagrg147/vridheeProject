@@ -472,6 +472,7 @@ class VideoMainScreenController extends GetxController {
 
     if (videotopics.value.isEmpty) {
       videotopics.value.assignAll(videoData);
+      videotopics.value.addAll(html5Data);
     }
     if (ematerialtopics.value.isEmpty) {
       ematerialtopics.value.assignAll(ematerialData);
