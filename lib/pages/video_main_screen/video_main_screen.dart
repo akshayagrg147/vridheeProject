@@ -244,13 +244,12 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                             SpeedDialChild(
                               child: const Icon(Icons.question_answer_outlined),
                               backgroundColor: Colors.white,
-                              label: 'Questions',
+                              label: 'Quiz',
                               onTap: () async {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return showCustomDialog(
-                                        context, 'Questions', [],
+                                    return showCustomDialog(context, 'Quiz', [],
                                         questionList: _.questionTopics.value);
                                   },
                                 );

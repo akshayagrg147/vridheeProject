@@ -465,6 +465,7 @@ class ContentPlanningController extends GetxController {
                 employeedata['online_institute_user_id'].toString(),
             addedType: 'Manual',
             contentLevel: 'Basic',
+            topicName: topicName.value,
             contentTag: '',
             contentLang: 'English',
             isVerified: 'Yes',

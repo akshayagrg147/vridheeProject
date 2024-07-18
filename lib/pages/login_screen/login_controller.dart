@@ -119,7 +119,7 @@ class LoginController extends GetxController {
 
   Future<void> executeAndNotify(List<Datum> items) async {
     String temp = '';
-    for (var item in items) {
+    await Future.forEach(items, (item) async {
       try {
         await myDataController.performTransaction(
             query: item.queryStatement ?? '');
@@ -130,7 +130,8 @@ class LoginController extends GetxController {
 
         print('Error executing query: $e');
       }
-    }
+    });
+
     final isSynced = SharedPrefHelper().getIsSynced();
     final isInternetAvailable = await ApiClient().isInternetAvailable();
     if (isSynced == false && isInternetAvailable) {

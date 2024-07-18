@@ -109,7 +109,7 @@ class VideoMainScreenTopicDataSelecter extends StatelessWidget {
                           vertical: BorderSide(color: ThemeColor.greyLight))),
                   child: Center(
                       child: TextView(
-                    data.topicDataFileCodeName ?? "",
+                    data.topicName ?? "",
                     fontsize: 14,
                   )))),
           Expanded(

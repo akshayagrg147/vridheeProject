@@ -35,7 +35,7 @@ class RegistrationController extends GetxController {
         /* 'OCA-Dem-Pan--47820'*/
         serialNumber: serialNoController.text,
         /*'478268375682424'*/
-        projectId: 16,
+        projectId: '16,66,67',
       );
       if (response != null && response.success == true) {
         print("RegisterDevice :- $response");

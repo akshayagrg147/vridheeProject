@@ -4,6 +4,7 @@ class InstituteTopicData {
   int? instituteId;
   int? parentInstituteId;
   int? instituteTopicId;
+  String? topicName;
   String? topicDataKind;
   String? topicDataType;
   String? topicDataFileCodeName;
@@ -45,6 +46,7 @@ class InstituteTopicData {
       this.noOfClicks,
       this.priority,
       this.status,
+      this.topicName,
       this.displayType,
       this.isDefault,
       this.defaultTopicDateId,
@@ -68,6 +70,7 @@ class InstituteTopicData {
     topicDataType = json['topic_data_type'];
     topicDataFileCodeName = json['topic_data_file_code_name'];
     code = json['code'];
+    topicName = json['topic_name'];
     fileNameExt = json['file_name_ext'];
     html5FileName = json['html5_file_name'];
     html5FileNameApp = json['html5_file_name_app'];

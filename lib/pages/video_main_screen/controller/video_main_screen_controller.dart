@@ -448,7 +448,11 @@ class VideoMainScreenController extends GetxController {
         ematerialtopics.value.add(eMaterialData);
       }
     }
-
+    for (var aiContent in aiContentData) {
+      if (existingTopicDataIds.contains(aiContent.instituteTopicDataId)) {
+        aiContentTopics.value.add(aiContent);
+      }
+    }
     for (var question in questionsData) {
       if (existingTopicDataIds.contains(question.onlineLmsQuesBankId)) {
         questionTopics.value.add(question);
@@ -479,6 +483,9 @@ class VideoMainScreenController extends GetxController {
     }
     if (questionTopics.value.isEmpty) {
       questionTopics.value.assignAll(questionsData);
+    }
+    if (aiContentTopics.value.isEmpty) {
+      aiContentTopics.value.assignAll(aiContentData);
     }
 
     // Do something with the filtered data, e.g., update variables or UI

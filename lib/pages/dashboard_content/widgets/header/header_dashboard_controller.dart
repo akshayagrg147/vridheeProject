@@ -204,11 +204,16 @@ class DashboardHeaderController extends GetxController {
     // print("in fetch topic data 1");
 
     final List<Map<String, dynamic>> topicsDataMaps =
-        await myDataController.query(
-      'tbl_institute_topic_data',
-      where: 'institute_topic_id = ? and content_lang = ? ',
-      whereArgs: [topicId, language],
-    );
+        await myDataController.rawQuery('''
+     select * , tt.topic_name from tbl_institute_topic_data as tb
+join tbl_institute_topic tt on tt.online_institute_topic_id=tb.institute_topic_id
+where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
+      ''');
+    //     await myDataController.query(
+    //   'tbl_institute_topic_data',
+    //   where: 'institute_topic_id = ? and content_lang = ? ',
+    //   whereArgs: [topicId, language],
+    // );
     // print("in fetch topic data  2");
     final List<InstituteTopicData> topicData =
         topicsDataMaps.map((map) => InstituteTopicData.fromJson(map)).toList();
