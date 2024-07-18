@@ -75,14 +75,15 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   @override
   void didUpdateWidget(covariant VideoPlayWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.topic?.code != widget.topic?.code) {
-      loadVideoPlayer();
-    } else if (oldWidget.topic?.instituteTopicDataId !=
+    if (oldWidget.topic?.instituteTopicDataId !=
         widget.topic?.instituteTopicDataId) {
-      loadVideoPlayer();
       if (controller?.value.isInitialized == true) {
         controller?.pause();
       }
+
+      controller = null;
+      docData = null;
+      loadVideoPlayer();
     }
   }
 
@@ -199,13 +200,8 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   @override
   void dispose() {
     print("in dispose 3");
-    if (!widget.topic!.code!.contains("https://www.youtube.com") &&
-        GetPlatform.isAndroid) {
-      _controller.close();
-      print("in dispose 1");
-    } else {
-      controller?.dispose();
-    }
+
+    controller?.dispose();
 
     // _controller.dispose();
     super.dispose();
