@@ -76,18 +76,16 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   @override
   void didUpdateWidget(covariant VideoPlayWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.topic?.code != widget.topic?.code) {
-      loadVideoPlayer();
-    } else if (oldWidget.topic?.instituteTopicDataId !=
+    if (oldWidget.topic?.instituteTopicDataId !=
         widget.topic?.instituteTopicDataId) {
-      loadVideoPlayer();
       if (controller?.value.isInitialized == true) {
         controller?.pause();
       }
-      if (controller?.value.isInitialized == true &&
-          widget.topic?.fileNameExt != 'mp4') {
-        controller = null;
-      }
+
+      controller = null;
+      docData = null;
+      html5FilePath = null;
+      loadVideoPlayer();
     }
   }
 
