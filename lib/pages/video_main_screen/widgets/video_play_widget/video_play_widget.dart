@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:path_provider/path_provider.dart';
 
 // import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -259,8 +260,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     //   //   javascriptMode: JavascriptMode.unrestricted,
     //   // );
     // } else
-
-    if ((widget.topic?.fileNameExt == 'mp4' ||
+    if (widget.topic?.topicDataType == "e-Content (AI)") {
+      contentWidget = Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+            SingleChildScrollView(child: HtmlWidget(widget.topic?.code ?? "")),
+      );
+    } else if ((widget.topic?.fileNameExt == 'mp4' ||
             widget.topic?.fileNameExt == 'html5' ||
             widget.topic?.topicDataType == 'HTML5') &&
         widget.topic?.code != null) {
