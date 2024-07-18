@@ -40,7 +40,7 @@ class ContentPlanningController extends GetxController {
   var initiallySelectedEMaterialList = <InstituteTopicData>[];
   var initiallySelectedQuestionList = <QuestionBank>[];
 
-  var videoSelected = true.obs;
+  var videoSelected = false.obs;
   var eMaterialSelected = false.obs;
   var questionSelected = false.obs;
 
@@ -169,6 +169,22 @@ class ContentPlanningController extends GetxController {
     } catch (e) {
       print('Error fetching existing selections: $e');
     }
+
+    if (initiallySelectedQuestionList.isNotEmpty) {
+      questionSelected.value = true;
+    }
+    if (initiallySelectedEMaterialList.isNotEmpty) {
+      eMaterialSelected.value = true;
+    }
+    if (initiallySelectedVideoList.isNotEmpty) {
+      videoSelected.value = true;
+    }
+
+    if (!(questionSelected.value ||
+        eMaterialSelected.value ||
+        videoSelected.value)) {
+      videoSelected.value = true;
+    }
   }
 
   void filterTopicData() {
@@ -275,6 +291,11 @@ class ContentPlanningController extends GetxController {
   // end_year: 2025.0,
   // created_date: 2024-05-09 19:35:46,
   // updated_date: 2024-05-09 19:35:46}
+  void reset() {
+    selectedVideoList.value.clear();
+    selectedEMaterialList.value.clear();
+    selectedQuestionList.value.clear();
+  }
 
   void submitPlan() async {
     try {
@@ -381,6 +402,7 @@ class ContentPlanningController extends GetxController {
         if (!selectedEMaterialList.value.contains(eMaterialData)) {
           await myDataController.delete(
             StringConstant().tblSyllabusPlanning,
+            where: 'institute_topic_data_id = ?',
             whereArgs: [eMaterialData.instituteTopicDataId],
           );
           print(
@@ -391,6 +413,7 @@ class ContentPlanningController extends GetxController {
         if (!selectedQuestionList.value.contains(quesData)) {
           await myDataController.delete(
             StringConstant().tblSyllabusPlanning,
+            where: 'institute_topic_data_id = ?',
             whereArgs: [quesData.onlineLmsQuesBankId],
           );
           print(
@@ -442,6 +465,7 @@ class ContentPlanningController extends GetxController {
                 employeedata['online_institute_user_id'].toString(),
             addedType: 'Manual',
             contentLevel: 'Basic',
+            topicName: topicName.value,
             contentTag: '',
             contentLang: 'English',
             isVerified: 'Yes',
@@ -463,14 +487,16 @@ class ContentPlanningController extends GetxController {
                 selectedTopic.value!.topic.onlineInstituteTopicId);
         filterTopicData();
         Get.back();
-        Get.showSnackbar(GetSnackBar(
+        Get.showSnackbar(const GetSnackBar(
           message: "File added successfully!",
+          duration: Duration(seconds: 2),
         ));
       }
     } catch (e) {
       Get.back();
-      Get.showSnackbar(GetSnackBar(
+      Get.showSnackbar(const GetSnackBar(
         message: "Something went wrong",
+        duration: const Duration(seconds: 2),
       ));
     }
   }

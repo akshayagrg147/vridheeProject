@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/core/api_client/api_client.dart';
-import 'package:teaching_app/core/api_client/api_exception.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/sync_data/sync_data_response.dart';
@@ -119,15 +118,19 @@ class LoginController extends GetxController {
 
   Future<void> executeAndNotify(List<Datum> items) async {
     String temp = '';
-    for (var item in items) {
+    await Future.forEach(items, (item) async {
       try {
         await myDataController.performTransaction(
             query: item.queryStatement ?? '');
         temp = '$temp${item.offlineDeviceSyncRelId ?? ''},';
       } catch (e) {
+        print(
+            "Query Id :- ${item.offlineSyncQueryId}  ,,  ${item.offlineDeviceSyncRelId}  ");
+
         print('Error executing query: $e');
       }
-    }
+    });
+
     final isSynced = SharedPrefHelper().getIsSynced();
     final isInternetAvailable = await ApiClient().isInternetAvailable();
     if (isSynced == false && isInternetAvailable) {

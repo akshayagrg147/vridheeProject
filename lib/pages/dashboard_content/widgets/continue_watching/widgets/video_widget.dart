@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/app_theme.dart';
+import 'package:teaching_app/modals/tbl_institute_topic_data.dart';
 import 'package:teaching_app/widgets/app_rich_text.dart';
 
 import '../../open_subject_menu_widget/modal/open_subject_model.dart';
@@ -32,9 +33,11 @@ class VideoDashboardThumbnailWidget extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage(
-                          'https://getwallpapers.com/wallpaper/full/a/b/4/891455-wallpaper-of-study-2560x1440-for-hd-1080p.jpg'),
+                    image: DecorationImage(
+                      image: AssetImage(assetPath(
+                          (video['topicData'] as InstituteTopicData?)
+                                  ?.fileNameExt ??
+                              "")),
                       // Replace with your selected image URL
                       fit: BoxFit.fill,
                     ),
@@ -107,5 +110,16 @@ class VideoDashboardThumbnailWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String assetPath(String ext) {
+    switch (ext) {
+      case "mp4":
+        return "assets/icons/video.jpeg";
+      case "mp3":
+        return "assets/icons/mp3.jpeg";
+      default:
+        return "assets/icons/other.jpeg";
+    }
   }
 }

@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -43,6 +47,7 @@ class DashboardHeaderController extends GetxController {
     super.onInit();
     fetchClassData();
     fetchContinueData(null, null);
+    fetchLanguageData();
     _checkForUpdate();
   }
 
@@ -55,6 +60,24 @@ class DashboardHeaderController extends GetxController {
       classList.assignAll(classData);
     } catch (e) {
       // print('Error fetching data from database: $e');
+    }
+  }
+
+  Future<void> fetchLanguageData() async {
+    try {
+      final List<Map<String, dynamic>> languageDataMaps =
+          await myDataController.rawQuery('''SELECT DISTINCT content_lang
+          FROM tbl_institute_topic_data
+
+          UNION
+
+          SELECT DISTINCT content_lang
+          FROM tbl_lms_ques_bank''');
+      languageList.value =
+          languageDataMaps.map((e) => e['content_lang'].toString()).toList();
+      selectedLanguage.value = languageList.first;
+    } catch (e) {
+      log(e.toString());
     }
   }
 
@@ -176,15 +199,21 @@ class DashboardHeaderController extends GetxController {
     // return topic;
   }
 
-  Future<List<InstituteTopicData>> fetchTopicData(int topicId) async {
+  Future<List<InstituteTopicData>> fetchTopicData(int topicId,
+      {required String language}) async {
     // print("in fetch topic data 1");
 
     final List<Map<String, dynamic>> topicsDataMaps =
-        await myDataController.query(
-      'tbl_institute_topic_data',
-      where: 'institute_topic_id = ?',
-      whereArgs: [topicId],
-    );
+        await myDataController.rawQuery('''
+     select * , tt.topic_name from tbl_institute_topic_data as tb
+join tbl_institute_topic tt on tt.online_institute_topic_id=tb.institute_topic_id
+where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
+      ''');
+    //     await myDataController.query(
+    //   'tbl_institute_topic_data',
+    //   where: 'institute_topic_id = ? and content_lang = ? ',
+    //   whereArgs: [topicId, language],
+    // );
     // print("in fetch topic data  2");
     final List<InstituteTopicData> topicData =
         topicsDataMaps.map((map) => InstituteTopicData.fromJson(map)).toList();
@@ -192,14 +221,15 @@ class DashboardHeaderController extends GetxController {
     return topicData;
   }
 
-  Future<List<QuestionBank>> fetchQuestionsData(int topicId) async {
+  Future<List<QuestionBank>> fetchQuestionsData(int topicId,
+      {required String language}) async {
     // print("in fetch topic data 1");
 
     final List<Map<String, dynamic>> questionDataMap =
         await myDataController.query(
       'tbl_lms_ques_bank',
-      where: 'institute_topic_id = ?',
-      whereArgs: [topicId],
+      where: 'institute_topic_id = ? and content_lang = ? ',
+      whereArgs: [topicId, language],
     );
     // print("in fetch topic data  2");
     final List<QuestionBank> questionData =
@@ -229,10 +259,12 @@ class DashboardHeaderController extends GetxController {
       for (var topicMap in topicsList) {
         final int topicId = topicMap.onlineInstituteTopicId;
         // print("fetch all chapter topicListAdd id ${topicId}");
-        final List<InstituteTopicData> topicDataList =
-            await fetchTopicData(topicId);
-        final List<QuestionBank> questionList =
-            await fetchQuestionsData(topicId);
+        final List<InstituteTopicData> topicDataList = await fetchTopicData(
+            topicId,
+            language: selectedLanguage.value ?? "");
+        final List<QuestionBank> questionList = await fetchQuestionsData(
+            topicId,
+            language: selectedLanguage.value ?? "");
         topicList.add(LocalTopic(
             topic: topicMap,
             topicData: topicDataList,
@@ -417,6 +449,7 @@ class DashboardHeaderController extends GetxController {
       List<LocalChapter> chapters = await fetchAllChapters(
           selectedClass.value?.onlineInstituteCourseId ?? 0,
           subject.onlineInstituteSubjectId);
+      allChapterList.clear();
       allChapterList.assignAll(chapters);
       // print("chapter list for : ${subject.onlineInstituteSubjectId} : ${allChapterList.length}");
       await filterChapterByUserAccess();
@@ -659,7 +692,20 @@ class DashboardHeaderController extends GetxController {
     }
   }
 
+  Future<bool> isInternetAvailable() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.mobile) ||
+        connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet)) {
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _checkForUpdate() async {
+    if (!(await isInternetAvailable())) {
+      return;
+    }
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion = packageInfo.version;
     final String remoteVersion = RemoteConfigService.getAppVersion;
@@ -716,7 +762,7 @@ class DashboardHeaderController extends GetxController {
 
   void _launchURL() async {
     const url =
-        'https://play.google.com/store/apps/details?id=your.package.name';
+        'https://track.vridhee.com/Installer/VridheeEDU/VridheeLMSOffline.apk';
     if (await canLaunch(url)) {
       await launch(url);
     } else {

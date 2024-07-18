@@ -11,7 +11,7 @@ class RegistrationRepository {
   static Future<RegisterDeviceResponse?> registerDevice(
       {required String trackingId,
       required String serialNumber,
-      required int projectId}) async {
+      required String projectId}) async {
     FormData? formData = FormData.fromMap({
       "tracking_id": trackingId,
       "serial_number": serialNumber,

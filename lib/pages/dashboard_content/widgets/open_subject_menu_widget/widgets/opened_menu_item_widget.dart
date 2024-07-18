@@ -415,7 +415,8 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                       child: Center(
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/100', fontsize: 13)),
+                        child: TextView('0/${topic.questionData.length}',
+                            fontsize: 13)),
                   )),
                   TableCell(
                       child: Center(

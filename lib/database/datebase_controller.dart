@@ -70,9 +70,9 @@ class DatabaseController extends GetxController {
               dynamic>> userTypeNameMap = await database!.rawQuery(
           'SELECT designation_for FROM tbl_user_type WHERE online_user_type_id = ? ',
           [userTypeId]);
+      final designation = userTypeNameMap.first['designation_for'];
       if (userTypeNameMap.isNotEmpty) {
-        final designation = userTypeNameMap.first['designation_for'];
-        if (designation == 'Department') {
+        if (designation == role) {
           return true;
         } else if (designation == 'Institute') {
           //check for teacher or principal
@@ -83,7 +83,7 @@ class DatabaseController extends GetxController {
               [userTypeId]);
           if (userNameMap.isNotEmpty) {
             final userName = userNameMap.first['user_type_name'];
-            if (userName == 'Teacher' || userName == 'Principal') {
+            if (userName == role) {
               return true;
             }
           }

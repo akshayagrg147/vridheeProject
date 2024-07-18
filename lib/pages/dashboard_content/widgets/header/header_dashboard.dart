@@ -41,15 +41,16 @@ class DashboardHeaderWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed('/contentPlanning');
-                    },
-                    child: TextView(
-                      "See History >",
-                      textColor: ThemeColor.commonDarkBlueColor,
-                    ),
-                  )
+                  SizedBox()
+                  // InkWell(
+                  //   onTap: () {
+                  //     Get.toNamed('/contentPlanning');
+                  //   },
+                  //   child: TextView(
+                  //     "See History >",
+                  //     textColor: ThemeColor.commonDarkBlueColor,
+                  //   ),
+                  // )
                 ],
               ),
               const SizedBox(
@@ -136,7 +137,7 @@ class DashboardHeaderWidget extends StatelessWidget {
                                     ),
                                     child: AppDropDown<String>(
                                         onChange: (p0) {
-                                          _.selectedLanguage.value = p0;
+                                          _.selectedLanguage.value = p0!;
                                         },
                                         value: _.selectedLanguage.value,
                                         items: _.languageList

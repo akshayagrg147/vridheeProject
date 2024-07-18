@@ -156,7 +156,9 @@ class ContentPlanningScreen extends StatelessWidget {
                                             showBorder: true,
                                             borderColor:
                                                 ThemeColor.darkBlue4392,
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              _.reset();
+                                            },
                                           )),
                                     ],
                                   ),
@@ -326,7 +328,9 @@ class ContentPlanningScreen extends StatelessWidget {
                                             showBorder: true,
                                             borderColor:
                                                 ThemeColor.darkBlue4392,
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              _.reset();
+                                            },
                                           )),
                                     ],
                                   ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
@@ -19,8 +20,8 @@ class RegistrationScreen extends StatelessWidget {
 
     if (!isRegistrationCompleted) {
       return registration();
-    } else  {
-      return  LoginScreen();
+    } else {
+      return LoginScreen();
     }
   }
 
@@ -65,7 +66,30 @@ class RegistrationScreen extends StatelessWidget {
                       },
                       // onSaved: (value) => _serialNumber = value!,
                     ),
-                    const SizedBox(height: 20.0),
+                    const SizedBox(height: 15.0),
+                    GestureDetector(
+                      onTap: () {
+                        _.chooseDownloadFolderLocation();
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.folder,
+                            color: Colors.grey,
+                            size: 30,
+                          ),
+                          Obx(() => Text(
+                                _.downloadFolderLocation.value ??
+                                    "Choose Download Location",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black),
+                              ))
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Obx(
                       () => _.isLoading.value
                           ? const Center(

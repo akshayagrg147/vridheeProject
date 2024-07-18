@@ -25,6 +25,7 @@ class BackgroundServiceController {
   static ValueNotifier<int> filesDownloaded = ValueNotifier(0);
   Future<void> performBackgroundTask() async {
     try {
+      await SharedPrefHelper().initialize();
       final DatabaseController dbController = Get.put(DatabaseController());
       await dbController.initializeDatabase();
       // Get the download list
@@ -48,7 +49,6 @@ class BackgroundServiceController {
           throw ApiClient().noInternet;
         }
         await downloadFile(url, fileName, ext);
-        filesDownloaded.value += 1;
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
       if (!isInternetAvailable) {
@@ -68,7 +68,6 @@ class BackgroundServiceController {
           final ext = getFileExtFromUrl(quesUrl);
           final questionFileName = "ques_$id.${ext}";
           totalFilesTOBeDownload += 1;
-
           await downloadFile(quesUrl, questionFileName, ext);
           filesDownloaded.value += 1;
         }
@@ -78,7 +77,6 @@ class BackgroundServiceController {
           final ext = getFileExtFromUrl(opt1url);
           final optionFileName = "${id}_option_1.${ext}";
           totalFilesTOBeDownload += 1;
-
           await downloadFile(opt1url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
@@ -88,7 +86,6 @@ class BackgroundServiceController {
           final ext = getFileExtFromUrl(opt2url);
           final optionFileName = "${id}_option_2.${ext}";
           totalFilesTOBeDownload += 1;
-
           await downloadFile(opt2url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
@@ -98,7 +95,6 @@ class BackgroundServiceController {
           final ext = getFileExtFromUrl(opt3url);
           final optionFileName = "${id}_option_3.${ext}";
           totalFilesTOBeDownload += 1;
-
           await downloadFile(opt3url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
@@ -108,13 +104,12 @@ class BackgroundServiceController {
           final ext = getFileExtFromUrl(opt4url);
           final optionFileName = "${id}_option_4.${ext}";
           totalFilesTOBeDownload += 1;
-
           await downloadFile(opt4url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
       });
-      final isInternetAvailable1 = await ApiClient().isInternetAvailable();
-      if (!isInternetAvailable) {
+      final isInternetAvailable2 = await ApiClient().isInternetAvailable();
+      if (!isInternetAvailable2) {
         throw ApiClient().noInternet;
       }
       await SharedPrefHelper().setIsSynced(true);
@@ -138,10 +133,10 @@ class BackgroundServiceController {
   }
 
   Future<void> downloadFile(String url, String fileName, String ext) async {
-    log("Forground Service Download Url :- $url");
-    final path = await getContentDirectoryPath();
-    if (url.isNotEmpty) {
-      try {
+    try {
+      log("Forground Service Download Url :- $url");
+      final path = await getContentDirectoryPath();
+      if (url.isNotEmpty) {
         final filePath = "$path/$fileName";
         await ApiClient().download(url, path: filePath,
             onReceiveProgress: (recieved, total) {
@@ -149,17 +144,22 @@ class BackgroundServiceController {
             FileEncryptor().encryptFile(File(filePath), filePath);
           }
         });
-      } catch (e) {
-        log(e.toString());
       }
+    } catch (e) {
+      log(e.toString());
     }
   }
 
   Future<String> getContentDirectoryPath() async {
-    final directory = GetPlatform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationSupportDirectory();
-    return directory!.path;
+    String choosenLocationPath = SharedPrefHelper().getDownLoadFolderLocation();
+    if (choosenLocationPath.isEmpty) {
+      final directory = GetPlatform.isAndroid
+          ? await getExternalStorageDirectory()
+          : await getApplicationSupportDirectory();
+      choosenLocationPath = directory!.path;
+    }
+
+    return choosenLocationPath;
   }
 
   Future<void> checkPermissions() async {

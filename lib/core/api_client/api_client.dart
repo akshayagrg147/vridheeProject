@@ -119,7 +119,7 @@ class ApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> _handleError(String path, Object error)async {
+  Future<Map<String, dynamic>> _handleError(String path, Object error) async {
     if (error is DioError) {
       final method = error.requestOptions.method;
       final response = error.response;
@@ -149,8 +149,10 @@ class ApiClient {
       );
     } else {
       int errorCode = 0; //We will send a default error code as 0
-      if(error==noInternet){
-        getP.Get.showSnackbar(GetSnackBar(message: noInternet,));
+      if (error == noInternet) {
+        getP.Get.showSnackbar(GetSnackBar(
+          message: noInternet,
+        ));
         return {};
       }
       throw ApiException(
@@ -196,7 +198,8 @@ class ApiClient {
   Future<bool> isInternetAvailable() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.mobile) ||
-        connectivityResult.contains(ConnectivityResult.wifi) ||connectivityResult.contains( ConnectivityResult.ethernet)) {
+        connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet)) {
       return true;
     }
     return false;

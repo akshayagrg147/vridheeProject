@@ -189,11 +189,19 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                                         _.redo();
                                       },
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.brush),
-                                      onPressed: () {
-                                        _.isErasing.toggle();
-                                      },
+                                    Obx(
+                                      () => IconButton(
+                                        isSelected: false,
+                                        icon: Icon(
+                                          Icons.brush,
+                                          color: _.isErasing.value
+                                              ? Colors.black
+                                              : Colors.amber,
+                                        ),
+                                        onPressed: () {
+                                          _.isErasing.toggle();
+                                        },
+                                      ),
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.clear),
@@ -236,13 +244,12 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                             SpeedDialChild(
                               child: const Icon(Icons.question_answer_outlined),
                               backgroundColor: Colors.white,
-                              label: 'Questions',
+                              label: 'Quiz',
                               onTap: () async {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return showCustomDialog(
-                                        context, 'Questions', [],
+                                    return showCustomDialog(context, 'Quiz', [],
                                         questionList: _.questionTopics.value);
                                   },
                                 );
