@@ -49,6 +49,7 @@ class BackgroundServiceController {
           throw ApiClient().noInternet;
         }
         await downloadFile(url, fileName, ext);
+        filesDownloaded.value += 1;
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
       if (!isInternetAvailable) {
