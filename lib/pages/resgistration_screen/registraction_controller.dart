@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:easy_folder_picker/FolderPicker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -67,22 +69,25 @@ class RegistrationController extends GetxController {
 
   void chooseDownloadFolderLocation() async {
     try {
-      final isStoragePermissionGranted = await requestStoragePermission();
-      // if (isStoragePermissionGranted == false) {
-      //   openAppSettings();
+      // final isStoragePermissionGranted = await requestStoragePermission();
+      // // if (isStoragePermissionGranted == false) {
+      // //   openAppSettings();
+      // //   return;
+      // // }
+      // final isManageStoragePermissionGranted =
+      //     await requestManageStoragepermission();
+      // if (!isManageStoragePermissionGranted) {
       //   return;
       // }
-      final isManageStoragePermissionGranted =
-          await requestManageStoragepermission();
-      if (!isManageStoragePermissionGranted) {
-        return;
-      }
-      final path = await chooseFolder();
+      final path = await FilePicker.platform.getDirectoryPath();
+      
       if (path == null) {
         return;
       }
       downloadFolderLocation.value = path;
-    } catch (e) {}
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   Future<String?> chooseFolder() async {
