@@ -257,7 +257,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
                 ),
         );
       } else {
-        contentWidget = controller.value.isInitialized
+        contentWidget = controller?.value.isInitialized == true
             ? CustomVideoPlayer(controller: controller!)
             : const Center(child: CircularProgressIndicator());
       }
