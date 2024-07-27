@@ -1,8 +1,4 @@
-import 'dart:ffi';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
 
 class CustomVideoPlayer extends StatefulWidget {
@@ -14,8 +10,11 @@ class CustomVideoPlayer extends StatefulWidget {
 }
 
 class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
-  bool _isPlaying = true;
+  ValueNotifier<bool> _isPlaying = ValueNotifier(true);
+  ValueNotifier<bool> _isFullScreen = ValueNotifier(false);
+
   ValueNotifier<int> currentPosition = ValueNotifier(0);
+  ValueNotifier<double> volume = ValueNotifier(0.5);
   String formatDuration(int totalSeconds) {
     int hours = totalSeconds ~/ 3600;
     int minutes = (totalSeconds % 3600) ~/ 60;
@@ -35,11 +34,11 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   updatePosition() {
     currentPosition.value = widget.controller.value.position.inSeconds;
     if (widget.controller.value.isPlaying) {
-      _isPlaying = true;
+      _isPlaying.value = true;
     }
     if (widget.controller.value.position.inSeconds ==
         widget.controller.value.duration.inSeconds) {
-      _isPlaying = false;
+      _isPlaying.value = false;
     }
   }
 
@@ -56,13 +55,33 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     super.dispose();
   }
 
+  void showFullScreen() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Material(child: videoWidget());
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: widget.controller.value.aspectRatio,
+    return ValueListenableBuilder<bool>(
+        valueListenable: _isFullScreen,
+        builder: (context, value, _) {
+          return _isFullScreen.value ? const SizedBox.shrink() : videoWidget();
+        });
+  }
+
+  Widget videoWidget() {
+    return Container(
+      color: Colors.black,
       child: Stack(
         children: [
-          VideoPlayer(widget.controller),
+          Center(
+            child: AspectRatio(
+                aspectRatio: widget.controller.value.aspectRatio,
+                child: VideoPlayer(widget.controller)),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -74,29 +93,81 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
                   builder: (context, value, _) {
                     return Row(
                       children: [
-                        GestureDetector(
-                            child: Icon(
-                              _isPlaying ? Icons.pause : Icons.play_arrow,
-                              color: Colors.white,
-                            ),
-                            onTap: () {
-                              if (_isPlaying) {
-                                widget.controller.pause();
-                              } else if (widget
-                                      .controller.value.position.inSeconds ==
-                                  widget.controller.value.duration.inSeconds) {
-                                widget.controller.seekTo(Duration(seconds: 0));
-                                widget.controller.play();
-                              } else {
-                                widget.controller.play();
-                              }
+                        ValueListenableBuilder<bool>(
+                            valueListenable: _isPlaying,
+                            builder: (context, value, _) {
+                              return GestureDetector(
+                                  child: Icon(
+                                    value ? Icons.pause : Icons.play_arrow,
+                                    color: Colors.white,
+                                  ),
+                                  onTap: () {
+                                    if (value) {
+                                      widget.controller.pause();
+                                    } else if (widget.controller.value.position
+                                            .inSeconds ==
+                                        widget.controller.value.duration
+                                            .inSeconds) {
+                                      widget.controller
+                                          .seekTo(Duration(seconds: 0));
+                                      widget.controller.play();
+                                    } else {
+                                      widget.controller.play();
+                                    }
 
-                              setState(() {
-                                _isPlaying = !_isPlaying;
-                              });
+                                    _isPlaying.value = !value;
+                                  });
                             }),
-                        SizedBox(
+                        const SizedBox(
                           width: 2,
+                        ),
+                        ValueListenableBuilder<double>(
+                            valueListenable: volume,
+                            builder: (context, value, _) {
+                              return GestureDetector(
+                                  child: Icon(
+                                    value == 0
+                                        ? Icons.volume_off
+                                        : Icons.volume_up_sharp,
+                                    color: Colors.white,
+                                  ),
+                                  onTap: () {
+                                    if (value == 0) {
+                                      widget.controller.setVolume(1.0);
+                                      volume.value = 1;
+                                    } else {
+                                      widget.controller.setVolume(0);
+                                      volume.value = 0;
+                                    }
+                                  });
+                            }),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        ValueListenableBuilder<double>(
+                            valueListenable: volume,
+                            builder: (context, value, _) {
+                              return SizedBox(
+                                width: 45,
+                                child: SliderTheme(
+                                  data: SliderTheme.of(context).copyWith(
+                                    trackShape: CustomTrackShape(),
+                                    thumbShape:
+                                        CustomSliderThumbShape(thumbRadius: 7),
+                                  ),
+                                  child: Slider(
+                                      activeColor: Colors.blue,
+                                      inactiveColor: Colors.grey.shade300,
+                                      value: value,
+                                      onChanged: (value) {
+                                        widget.controller.setVolume(value);
+                                        volume.value = value;
+                                      }),
+                                ),
+                              );
+                            }),
+                        const SizedBox(
+                          width: 10,
                         ),
                         Text(
                           formatDuration(
@@ -106,20 +177,33 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
                               fontSize: 8,
                               fontWeight: FontWeight.w600),
                         ),
+                        const SizedBox(
+                          width: 12,
+                        ),
                         Expanded(
-                          child: Slider(
-                              activeColor: Colors.blue,
-                              inactiveColor: Colors.grey.shade300,
-                              value: widget
-                                      .controller.value.position.inSeconds /
-                                  widget.controller.value.duration.inSeconds,
-                              onChanged: (value) {
-                                widget.controller.seekTo(Duration(
-                                    seconds: (widget.controller.value.duration
-                                                .inSeconds *
-                                            value)
-                                        .round()));
-                              }),
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackShape: CustomTrackShape(),
+                              thumbShape:
+                                  CustomSliderThumbShape(thumbRadius: 8),
+                            ),
+                            child: Slider(
+                                activeColor: Colors.blue,
+                                inactiveColor: Colors.grey.shade300,
+                                value: widget
+                                        .controller.value.position.inSeconds /
+                                    widget.controller.value.duration.inSeconds,
+                                onChanged: (value) {
+                                  widget.controller.seekTo(Duration(
+                                      seconds: (widget.controller.value.duration
+                                                  .inSeconds *
+                                              value)
+                                          .round()));
+                                }),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 12,
                         ),
                         Text(
                           formatDuration(
@@ -129,6 +213,25 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
                               fontSize: 8,
                               fontWeight: FontWeight.w600),
                         ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        GestureDetector(
+                            child: Icon(
+                              _isFullScreen.value
+                                  ? Icons.fullscreen_exit
+                                  : Icons.fullscreen,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              if (_isFullScreen.value) {
+                                Navigator.pop(context);
+                              } else {
+                                showFullScreen();
+                              }
+
+                              _isFullScreen.value = !_isFullScreen.value;
+                            }),
                       ],
                     );
                   }),
@@ -137,5 +240,58 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         ],
       ),
     );
+  }
+}
+
+class CustomTrackShape extends RoundedRectSliderTrackShape {
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final double trackHeight = sliderTheme.trackHeight ?? 0;
+    final double trackLeft = offset.dx;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackWidth = parentBox.size.width;
+    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+  }
+}
+
+class CustomSliderThumbShape extends RoundSliderThumbShape {
+  final double thumbRadius;
+
+  CustomSliderThumbShape({this.thumbRadius = 10.0});
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final Canvas canvas = context.canvas;
+
+    final Paint paint = Paint()
+      ..color = sliderTheme.thumbColor!
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, thumbRadius, paint);
+  }
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:developer';
 // import 'dart:html';
 import 'dart:isolate';
 
@@ -7,12 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/core/api_client/api_client.dart';
-import 'package:teaching_app/core/api_client/api_exception.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/sync_data/sync_data_response.dart';
 import 'package:teaching_app/pages/login_screen/login_repository.dart';
-import 'package:teaching_app/services/background_service.dart';
+
 import '../../modals/register_device/register_device_response.dart';
 import '../../services/ForegroundTaskService.dart';
 import '../../services/background_service_controller.dart';
@@ -134,7 +132,7 @@ class LoginController extends GetxController {
 
     final isSynced = SharedPrefHelper().getIsSynced();
     final isInternetAvailable = await ApiClient().isInternetAvailable();
-    if (isSynced == false && isInternetAvailable) {
+    if (isSynced != true && isInternetAvailable) {
       if (GetPlatform.isAndroid) {
         ForegroundTaskService.init();
         startForegroundService();

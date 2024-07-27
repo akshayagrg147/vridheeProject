@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:teaching_app/loading_screen.dart';
-import 'package:teaching_app/services/ForegroundTaskService.dart';
 import 'package:teaching_app/widgets/edit_text.dart';
 import 'package:teaching_app/widgets/text_view.dart';
+
 import 'login_controller.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -17,7 +17,6 @@ class LoginScreen extends StatelessWidget {
     return info.version;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
@@ -27,7 +26,7 @@ class LoginScreen extends StatelessWidget {
           () => _.isSyncDataLoading.value
               ? const LoadingScreen()
               : Scaffold(
-                  appBar:  AppBar(
+                  appBar: AppBar(
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -35,28 +34,34 @@ class LoginScreen extends StatelessWidget {
                         FutureBuilder<String>(
                           future: _getAppVersion(),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return const Text(
                                 '...',
-                                style: TextStyle(fontSize: 12.0), // Small font size for version
+                                style: TextStyle(
+                                    fontSize:
+                                        12.0), // Small font size for version
                               );
                             } else if (snapshot.hasError) {
                               return const Text(
                                 'Error',
-                                style: TextStyle(fontSize: 12.0), // Small font size for version
+                                style: TextStyle(
+                                    fontSize:
+                                        12.0), // Small font size for version
                               );
                             } else {
                               return Text(
-                                "v "+snapshot.data!,
-                                style: TextStyle(fontSize: 12.0), // Small font size for version
+                                "v " + snapshot.data!,
+                                style: TextStyle(
+                                    fontSize:
+                                        12.0), // Small font size for version
                               );
                             }
                           },
                         ),
                       ],
                     ),
-                  )
-            ,
+                  ),
                   body: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Form(
@@ -109,20 +114,20 @@ class LoginScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                      flex: 5,
-                                      child: Row(
-                                        children: [
-                                          Radio<String>(
-                                            value: 'Department',
-                                            groupValue: _.selectedRole.value,
-                                            onChanged: (String? value) {
-                                              _.selectedRole.value = value!;
-                                            },
-                                          ),
-                                          TextView("Department"),
-                                        ],
-                                      )),
+                                  // Expanded(
+                                  //     flex: 5,
+                                  //     child: Row(
+                                  //       children: [
+                                  //         Radio<String>(
+                                  //           value: 'Department',
+                                  //           groupValue: _.selectedRole.value,
+                                  //           onChanged: (String? value) {
+                                  //             _.selectedRole.value = value!;
+                                  //           },
+                                  //         ),
+                                  //         TextView("Department"),
+                                  //       ],
+                                  //     )),
                                   Expanded(
                                       flex: 4,
                                       child: Row(
@@ -176,7 +181,6 @@ class LoginScreen extends StatelessWidget {
                                 child: const Text('Sign In'),
                               ),
                             ),
-
                           ],
                         ),
                       ),
