@@ -9,7 +9,7 @@ import 'package:teaching_app/widgets/text_view.dart';
 import 'login_controller.dart';
 
 class LoginScreen extends StatelessWidget {
-  static const platform = MethodChannel('com.vridhee.offlinelms/foreground');
+  static const platform = MethodChannel('com.mafatlal.lms/foreground');
 
   const LoginScreen({super.key});
   Future<String> _getAppVersion() async {
