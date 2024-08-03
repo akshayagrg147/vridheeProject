@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -106,77 +107,81 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
     isLoading = true;
 
-    if ((widget.topic?.fileNameExt == 'mp4' ||
-            widget.topic?.fileNameExt == 'html5') &&
-        widget.topic?.code != null) {
-      print("in init : ${widget.topic!.code!}");
-      if (widget.topic!.code!.contains("https://www.youtube.com")) {
-        if (GetPlatform.isAndroid) {
-          String id = extractYouTubeVideoId(widget.topic!.code!);
-          _controller.loadVideoById(videoId: id);
-        } else {
-          controller = WinVideoPlayerController.network(
-            widget.topic!.code!,
-          )..initialize().then((value) => setState(() {
+    try {
+      if ((widget.topic?.fileNameExt == 'mp4' ||
+          widget.topic?.fileNameExt == 'html5') &&
+          widget.topic?.code != null) {
+        print("in init : ${widget.topic!.code!}");
+        if (widget.topic!.code!.contains("https://www.youtube.com")) {
+          if (GetPlatform.isAndroid) {
+            String id = extractYouTubeVideoId(widget.topic!.code!);
+            _controller.loadVideoById(videoId: id);
+          } else {
+            controller = WinVideoPlayerController.network(
+              widget.topic!.code!,
+            )..initialize().then((value) => setState(() {
+              controller.play();
+            }));
+          }
+        } else if (widget.topic?.fileNameExt == 'mp4' &&
+            widget.topic?.onlineInstituteTopicDataId != null) {
+          final filename =
+              "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
+          String filePath = await BackgroundServiceController.instance
+              .getContentDirectoryPath();
+          filePath += "/$filename";
+          if (await File(filePath).exists()) {
+            final decryptedBytes =
+            await FileEncryptor().decryptFile(File(filePath));
+            final tempPath = (await getTemporaryDirectory()).path + "/$filename";
+            await File(tempPath).writeAsBytes(decryptedBytes);
+
+            if (GetPlatform.isAndroid) {
+              controller = VideoPlayerController.file(File(tempPath),
+                  //TODO :-  check andd option if needed
+                  videoPlayerOptions: VideoPlayerOptions())
+                ..initialize().then((value) => setState(() {
+                  controller?.play();
+                }));
+            } else {
+              controller = WinVideoPlayerController.file(
+                File(tempPath),
+              )..initialize().then((value) => setState(() {
                 controller.play();
               }));
+            }
+          }
+        } else {
+          //   if (GetPlatform.isAndroid) {
+          //     controller = VideoPlayerController.networkUrl(Uri.parse(
+          //         "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
+          //       ..initialize().then((_) {
+          //         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+          //         setState(() {});
+          //       });
+          //   } else {
+          //     controller = WinVideoPlayerController.network(
+          //       "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+          //     )..initialize().then((value) => setState(() {
+          //           controller.play();
+          //         }));
+          //   }
         }
-      } else if (widget.topic?.fileNameExt == 'mp4' &&
-          widget.topic?.onlineInstituteTopicDataId != null) {
+      } else if ((widget.topic?.fileNameExt == 'pdf' ||
+          widget.topic?.fileNameExt == 'doc') &&
+          (widget.topic?.code ?? "").isEmpty) {
         final filename =
             "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
-        String filePath = await BackgroundServiceController.instance
-            .getContentDirectoryPath();
+        String filePath =
+        await BackgroundServiceController.instance.getContentDirectoryPath();
         filePath += "/$filename";
-        if (await File(filePath).exists()) {
-          final decryptedBytes =
-              await FileEncryptor().decryptFile(File(filePath));
-          final tempPath = (await getTemporaryDirectory()).path + "/$filename";
-          await File(tempPath).writeAsBytes(decryptedBytes);
-
-          if (GetPlatform.isAndroid) {
-            controller = VideoPlayerController.file(File(tempPath),
-                //TODO :-  check andd option if needed
-                videoPlayerOptions: VideoPlayerOptions())
-              ..initialize().then((value) => setState(() {
-                    controller?.play();
-                  }));
-          } else {
-            controller = WinVideoPlayerController.file(
-              File(tempPath),
-            )..initialize().then((value) => setState(() {
-                  controller.play();
-                }));
-          }
-        }
-      } else {
-        if (GetPlatform.isAndroid) {
-          controller = VideoPlayerController.networkUrl(Uri.parse(
-              "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"))
-            ..initialize().then((_) {
-              // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-              setState(() {});
-            });
-        } else {
-          controller = WinVideoPlayerController.network(
-            "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
-          )..initialize().then((value) => setState(() {
-                controller.play();
-              }));
+        final isFileExists = await File(filePath).exists();
+        if (isFileExists) {
+          docData = await FileEncryptor().decryptFile(File(filePath));
         }
       }
-    } else if ((widget.topic?.fileNameExt == 'pdf' ||
-            widget.topic?.fileNameExt == 'doc') &&
-        (widget.topic?.code ?? "").isEmpty) {
-      final filename =
-          "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
-      String filePath =
-          await BackgroundServiceController.instance.getContentDirectoryPath();
-      filePath += "/$filename";
-      final isFileExists = await File(filePath).exists();
-      if (isFileExists) {
-        docData = await FileEncryptor().decryptFile(File(filePath));
-      }
+    } catch (e) {
+      log("error in finding file");
     }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Navigator.pop(context);
@@ -259,7 +264,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       } else {
         contentWidget = controller?.value.isInitialized == true
             ? CustomVideoPlayer(controller: controller!)
-            : const Center(child: CircularProgressIndicator());
+            : const Center(child: Text("File Not Found",style: TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w600),));
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
@@ -272,7 +277,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else {
       contentWidget = controller?.value.isInitialized == true
           ? CustomVideoPlayer(controller: controller!)
-          : const Center(child: CircularProgressIndicator());
+          : const Center(child: Text("File Not Found",style: TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w600),);
       // contentWidget = const Center(child: Text('Unsupported file type'));
     }
 

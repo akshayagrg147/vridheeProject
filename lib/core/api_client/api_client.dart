@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' as getP;
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
 import 'package:teaching_app/core/api_client/header_interceptor.dart';
+
 import 'api_exception.dart';
 
 typedef JsonMap = Map<String, dynamic>;
@@ -152,6 +154,7 @@ class ApiClient {
       if (error == noInternet) {
         getP.Get.showSnackbar(GetSnackBar(
           message: noInternet,
+          duration: const Duration(seconds: 3),
         ));
         return {};
       }
