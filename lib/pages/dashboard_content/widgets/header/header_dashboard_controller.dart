@@ -314,12 +314,14 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         // print(" in here aa :${filteredChapters.length}");
         // inProgress.addAll(filteredChapters);
         toDo.addAll(filteredChapters);
+
         // print(" in here if ${inProgress.length}");
         // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
         allChapterList
             .removeWhere((chapter) => filteredChapters.contains(chapter));
       }
     }
+
   }
 
   Future<void> filterChapterByUserAccess() async {
@@ -377,12 +379,14 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         if (filteredChapters.isNotEmpty) {
           // print(" in here aa");
           inProgress.addAll(filteredChapters);
+
           // print(" in here if ${inProgress.length}");
           // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
           allChapterList
               .removeWhere((chapter) => filteredChapters.contains(chapter));
         }
       }
+
     } catch (e) {
       print("Error during mapping user acess: $e");
     }
@@ -436,44 +440,51 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
 
   Future<void> fetchDataForAllSubjects() async {
     var tempData = <int, Map<String, List<LocalChapter>>>{};
-    for (var subject in subjectList) {
-      var inProgress = <LocalChapter>[];
-      var toDo = <LocalChapter>[];
-      var completed = <LocalChapter>[];
 
-      allChapterList.clear();
-      toDo.clear();
-      inProgress.clear();
-      completed.clear();
+    try{
+      await Future.forEach(subjectList,(subject)async{
+        var inProgress = <LocalChapter>[];
+        var toDo = <LocalChapter>[];
+        var completed = <LocalChapter>[];
 
-      List<LocalChapter> chapters = await fetchAllChapters(
-          selectedClass.value?.onlineInstituteCourseId ?? 0,
-          subject.onlineInstituteSubjectId);
-      allChapterList.clear();
-      allChapterList.assignAll(chapters);
-      // print("chapter list for : ${subject.onlineInstituteSubjectId} : ${allChapterList.length}");
-      await filterChapterByUserAccess();
-      await filterChaptersByExecution();
-      // await filterChaptersBySyllabusPlanning();
-      // print("in all A : ${allChapterList.length} : ${subject.onlineInstituteSubjectId}");
+        allChapterList.clear();
+        toDo.clear();
+        inProgress.clear();
+        completed.clear();
 
-      inProgress.addAll(this.inProgress);
+        List<LocalChapter> chapters = await fetchAllChapters(
+            selectedClass.value?.onlineInstituteCourseId ?? 0,
+            subject.onlineInstituteSubjectId);
+        allChapterList.clear();
+        allChapterList.assignAll(chapters);
+        // print("chapter list for : ${subject.onlineInstituteSubjectId} : ${allChapterList.length}");
+        await filterChapterByUserAccess();
+        await filterChaptersByExecution();
+        // await filterChaptersBySyllabusPlanning();
+        // print("in all A : ${allChapterList.length} : ${subject.onlineInstituteSubjectId}");
 
-      toDo.addAll(this.toDo);
-      completed.addAll(this.completed);
+        inProgress.addAll(this.inProgress);
 
-      // print("in all ${inProgress.length} ${subject.onlineInstituteSubjectId}");
-      tempData[subject.onlineInstituteSubjectId] = {
-        "inProgress": List<LocalChapter>.from(inProgress),
-        "toDo": List<LocalChapter>.from(toDo),
-        "completed": List<LocalChapter>.from(allChapterList),
-        // "inProgress": allChapterList,
-        // "completed": allChapterList,
-      };
-      // print("in all C : ${subject.onlineInstituteSubjectId} : ${tempData[subject.onlineInstituteSubjectId]}");
+        toDo.addAll(this.toDo);
+        completed.addAll(this.completed);
+
+        // print("in all ${inProgress.length} ${subject.onlineInstituteSubjectId}");
+        tempData[subject.onlineInstituteSubjectId] = {
+          "inProgress": List<LocalChapter>.from(inProgress),
+          "toDo": List<LocalChapter>.from(toDo),
+          "completed": List<LocalChapter>.from(allChapterList),
+          // "inProgress": allChapterList,
+          // "completed": allChapterList,
+        };
+        // print("in all C : ${subject.onlineInstituteSubjectId} : ${tempData[subject.onlineInstituteSubjectId]}");
+
+      });
+    }catch(e){
+
     }
     allSubjectsData.assignAll(tempData);
     update();
+
     // print("in all B : ${allChapterList.length} : ${allSubjectsData.length} : ${allSubjectsData[131]}");
   }
 
