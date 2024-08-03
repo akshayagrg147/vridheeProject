@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
+import 'package:video_player/video_player.dart';
 import 'package:video_player_win/video_player_win.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
 import '../../../../modals/tbl_institute_topic_data.dart';
-import 'package:video_player/video_player.dart';
 
 class VideoPlayWidget extends StatefulWidget {
   final InstituteTopicData? topic;
@@ -109,7 +109,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
     try {
       if ((widget.topic?.fileNameExt == 'mp4' ||
-          widget.topic?.fileNameExt == 'html5') &&
+              widget.topic?.fileNameExt == 'html5') &&
           widget.topic?.code != null) {
         print("in init : ${widget.topic!.code!}");
         if (widget.topic!.code!.contains("https://www.youtube.com")) {
@@ -120,8 +120,8 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             controller = WinVideoPlayerController.network(
               widget.topic!.code!,
             )..initialize().then((value) => setState(() {
-              controller.play();
-            }));
+                  controller.play();
+                }));
           }
         } else if (widget.topic?.fileNameExt == 'mp4' &&
             widget.topic?.onlineInstituteTopicDataId != null) {
@@ -132,8 +132,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           filePath += "/$filename";
           if (await File(filePath).exists()) {
             final decryptedBytes =
-            await FileEncryptor().decryptFile(File(filePath));
-            final tempPath = (await getTemporaryDirectory()).path + "/$filename";
+                await FileEncryptor().decryptFile(File(filePath));
+            final tempPath =
+                (await getTemporaryDirectory()).path + "/$filename";
             await File(tempPath).writeAsBytes(decryptedBytes);
 
             if (GetPlatform.isAndroid) {
@@ -141,14 +142,14 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
                   //TODO :-  check andd option if needed
                   videoPlayerOptions: VideoPlayerOptions())
                 ..initialize().then((value) => setState(() {
-                  controller?.play();
-                }));
+                      controller?.play();
+                    }));
             } else {
               controller = WinVideoPlayerController.file(
                 File(tempPath),
               )..initialize().then((value) => setState(() {
-                controller.play();
-              }));
+                    controller.play();
+                  }));
             }
           }
         } else {
@@ -168,12 +169,12 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           //   }
         }
       } else if ((widget.topic?.fileNameExt == 'pdf' ||
-          widget.topic?.fileNameExt == 'doc') &&
+              widget.topic?.fileNameExt == 'doc') &&
           (widget.topic?.code ?? "").isEmpty) {
         final filename =
             "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
-        String filePath =
-        await BackgroundServiceController.instance.getContentDirectoryPath();
+        String filePath = await BackgroundServiceController.instance
+            .getContentDirectoryPath();
         filePath += "/$filename";
         final isFileExists = await File(filePath).exists();
         if (isFileExists) {
@@ -264,7 +265,14 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       } else {
         contentWidget = controller?.value.isInitialized == true
             ? CustomVideoPlayer(controller: controller!)
-            : const Center(child: Text("File Not Found",style: TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w600),));
+            : const Center(
+                child: Text(
+                "File Not Found",
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600),
+              ));
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
@@ -277,7 +285,14 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else {
       contentWidget = controller?.value.isInitialized == true
           ? CustomVideoPlayer(controller: controller!)
-          : const Center(child: Text("File Not Found",style: TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w600),);
+          : const Center(
+              child: Text(
+              "File Not Found",
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600),
+            ));
       // contentWidget = const Center(child: Text('Unsupported file type'));
     }
 

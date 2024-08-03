@@ -400,20 +400,24 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                       child: Center(
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/${topic.mediaCount}', fontsize: 13)),
-                  )),
-                  TableCell(
-                      child: Center(
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/${topic.eMaterialCount}',
+                        child: TextView(
+                            '${topic.mediaSyllabusCount}/${topic.mediaCount}',
                             fontsize: 13)),
                   )),
                   TableCell(
                       child: Center(
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/${topic.questionData.length}',
+                        child: TextView(
+                            '${topic.ematerialSyllabusCount}/${topic.eMaterialCount}',
+                            fontsize: 13)),
+                  )),
+                  TableCell(
+                      child: Center(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextView(
+                            '${topic.questionSyllabusCount}/${topic.questionData.length}',
                             fontsize: 13)),
                   )),
                   // TableCell(

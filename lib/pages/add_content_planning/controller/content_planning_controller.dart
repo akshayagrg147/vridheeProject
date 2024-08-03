@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
@@ -10,8 +9,8 @@ import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/header/header_dashboard_controller.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:teaching_app/utils/string_constant.dart';
+
 import '../../../database/datebase_controller.dart';
-import '../../../modals/tbl_institute_topic.dart';
 import '../../../modals/tbl_institute_topic_data.dart';
 import '../../dashboard_content/widgets/open_subject_menu_widget/modal/open_subject_model.dart';
 
@@ -420,6 +419,14 @@ class ContentPlanningController extends GetxController {
               "Plan deleted: ${quesData.instituteTopicId} :${quesData.onlineLmsQuesBankId}");
         }
       }
+      Get.find<DashboardHeaderController>().updateContentPlan(
+          progressType: type ?? "",
+          onlineInstituteSubjectId:
+              selectedChapter.value!.chapter.instituteSubjectId,
+          onlineInstituteChapterId:
+              selectedChapter.value!.chapter.onlineInstituteChapterId,
+          onlineInstituteTopicId:
+              selectedTopic.value!.topic.onlineInstituteTopicId);
     } catch (e) {
       print("Error inserting plan data: $e");
     }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -8,6 +7,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:teaching_app/core/remote_config/remote_config_service.dart';
 import 'package:teaching_app/modals/tbl_institute_subject.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../database/datebase_controller.dart';
 import '../../../../modals/tbl_institite_user_content_access_23_24.dart';
 import '../../../../modals/tbl_institute_course.dart';
@@ -15,7 +16,6 @@ import '../../../../modals/tbl_institute_topic.dart';
 import '../../../../modals/tbl_institute_topic_data.dart';
 import '../../../../modals/tbl_intitute_chapter_model.dart';
 import '../../../../modals/tbl_la_plan_execution_2023_2024.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../open_subject_menu_widget/modal/open_subject_model.dart';
 
 class DashboardHeaderController extends GetxController {
@@ -265,10 +265,12 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         final List<QuestionBank> questionList = await fetchQuestionsData(
             topicId,
             language: selectedLanguage.value ?? "");
-        topicList.add(LocalTopic(
+        final localTopic = LocalTopic(
             topic: topicMap,
             topicData: topicDataList,
-            questionData: questionList));
+            questionData: questionList);
+        await localTopic.updateExistingContentPlanIds();
+        topicList.add(localTopic);
         // print("topic list added for ${topicId} ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
       }
@@ -321,7 +323,6 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
             .removeWhere((chapter) => filteredChapters.contains(chapter));
       }
     }
-
   }
 
   Future<void> filterChapterByUserAccess() async {
@@ -386,7 +387,6 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
               .removeWhere((chapter) => filteredChapters.contains(chapter));
         }
       }
-
     } catch (e) {
       print("Error during mapping user acess: $e");
     }
@@ -438,11 +438,30 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
     }
   }
 
+  void updateContentPlan(
+      {required String progressType,
+      required int onlineInstituteSubjectId,
+      required int onlineInstituteChapterId,
+      required int onlineInstituteTopicId}) {
+    try {
+      final chapter = allSubjectsData[onlineInstituteSubjectId]![progressType]
+          ?.firstWhereOrNull((element) =>
+              element.chapter.onlineInstituteChapterId ==
+              onlineInstituteChapterId);
+      final topic = chapter!.topics.firstWhereOrNull((element) =>
+          element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
+      topic?.updateExistingContentPlanIds();
+      update();
+    } catch (e) {
+      print("Error Updating added content :- $e");
+    }
+  }
+
   Future<void> fetchDataForAllSubjects() async {
     var tempData = <int, Map<String, List<LocalChapter>>>{};
 
-    try{
-      await Future.forEach(subjectList,(subject)async{
+    try {
+      await Future.forEach(subjectList, (subject) async {
         var inProgress = <LocalChapter>[];
         var toDo = <LocalChapter>[];
         var completed = <LocalChapter>[];
@@ -477,11 +496,8 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
           // "completed": allChapterList,
         };
         // print("in all C : ${subject.onlineInstituteSubjectId} : ${tempData[subject.onlineInstituteSubjectId]}");
-
       });
-    }catch(e){
-
-    }
+    } catch (e) {}
     allSubjectsData.assignAll(tempData);
     update();
 
