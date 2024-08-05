@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:teaching_app/core/api_client/api_client.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
@@ -42,6 +41,7 @@ class BackgroundServiceController {
         if (!isInternetAvailable) {
           throw ApiClient().noInternet;
         }
+
         await downloadFile(url, fileName, ext);
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
@@ -118,6 +118,10 @@ class BackgroundServiceController {
       final path = await getContentDirectoryPath();
       if (url.isNotEmpty) {
         final filePath = "$path/$fileName";
+        final isFileAlreadyExists = await File(filePath).exists();
+        if (isFileAlreadyExists) {
+          return;
+        }
         await ApiClient().download(url, path: filePath,
             onReceiveProgress: (recieved, total) {
           if (recieved == total) {

@@ -26,13 +26,11 @@ class LocalTopic {
   int get mediaCount {
     return topicData
         .where((data) =>
-            data.topicDataType == 'HTML5' ||
-            data.topicDataType == 'MP3' ||
-            data.topicDataType == 'MP4')
+            data.topicDataType == 'HTML5' || data.topicDataType == 'MP4')
         .length;
   }
 
   int get eMaterialCount {
-    return topicData.where((data) => data.topicDataType == 'Embedded').length;
+    return topicData.where((data) => data.topicDataType == "e-Material").length;
   }
 }

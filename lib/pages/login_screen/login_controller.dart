@@ -110,6 +110,7 @@ class LoginController extends GetxController {
     }
 
     final isLoginSuccessful = SharedPrefHelper().getIsLoginSuccessful();
+    downloadContent();
     if (isLoginSuccessful) {
       return Get.offAllNamed("/");
     }
@@ -130,6 +131,15 @@ class LoginController extends GetxController {
       }
     });
 
+    downloadContent();
+    if (temp.trim().isNotEmpty) {
+      await notifyBackend(temp.substring(0, temp.length - 1));
+    } else {
+      print('UpdateResponseError => Invalid db query');
+    }
+  }
+
+  void downloadContent() async {
     final isSynced = SharedPrefHelper().getIsSynced();
     final isInternetAvailable = await ApiClient().isInternetAvailable();
     if (isSynced != true && isInternetAvailable) {
@@ -139,11 +149,6 @@ class LoginController extends GetxController {
       } else if (GetPlatform.isWindows) {
         BackgroundServiceController.instance.performBackgroundTask();
       }
-    }
-    if (temp.trim().isNotEmpty) {
-      await notifyBackend(temp.substring(0, temp.length - 1));
-    } else {
-      print('UpdateResponseError => Invalid db query');
     }
   }
 

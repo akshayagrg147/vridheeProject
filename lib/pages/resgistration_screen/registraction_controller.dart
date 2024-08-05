@@ -5,9 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
-import 'package:teaching_app/database/datebase_controller.dart';
-import 'package:teaching_app/modals/sync_data/sync_data_response.dart';
 import 'package:teaching_app/pages/resgistration_screen/registration_repository.dart';
+
 import '../../modals/register_device/register_device_response.dart';
 
 class RegistrationController extends GetxController {

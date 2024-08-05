@@ -1,12 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:path_provider/path_provider.dart';
-
 // import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
@@ -14,10 +12,10 @@ import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/web_view/html_viewer.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import '../../../../modals/tbl_institute_topic_data.dart';
 import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
+import '../../../../modals/tbl_institute_topic_data.dart';
 
 class VideoPlayWidget extends StatefulWidget {
   final InstituteTopicData? topic;
@@ -244,8 +242,15 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       );
     }
     if (widget.topic == null) {
-      return Center(
-        child: Icon(Icons.error_outline),
+      return Row(
+        children: [
+          Icon(Icons.error_outline),
+          Text(
+            "No Content",
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
+          )
+        ],
       );
     }
     print("topic data in : ${widget.topic?.instituteTopicDataId}");

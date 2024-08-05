@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/decrypt_image_view.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
-import 'package:teaching_app/widgets/flag_container.dart';
 
 class QuestionView extends StatefulWidget {
   final int questionNo;
@@ -99,11 +97,11 @@ class _QuestionViewState extends State<QuestionView>
           Center(
             child: GestureDetector(
               onTap: () {
-                showAnswer = true;
+                showAnswer = !showAnswer;
                 setState(() {});
               },
               child: Text(
-                "Show Answer",
+                showAnswer ? "Hide Answer" : "Show Answer",
                 style: TextStyle(color: Colors.blue, fontSize: 13),
               ),
             ),

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
@@ -10,8 +9,8 @@ import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/header/header_dashboard_controller.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:teaching_app/utils/string_constant.dart';
+
 import '../../../database/datebase_controller.dart';
-import '../../../modals/tbl_institute_topic.dart';
 import '../../../modals/tbl_institute_topic_data.dart';
 import '../../dashboard_content/widgets/open_subject_menu_widget/modal/open_subject_model.dart';
 
@@ -446,6 +445,7 @@ class ContentPlanningController extends GetxController {
             where: 'user_email_id = ?',
             whereArgs: [SharedPrefHelper().getLoginUserMail()]);
         final employeedata = employeedataList.first;
+
         InstituteTopicData topicData = InstituteTopicData(
             instituteTopicDataId: null,
             onlineInstituteTopicDataId: onlineId,
@@ -453,7 +453,7 @@ class ContentPlanningController extends GetxController {
             parentInstituteId: employeedata['parent_institute_id'],
             instituteTopicId: selectedTopic.value!.topic.onlineInstituteTopicId,
             topicDataKind: "",
-            topicDataType: ext.toUpperCase(),
+            topicDataType: getTopicDataType(ext),
             topicDataFileCodeName: file.path.split('/').last.split('.').first,
             code: '',
             fileNameExt: ext,
@@ -499,5 +499,16 @@ class ContentPlanningController extends GetxController {
         duration: const Duration(seconds: 2),
       ));
     }
+  }
+
+  String getTopicDataType(String ext) {
+    final vidExt = ['mp4', 'mkv'];
+    final docExt = ['pdf', 'xlxs', 'doc', 'text'];
+    if (vidExt.contains(ext)) {
+      return 'MP4';
+    } else if (docExt.contains(ext)) {
+      return 'e-Material';
+    }
+    return ext.toUpperCase();
   }
 }
