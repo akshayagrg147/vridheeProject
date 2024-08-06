@@ -131,7 +131,6 @@ class LoginController extends GetxController {
       }
     });
 
-    downloadContent();
     if (temp.trim().isNotEmpty) {
       await notifyBackend(temp.substring(0, temp.length - 1));
     } else {
