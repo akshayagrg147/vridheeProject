@@ -247,15 +247,15 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
             ),
             Row(
               children: [
-                Card(
-                    elevation: 5,
-                    child: AppElevatedButton(
-                      title: "CREATE CONTENT",
-                      backgroundColor: ThemeColor.white,
-                      showBorder: true,
-                      borderColor: ThemeColor.darkBlue4392,
-                      onPressed: () {},
-                    )),
+                // Card(
+                //     elevation: 5,
+                //     child: AppElevatedButton(
+                //       title: "CREATE CONTENT",
+                //       backgroundColor: ThemeColor.white,
+                //       showBorder: true,
+                //       borderColor: ThemeColor.darkBlue4392,
+                //       onPressed: () {},
+                //     )),
                 const SizedBox(
                   width: 10,
                 ),

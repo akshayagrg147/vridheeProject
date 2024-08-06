@@ -128,7 +128,7 @@ class ContentPlanningController extends GetxController {
           await myDataController.query(
         StringConstant().tblSyllabusPlanning,
         where: 'institute_topic_id = ?',
-        whereArgs: [selectedTopic.value!.topic.onlineInstituteTopicId],
+        whereArgs: [selectedTopic.value!.topic.instituteTopicId],
       );
 
       List<int> existingTopicDataIds = [];
@@ -368,7 +368,7 @@ class ContentPlanningController extends GetxController {
             'institute_subject_id': null,
             'institute_chapter_id':
                 selectedTopic.value!.topic.instituteChapterId,
-            'institute_topic_id': quesData.instituteTopicId,
+            'institute_topic_id': selectedTopic.value!.topic.instituteTopicId,
             'institute_topic_data_id': quesData.onlineLmsQuesBankId,
             'question_bank_id': null,
             'content_type': "question",
@@ -419,7 +419,8 @@ class ContentPlanningController extends GetxController {
               "Plan deleted: ${quesData.instituteTopicId} :${quesData.onlineLmsQuesBankId}");
         }
       }
-      Get.find<DashboardHeaderController>().updateContentPlan(
+      final dashboardController =  Get.find<DashboardHeaderController>();
+    dashboardController .updateContentPlan(
           progressType: type ?? "",
           onlineInstituteSubjectId:
               selectedChapter.value!.chapter.instituteSubjectId,

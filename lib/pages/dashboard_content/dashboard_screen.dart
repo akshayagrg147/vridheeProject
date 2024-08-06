@@ -10,12 +10,14 @@ import 'package:teaching_app/pages/dashboard_content/widgets/open_subject_menu_w
 import 'package:teaching_app/widgets/app_scaffold.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
 
+  const DashboardScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-        init: DashboardHeaderController(),
+    final controller = Get.put(DashboardHeaderController());
+
+    return GetBuilder<DashboardHeaderController>(
+
         builder: (_) {
           return AppScaffold(
             showTopRadius: false,
