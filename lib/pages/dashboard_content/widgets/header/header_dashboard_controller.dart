@@ -269,7 +269,7 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
             topic: topicMap,
             topicData: topicDataList,
             questionData: questionList);
-         localTopic.updateExistingContentPlanIds();
+        localTopic.updateExistingContentPlanIds();
         topicList.add(localTopic);
         // print("topic list added for ${topicId} ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
@@ -433,6 +433,7 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
       final topic = chapter!.topics.firstWhereOrNull((element) =>
           element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
       topic?.topicData.add(data);
+      update();
     } catch (e) {
       print("Error Updating added content :- $e");
     }
@@ -442,7 +443,7 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
       {required String progressType,
       required int onlineInstituteSubjectId,
       required int onlineInstituteChapterId,
-      required int onlineInstituteTopicId}) async{
+      required int onlineInstituteTopicId}) async {
     try {
       final chapter = allSubjectsData[onlineInstituteSubjectId]![progressType]
           ?.firstWhereOrNull((element) =>
@@ -450,7 +451,7 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
               onlineInstituteChapterId);
       final topic = chapter!.topics.firstWhereOrNull((element) =>
           element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
-     await topic?.updateExistingContentPlanIds();
+      await topic?.updateExistingContentPlanIds();
       update();
     } catch (e) {
       print("Error Updating added content :- $e");

@@ -419,8 +419,8 @@ class ContentPlanningController extends GetxController {
               "Plan deleted: ${quesData.instituteTopicId} :${quesData.onlineLmsQuesBankId}");
         }
       }
-      final dashboardController =  Get.find<DashboardHeaderController>();
-    dashboardController .updateContentPlan(
+      final dashboardController = Get.find<DashboardHeaderController>();
+      dashboardController.updateContentPlan(
           progressType: type ?? "",
           onlineInstituteSubjectId:
               selectedChapter.value!.chapter.instituteSubjectId,
@@ -461,7 +461,7 @@ class ContentPlanningController extends GetxController {
             parentInstituteId: employeedata['parent_institute_id'],
             instituteTopicId: selectedTopic.value!.topic.onlineInstituteTopicId,
             topicDataKind: "",
-            topicDataType: ext.toUpperCase(),
+            topicDataType: getTopicDataType(ext),
             topicDataFileCodeName: file.path.split('/').last.split('.').first,
             code: '',
             fileNameExt: ext,
@@ -507,5 +507,16 @@ class ContentPlanningController extends GetxController {
         duration: const Duration(seconds: 2),
       ));
     }
+  }
+
+  String getTopicDataType(String ext) {
+    final vidExt = ['mp4', 'mkv'];
+    final docExt = ['pdf', 'xlxs', 'doc', 'text'];
+    if (vidExt.contains(ext)) {
+      return 'MP4';
+    } else if (docExt.contains(ext)) {
+      return 'e-Material';
+    }
+    return ext.toUpperCase();
   }
 }

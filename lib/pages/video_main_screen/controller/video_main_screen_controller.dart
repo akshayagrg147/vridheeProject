@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import 'package:whiteboard/whiteboard.dart';
+
 import '../../../database/datebase_controller.dart';
 import '../../../modals/tbl_institute_topic.dart';
 import '../../../modals/tbl_institute_topic_data.dart';
@@ -112,6 +112,7 @@ class VideoMainScreenController extends GetxController {
     openWhiteBoard.value = false;
     openQuestionViewer.value = false;
     openPlayWithUrl.value = false;
+    selectedTopic.value = null;
     filterTopicData();
   }
 
@@ -459,21 +460,6 @@ class VideoMainScreenController extends GetxController {
       }
     }
 
-    if (videotopics.value.isNotEmpty) {
-      currentTopicData.value = videotopics.value.first;
-    } else if (ematerialtopics.value.isNotEmpty) {
-      currentTopicData.value = ematerialtopics.value.first;
-    } else if (questionTopics.value.isNotEmpty) {
-      currentQuestionData.value = questionTopics.value.first;
-      openQuestionViewer.value = true;
-    } else {
-      if (videoData.isNotEmpty && !isCurrentTopicDataAvailable) {
-        currentTopicData.value = videoData[0];
-      } else if (html5Data.isNotEmpty && !isCurrentTopicDataAvailable) {
-        currentTopicData.value = html5Data[0];
-      }
-    }
-
     if (videotopics.value.isEmpty) {
       videotopics.value.assignAll(videoData);
       videotopics.value.addAll(html5Data);
@@ -488,6 +474,16 @@ class VideoMainScreenController extends GetxController {
       aiContentTopics.value.assignAll(aiContentData);
     }
 
+    if (videotopics.value.isNotEmpty) {
+      currentTopicData.value = videotopics.value.first;
+    } else if (ematerialtopics.value.isNotEmpty) {
+      currentTopicData.value = ematerialtopics.value.first;
+    } else if (questionTopics.value.isNotEmpty) {
+      currentQuestionData.value = questionTopics.value.first;
+      openQuestionViewer.value = true;
+    } else if (aiContentTopics.value.isNotEmpty) {
+      currentTopicData.value = aiContentTopics.value.first;
+    }
     // Do something with the filtered data, e.g., update variables or UI
     // For example:
     // videoData.forEach((data) => print("Video data: ${data.topicDataId}"));

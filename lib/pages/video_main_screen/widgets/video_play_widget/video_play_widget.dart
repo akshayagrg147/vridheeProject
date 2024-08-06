@@ -224,8 +224,17 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     if (widget.topic?.fileNameExt == 'html5' ||
         widget.topic == null ||
         widget.topic?.fileNameExt == '') {
-      return Center(
-        child: Icon(Icons.error_outline),
+      return Row(
+        children: [
+          Icon(Icons.error_outline),
+          Text(
+            widget.topic?.fileNameExt == 'html5'
+                ? "Not Supported"
+                : "No Content",
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
+          )
+        ],
       );
     }
     print("topic data in : ${widget.topic?.instituteTopicDataId}");

@@ -1,4 +1,3 @@
-import 'dart:developer';
 // import 'dart:html';
 import 'dart:isolate';
 
@@ -11,7 +10,7 @@ import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/sync_data/sync_data_response.dart';
 import 'package:teaching_app/pages/login_screen/login_repository.dart';
-import 'package:teaching_app/services/background_service.dart';
+
 import '../../modals/register_device/register_device_response.dart';
 import '../../services/ForegroundTaskService.dart';
 import '../../services/background_service_controller.dart';
@@ -109,7 +108,7 @@ class LoginController extends GetxController {
     } finally {
       isSyncDataLoading.value = false;
     }
-
+    downloadContent();
     final isLoginSuccessful = SharedPrefHelper().getIsLoginSuccessful();
     if (isLoginSuccessful) {
       return Get.offAllNamed("/");
@@ -131,6 +130,14 @@ class LoginController extends GetxController {
       }
     });
 
+    if (temp.trim().isNotEmpty) {
+      await notifyBackend(temp.substring(0, temp.length - 1));
+    } else {
+      print('UpdateResponseError => Invalid db query');
+    }
+  }
+
+  void downloadContent() async {
     final isSynced = SharedPrefHelper().getIsSynced();
     final isInternetAvailable = await ApiClient().isInternetAvailable();
     if (isSynced == false && isInternetAvailable) {
@@ -140,11 +147,6 @@ class LoginController extends GetxController {
       } else if (GetPlatform.isWindows) {
         BackgroundServiceController.instance.performBackgroundTask();
       }
-    }
-    if (temp.trim().isNotEmpty) {
-      await notifyBackend(temp.substring(0, temp.length - 1));
-    } else {
-      print('UpdateResponseError => Invalid db query');
     }
   }
 

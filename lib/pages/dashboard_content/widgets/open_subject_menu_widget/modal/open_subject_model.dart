@@ -1,7 +1,5 @@
-import 'package:get/get.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:teaching_app/database/database_helper_dummy.dart';
-import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/tbl_institute_topic.dart';
 import 'package:teaching_app/modals/tbl_institute_topic_data.dart';
 import 'package:teaching_app/modals/tbl_intitute_chapter_model.dart';
@@ -25,19 +23,18 @@ class LocalTopic {
   List<int>? existingContentPlanIds;
   List<int>? existingQuestionPlanIds;
 
-  LocalTopic({
-    required this.topic,
-    required this.topicData,
-    required this.questionData,
-    this.existingContentPlanIds,
-    this.existingQuestionPlanIds
-  });
+  LocalTopic(
+      {required this.topic,
+      required this.topicData,
+      required this.questionData,
+      this.existingContentPlanIds,
+      this.existingQuestionPlanIds});
 
   Future<void> updateExistingContentPlanIds() async {
-    final Database? myDataController =await DatabaseHelper().database ;
-    if(myDataController==null){
-      existingContentPlanIds=[];
-      return ;
+    final Database? myDataController = await DatabaseHelper().database;
+    if (myDataController == null) {
+      existingContentPlanIds = [];
+      return;
     }
     final List<Map<String, dynamic>> existingSyllabusData =
         await myDataController.rawQuery('''
@@ -55,7 +52,7 @@ class LocalTopic {
     }
 
     final List<Map<String, dynamic>> existingQuestionSyllabusData =
-    await myDataController.rawQuery('''
+        await myDataController.rawQuery('''
       select Distinct(institute_topic_data_id) from ${StringConstant().tblSyllabusPlanning}
       where institute_topic_id = ${topic.instituteTopicId} and content_type == "question"
       
@@ -70,24 +67,20 @@ class LocalTopic {
     }
 
     existingContentPlanIds = existingTopicDataIds;
-    existingQuestionPlanIds=existingQuestionDataIds;
+    existingQuestionPlanIds = existingQuestionDataIds;
   }
 
   int get mediaCount {
     return topicData
         .where((data) =>
-            data.topicDataType == 'HTML5' ||
-            data.topicDataType == 'MP3' ||
-            data.topicDataType == 'MP4')
+            data.topicDataType == 'HTML5' || data.topicDataType == 'MP4')
         .length;
   }
 
   int get mediaSyllabusCount {
     final idList = topicData
         .where((element) =>
-            element.topicDataType == 'HTML5' ||
-            element.topicDataType == 'MP3' ||
-            element.topicDataType == 'MP4')
+            element.topicDataType == 'HTML5' || element.topicDataType == 'MP4')
         .map((e) => e.instituteTopicDataId)
         .toList();
     final count = (existingContentPlanIds ?? [])
@@ -98,7 +91,7 @@ class LocalTopic {
 
   int get ematerialSyllabusCount {
     final idList = topicData
-        .where((element) => element.topicDataType == 'Embedded'||element.topicDataType == "e-Material")
+        .where((element) => element.topicDataType == "e-Material")
         .map((e) => e.instituteTopicDataId)
         .toList();
     final count = (existingContentPlanIds ?? [])
@@ -116,6 +109,6 @@ class LocalTopic {
   }
 
   int get eMaterialCount {
-    return topicData.where((data) => data.topicDataType == 'Embedded').length;
+    return topicData.where((data) => data.topicDataType == "e-Material").length;
   }
 }
