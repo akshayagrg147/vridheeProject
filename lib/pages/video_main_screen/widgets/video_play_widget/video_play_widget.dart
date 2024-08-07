@@ -222,8 +222,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       );
     }
     if (widget.topic?.fileNameExt == 'html5' ||
-        widget.topic == null ||
-        widget.topic?.fileNameExt == '') {
+        widget.topic == null ) {
       return Row(
         children: [
           Icon(Icons.error_outline),
