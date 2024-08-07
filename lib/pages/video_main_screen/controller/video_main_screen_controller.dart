@@ -112,7 +112,7 @@ class VideoMainScreenController extends GetxController {
     openWhiteBoard.value = false;
     openQuestionViewer.value = false;
     openPlayWithUrl.value = false;
-    selectedTopic.value = null;
+    currentTopicData.value = null;
     filterTopicData();
   }
 

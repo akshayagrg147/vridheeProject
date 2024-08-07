@@ -221,9 +221,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         child: CircularProgressIndicator(),
       );
     }
-    if (widget.topic?.fileNameExt == 'html5' ||
-        widget.topic == null ) {
+    if (widget.topic?.fileNameExt == 'html5' || widget.topic == null) {
       return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.error_outline),
           Text(
