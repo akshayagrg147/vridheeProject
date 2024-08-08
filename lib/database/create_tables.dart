@@ -319,7 +319,7 @@ class CreateTables {
 `option_2_down_path` TEXT DEFAULT NULL,
 `option_3_down_path` TEXT DEFAULT NULL,
 `option_4_down_path` TEXT DEFAULT NULL,
-`is_local_available` INTEGER DEFAULT 0,
+`is_local_available` INTEGER DEFAULT 0
 
 )''';
 
