@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
@@ -12,7 +10,6 @@ import 'package:teaching_app/pages/video_main_screen/widgets/play_by_url_widget.
 import 'package:teaching_app/pages/video_main_screen/widgets/question_viewer.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/video_play_widget.dart';
 import 'package:teaching_app/widgets/app_scaffold.dart';
-import 'package:teaching_app/widgets/dialog_widget.dart';
 import 'package:teaching_app/widgets/edit_text.dart';
 import 'package:teaching_app/widgets/elevated_card.dart';
 import 'package:whiteboard/whiteboard.dart';
@@ -474,8 +471,6 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           IconButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  controller.openPlayWithUrl.value = true;
-                                  controller.openWhiteBoard.value = false;
                                   controller.savePlayByUrl();
                                   Get.back();
                                 }

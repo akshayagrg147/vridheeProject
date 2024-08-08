@@ -20,10 +20,15 @@ class BackgroundServiceController {
       BackgroundServiceController._privateConstructor();
 
   final Connectivity _connectivity = Connectivity();
+  static bool isSyncingInProgress = false;
   static int totalFilesTOBeDownload = 0;
   static ValueNotifier<int> filesDownloaded = ValueNotifier(0);
   Future<void> performBackgroundTask() async {
     try {
+      if (isSyncingInProgress) {
+        return;
+      }
+      isSyncingInProgress = true;
       await SharedPrefHelper().initialize();
       final DatabaseController dbController = Get.put(DatabaseController());
       await dbController.initializeDatabase();
@@ -107,6 +112,10 @@ class BackgroundServiceController {
           await downloadFile(opt4url, optionFileName, ext);
           filesDownloaded.value += 1;
         }
+
+        dbController.database?.execute('''UPDATE tbl_lms_ques_bank
+SET is_local_available = 1
+WHERE online_lms_ques_bank_id = $id''');
       });
       final isInternetAvailable2 = await ApiClient().isInternetAvailable();
       if (!isInternetAvailable2) {
@@ -121,6 +130,7 @@ class BackgroundServiceController {
       } else {
         FlutterForegroundTask.stopService();
       }
+      isSyncingInProgress = false;
     }
   }
 
@@ -132,7 +142,8 @@ class BackgroundServiceController {
     return url.split('/').last.split(".").last;
   }
 
-  Future<void> downloadFile(String url, String fileName, String ext) async {
+  Future<void> downloadFile(String url, String fileName, String ext,
+      {int? onlineTopicDataId}) async {
     try {
       log("Forground Service Download Url :- $url");
       final path = await getContentDirectoryPath();
@@ -140,12 +151,28 @@ class BackgroundServiceController {
         final filePath = "$path/$fileName";
         final isFileAlreadyExists = await File(filePath).exists();
         if (isFileAlreadyExists) {
+          if (onlineTopicDataId != null) {
+            final DatabaseController _databaseController =
+                Get.find<DatabaseController>();
+            _databaseController.database
+                ?.execute('''UPDATE tbl_institute_topic_data
+SET is_local_content_available = 1
+WHERE online_institute_topic_data_id = $onlineTopicDataId''');
+          }
           return;
         }
         await ApiClient().download(url, path: filePath,
-            onReceiveProgress: (recieved, total) {
+            onReceiveProgress: (recieved, total) async {
           if (recieved == total) {
-            FileEncryptor().encryptFile(File(filePath), filePath);
+            await FileEncryptor().encryptFile(File(filePath), filePath);
+            if (onlineTopicDataId != null) {
+              final DatabaseController _databaseController =
+                  Get.find<DatabaseController>();
+              _databaseController.database
+                  ?.execute('''UPDATE tbl_institute_topic_data
+SET is_local_content_available = 1
+WHERE online_institute_topic_data_id = $onlineTopicDataId''');
+            }
           }
         });
       }

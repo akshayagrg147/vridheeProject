@@ -318,7 +318,10 @@ class CreateTables {
 `option_1_down_path` TEXT DEFAULT NULL,
 `option_2_down_path` TEXT DEFAULT NULL,
 `option_3_down_path` TEXT DEFAULT NULL,
-`option_4_down_path` TEXT DEFAULT NULL)''';
+`option_4_down_path` TEXT DEFAULT NULL,
+`is_local_available` INTEGER DEFAULT 0,
+
+)''';
 
 //   String tbl_user_type = ('''
 //  CREATE TABLE IF NOT EXISTS `tbl_user_type` (

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-
 class VideoPlayByUrlWidget extends StatefulWidget {
   final String url;
   const VideoPlayByUrlWidget({super.key, required this.url});

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:teaching_app/core/api_client/api_client.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
@@ -84,7 +85,7 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<void> syncData() async {
+  Future<void> syncData([bool skipLogin = false]) async {
     try {
       isSyncDataLoading.value = true;
 
@@ -108,15 +109,20 @@ class LoginController extends GetxController {
     } finally {
       isSyncDataLoading.value = false;
     }
+
     downloadContent();
-    final isLoginSuccessful = SharedPrefHelper().getIsLoginSuccessful();
-    if (isLoginSuccessful) {
-      return Get.offAllNamed("/");
+    if (skipLogin == false) {
+      final isLoginSuccessful = SharedPrefHelper().getIsLoginSuccessful();
+      if (isLoginSuccessful) {
+        checkAndUpdateDownload();
+        return Get.offAllNamed("/");
+      }
     }
   }
 
   Future<void> executeAndNotify(List<Datum> items) async {
     String temp = '';
+
     await Future.forEach(items, (item) async {
       try {
         await myDataController.performTransaction(
@@ -138,9 +144,8 @@ class LoginController extends GetxController {
   }
 
   void downloadContent() async {
-    final isSynced = SharedPrefHelper().getIsSynced();
     final isInternetAvailable = await ApiClient().isInternetAvailable();
-    if (isSynced == false && isInternetAvailable) {
+    if (isInternetAvailable) {
       if (GetPlatform.isAndroid) {
         ForegroundTaskService.init();
         startForegroundService();
@@ -148,6 +153,19 @@ class LoginController extends GetxController {
         BackgroundServiceController.instance.performBackgroundTask();
       }
     }
+  }
+
+  void checkAndUpdateDownload() {
+    Timer.periodic(const Duration(minutes: 5), (timer) async {
+      try {
+        final result = await http.get(Uri.parse('https://www.google.com'));
+        if (result.statusCode == 200 && isSyncDataLoading.value == false) {
+          syncData(true);
+        }
+      } catch (_) {
+        print(_.toString());
+      }
+    });
   }
 
   Future<void> notifyBackend(String queryId) async {
