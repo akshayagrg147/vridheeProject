@@ -243,6 +243,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     }
     if (widget.topic == null) {
       return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.error_outline),
           Text(

@@ -6,12 +6,12 @@ import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/chapter_list_widget.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/dialog_content.dart';
-import 'package:teaching_app/pages/video_main_screen/widgets/play_by_url_widget.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/question_viewer.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/video_play_widget.dart';
 import 'package:teaching_app/widgets/app_scaffold.dart';
 import 'package:teaching_app/widgets/edit_text.dart';
 import 'package:teaching_app/widgets/elevated_card.dart';
+import 'package:teaching_app/yt_player/portrait_player.dart';
 import 'package:whiteboard/whiteboard.dart';
 
 import '../../app_theme.dart';
@@ -211,10 +211,10 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           ))
                         : _.openPlayWithUrl.value == true
                             ? ElevatedCard(
-                                child: VideoPlayByUrlWidget(
-                                  url: _.playByUrlController.text,
-                                ),
-                              )
+                                child: PotraitPlayer(
+                                link: _.currentTopicData.value?.code ?? "",
+                                aspectRatio: 16 / 9,
+                              ))
                             : _.openQuestionViewer.value == true
                                 ? Obx(() => QuestionViewer(
                                     questionList: _.questionTopics.value,
