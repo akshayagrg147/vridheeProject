@@ -4,11 +4,13 @@ import 'dart:typed_data';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 // import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/web_view/html_viewer.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
@@ -61,8 +63,25 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   //   }
   // }
 
+  // onPageChanged: (value) {
+  // log("on page change ${value.isLastPage}");
+  // if (value.isLastPage) {
+  // Get.find<DatabaseController>().updateContentProgress(
+  // widget.topic!.onlineInstituteTopicDataId!);
+  // }
+  // },
+  // onDocumentLoaded: (value) {
+  // log("on page load count ${value.document.pages.count}");
+  //
+  // if (value.document.pages.count == 1) {
+  // Get.find<DatabaseController>().updateContentProgress(
+  // widget.topic!.onlineInstituteTopicDataId!);
+  // }
+  // },
+
   VideoPlayerController? controller;
   final _controller = YoutubePlayerController();
+
   Uint8List? docData;
   String? html5FilePath;
   bool isLoading = false;
@@ -84,6 +103,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       controller = null;
       docData = null;
       html5FilePath = null;
+
       loadVideoPlayer();
     }
   }
@@ -294,7 +314,10 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         }
       } else {
         contentWidget = controller?.value.isInitialized == true
-            ? CustomVideoPlayer(controller: controller!)
+            ? CustomVideoPlayer(
+                controller: controller!,
+                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
+                instituteTopicId: widget.topic!.instituteTopicId!)
             : noFileFound();
       }
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
@@ -304,10 +327,29 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
         docData != null) {
-      contentWidget = SfPdfViewer.memory(docData!);
+      contentWidget = SfPdfViewer.memory(
+        docData!,
+        onPageChanged: (value) {
+          if (value.isLastPage) {
+            Get.find<DatabaseController>().updateContentProgress(
+                widget.topic!.onlineInstituteTopicDataId!,
+                instituteTopicId: widget.topic!.instituteTopicId!);
+          }
+        },
+        onDocumentLoaded: (value) {
+          if (value.document.pages.count == 1) {
+            Get.find<DatabaseController>().updateContentProgress(
+                widget.topic!.onlineInstituteTopicDataId!,
+                instituteTopicId: widget.topic!.instituteTopicId!);
+          }
+        },
+      );
     } else {
       contentWidget = controller?.value.isInitialized == true
-          ? CustomVideoPlayer(controller: controller!)
+          ? CustomVideoPlayer(
+              controller: controller!,
+              onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
+              instituteTopicId: widget.topic!.instituteTopicId!)
           // AspectRatio(
           //         aspectRatio: controller!.value.aspectRatio,
           //         child: VideoPlayer(controller!),

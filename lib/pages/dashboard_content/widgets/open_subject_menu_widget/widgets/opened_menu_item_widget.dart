@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/app_theme.dart';
-import 'package:teaching_app/modals/tbl_intitute_chapter_model.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/open_subject_menu_widget/modal/open_subject_model.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/open_subject_menu_widget/widgets/opened_menu_item_controller.dart';
 import 'package:teaching_app/utils/contants.dart';
 import 'package:teaching_app/utils/string_constant.dart';
-import 'package:teaching_app/widgets/elevated_button.dart';
 import 'package:teaching_app/widgets/filled_arrow_icon_widget.dart';
 import 'package:teaching_app/widgets/text_view.dart';
 
@@ -402,20 +400,24 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                       child: Center(
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/${topic.mediaCount}', fontsize: 13)),
-                  )),
-                  TableCell(
-                      child: Center(
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/${topic.eMaterialCount}',
+                        child: TextView(
+                            '${topic.mediaCompletedCount}/${topic.mediaCount}',
                             fontsize: 13)),
                   )),
                   TableCell(
                       child: Center(
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextView('0/${topic.questionData.length}',
+                        child: TextView(
+                            '${topic.ematerialCompletedCount}/${topic.eMaterialCount}',
+                            fontsize: 13)),
+                  )),
+                  TableCell(
+                      child: Center(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextView(
+                            '${topic.questionCompletedCount}/${topic.questionData.length}',
                             fontsize: 13)),
                   )),
                   TableCell(

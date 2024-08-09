@@ -1,9 +1,18 @@
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/database_helper_dummy.dart';
 
 class DatabaseController extends GetxController {
   Database? database;
+  static int loginUserId = -1;
+  Future<void> setUserId() async {
+    final employeedataList = await query('tbl_employee',
+        where: 'user_email_id = ?',
+        whereArgs: [SharedPrefHelper().getLoginUserMail()]);
+    final employeedata = employeedataList.first;
+    loginUserId = employeedata['online_institute_user_id'];
+  }
 
   Future<void> initializeDatabase() async {
     if (database == null) {
@@ -116,6 +125,22 @@ class DatabaseController extends GetxController {
       final List<Map<String, dynamic>> maps = await database!.rawQuery(
           'SELECT online_lms_ques_bank_id as id, question_down_path as ques_url, option_1_down_path as opt_1_url, option_2_down_path as opt_2_url, option_3_down_path as opt_4_url,option_4_down_path as opt_4_url FROM tbl_lms_ques_bank where is_local_available = 0');
       return maps;
+    } else {
+      throw Exception("Database is not initialized");
+    }
+  }
+
+  Future<void> updateContentProgress(int topicDataId,
+      {required int instituteTopicId, bool isQuestion = false}) async {
+    if (database != null && loginUserId != -1) {
+      await database!.insert('tbl_content_access', {
+        'online_institute_topic_data_id': topicDataId,
+        'user_id': loginUserId,
+        'institute_topic_id': instituteTopicId,
+        'is_question': isQuestion ? 1 : 0,
+        'created_date': DateTime.now().toIso8601String(),
+        'updated_date': DateTime.now().toIso8601String()
+      });
     } else {
       throw Exception("Database is not initialized");
     }

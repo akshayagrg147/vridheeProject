@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/decrypt_image_view.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
@@ -98,6 +100,13 @@ class _QuestionViewState extends State<QuestionView>
             child: GestureDetector(
               onTap: () {
                 showAnswer = !showAnswer;
+                if (showAnswer == true) {
+                  final dbController = Get.find<DatabaseController>();
+                  dbController.updateContentProgress(
+                      widget.question.onlineLmsQuesBankId,
+                      instituteTopicId: widget.question.instituteTopicId,
+                      isQuestion: true);
+                }
                 setState(() {});
               },
               child: Text(

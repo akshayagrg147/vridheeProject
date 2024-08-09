@@ -45,6 +45,7 @@ class DashboardHeaderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    myDataController.setUserId();
     fetchClassData();
     fetchContinueData(null, null);
     fetchLanguageData();
@@ -265,10 +266,12 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         final List<QuestionBank> questionList = await fetchQuestionsData(
             topicId,
             language: selectedLanguage.value ?? "");
-        topicList.add(LocalTopic(
+        final topicData = LocalTopic(
             topic: topicMap,
             topicData: topicDataList,
-            questionData: questionList));
+            questionData: questionList);
+        await topicData.initiateContentCompleteCount();
+        topicList.add(topicData);
         // print("topic list added for ${topicId} ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
       }

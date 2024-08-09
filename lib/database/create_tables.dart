@@ -2,7 +2,7 @@ class CreateTables {
   // String android_metsdata = ('''CREATE TABLE android_metadata (locale TEXT)''');
 
   String tbl_assign_subject = ('''
-    CREATE TABLE tbl_assign_subject (
+   CREATE TABLE IF NOT EXISTS tbl_assign_subject (
       assign_subject_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_assign_subject_id INTEGER,
       parent_institute_id INTEGER NOT NULL,
@@ -15,7 +15,7 @@ class CreateTables {
   ''');
 
   String tbl_employee = ('''
-    CREATE TABLE tbl_employee (
+   CREATE TABLE IF NOT EXISTS tbl_employee (
       institute_user_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_user_id INTEGER,
       parent_institute_id INTEGER,
@@ -31,7 +31,7 @@ class CreateTables {
   ''');
 
   String tbl_institute = ('''
-    CREATE TABLE tbl_institute (
+   CREATE TABLE IF NOT EXISTS tbl_institute (
       institute_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_id INTEGER,
       parent_institute_id INTEGER,
@@ -49,7 +49,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_chapter = ('''
-    CREATE TABLE tbl_institute_chapter (
+   CREATE TABLE IF NOT EXISTS tbl_institute_chapter (
       institute_chapter_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_chapter_id INTEGER,
       parent_institute_id INTEGER,
@@ -65,7 +65,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_course = ('''
-    CREATE TABLE tbl_institute_course (
+   CREATE TABLE IF NOT EXISTS tbl_institute_course (
       institute_course_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_course_id INTEGER,
       parent_institute_id INTEGER,
@@ -76,7 +76,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_course_breakup = ('''
-    CREATE TABLE tbl_institute_course_breakup (
+   CREATE TABLE IF NOT EXISTS tbl_institute_course_breakup (
       institute_course_breakup_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_course_breakup_id INTEGER,
       institute_id INTEGER,
@@ -91,7 +91,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_course_breakup_session = ('''
-    CREATE TABLE tbl_institute_course_breakup_session (
+   CREATE TABLE IF NOT EXISTS tbl_institute_course_breakup_session (
       institute_session_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_session_id INTEGER,
       parent_institute_id INTEGER,
@@ -104,7 +104,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_course_relation = ('''
-    CREATE TABLE tbl_institute_course_relation (
+   CREATE TABLE IF NOT EXISTS tbl_institute_course_relation (
       institute_course_relation_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_course_relation_id INTEGER,
       parent_institute_id INTEGER,
@@ -114,7 +114,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_subject = ('''
-    CREATE TABLE tbl_institute_subject (
+   CREATE TABLE IF NOT EXISTS tbl_institute_subject (
       institute_subject_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_subject_id INTEGER,
       parent_institute_id INTEGER,
@@ -127,7 +127,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_subject_course_rel = ('''
-    CREATE TABLE tbl_institute_subject_course_rel (
+   CREATE TABLE IF NOT EXISTS tbl_institute_subject_course_rel (
       institute_subject_course_rel_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_subject_course_rel_id INTEGER,
       parent_institute_id INTEGER,
@@ -137,7 +137,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_topic = ('''
-    CREATE TABLE tbl_institute_topic (
+   CREATE TABLE IF NOT EXISTS tbl_institute_topic (
       institute_topic_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_topic_id INTEGER,
       parent_institute_id INTEGER,
@@ -153,7 +153,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_topic_data = ('''
-    CREATE TABLE tbl_institute_topic_data (
+   CREATE TABLE IF NOT EXISTS tbl_institute_topic_data (
       institute_topic_data_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_institute_topic_data_id INTEGER,
       institute_id INTEGER,
@@ -186,7 +186,7 @@ class CreateTables {
   ''');
 
   String tbl_institute_user_rel = ('''
-    CREATE TABLE tbl_institute_user_rel (
+   CREATE TABLE IF NOT EXISTS tbl_institute_user_rel (
       institute_user_rel_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       online_institute_user_rel_id INTEGER,
       parent_institute_id INTEGER,
@@ -199,7 +199,7 @@ class CreateTables {
   ''');
 
   String tbl_la_hw_cn_assessment = ('''
-    CREATE TABLE tbl_la_hw_cn_assessment (
+   CREATE TABLE IF NOT EXISTS tbl_la_hw_cn_assessment (
       la_hw_cn_assessment_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_la_hw_cn_assessment_id INTEGER,
       parent_institute_id INTEGER,
@@ -216,7 +216,7 @@ class CreateTables {
   ''');
 
   String tbl_la_hw_cn_assessment_rel = ('''
-    CREATE TABLE tbl_la_hw_cn_assessment_rel (
+   CREATE TABLE IF NOT EXISTS tbl_la_hw_cn_assessment_rel (
       la_hw_cn_assessment_rel_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
       online_la_hw_cn_assessment_rel_id INTEGER,
       parent_institute_id INTEGER,
@@ -232,7 +232,7 @@ class CreateTables {
   ''');
 
   String tbl_syllabus = ('''
-    CREATE TABLE tbl_syllabus (
+   CREATE TABLE IF NOT EXISTS tbl_syllabus (
       syllabus_id INTEGER PRIMARY KEY,
       online_syllabus_id INTEGER,
       institute_course_id INTEGER NOT NULL,
@@ -252,7 +252,7 @@ class CreateTables {
   ''');
 
   String tbl_user_type = ('''
-    CREATE TABLE tbl_user_type (
+   CREATE TABLE IF NOT EXISTS tbl_user_type (
       user_type_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       online_user_type_id INTEGER,
       user_type_name TEXT,
@@ -263,7 +263,7 @@ class CreateTables {
   ''');
 
   String tbl_question_bank = '''
-  CREATE TABLE `tbl_lms_ques_bank` (
+ CREATE TABLE IF NOT EXISTS `tbl_lms_ques_bank` (
 'online_lms_ques_bank_id' INTEGER NOT NULL, 
 `parent_institute_id` INTEGER NOT NULL,
 `institute_id` INTEGER NOT NULL,
@@ -339,4 +339,15 @@ class CreateTables {
 // 	`old_erp_id` double
 // );
 //   ''');
+
+  String tbl_content_access = '''
+CREATE TABLE IF NOT EXISTS `tbl_content_access` (
+ `online_institute_topic_data_id` INTEGER NOT NULL,
+ `user_id` INTEGER NOT NULL,
+ `institute_topic_id` INTEGER NOT NULL,
+ `created_date` DATETIME,
+      `updated_date` DATETIME,
+      'is_question' INTEGER DEFAULT 0 ,
+      UNIQUE(`online_institute_topic_data_id`, `user_id`, `is_question`) )
+''';
 }

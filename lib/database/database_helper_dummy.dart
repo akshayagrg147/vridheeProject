@@ -1,5 +1,5 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:teaching_app/database/create_tables.dart';
 
 class DatabaseHelper {
@@ -46,6 +46,7 @@ class DatabaseHelper {
     await db.execute(CreateTables().tbl_syllabus);
     await db.execute(CreateTables().tbl_user_type);
     await db.execute(CreateTables().tbl_question_bank);
+    await db.execute(CreateTables().tbl_content_access);
   }
 
   Future<void> initializeDatabase() async {
