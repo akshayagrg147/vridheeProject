@@ -45,6 +45,7 @@ class DashboardHeaderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    myDataController.setUserId();
     fetchClassData();
     fetchContinueData(null, null);
     fetchLanguageData();
@@ -265,12 +266,12 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         final List<QuestionBank> questionList = await fetchQuestionsData(
             topicId,
             language: selectedLanguage.value ?? "");
-        final localTopic = LocalTopic(
+        final topicData = LocalTopic(
             topic: topicMap,
             topicData: topicDataList,
             questionData: questionList);
-        localTopic.updateExistingContentPlanIds();
-        topicList.add(localTopic);
+        await topicData.initiateContentCompleteCount();
+        topicList.add(topicData);
         // print("topic list added for ${topicId} ${topicList.length} and ${topicDataList.length}");
         // // print("in chapter ff");
       }
@@ -316,7 +317,6 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         // print(" in here aa :${filteredChapters.length}");
         // inProgress.addAll(filteredChapters);
         toDo.addAll(filteredChapters);
-
         // print(" in here if ${inProgress.length}");
         // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
         allChapterList
@@ -380,7 +380,6 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
         if (filteredChapters.isNotEmpty) {
           // print(" in here aa");
           inProgress.addAll(filteredChapters);
-
           // print(" in here if ${inProgress.length}");
           // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
           allChapterList
@@ -433,25 +432,6 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
       final topic = chapter!.topics.firstWhereOrNull((element) =>
           element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
       topic?.topicData.add(data);
-      update();
-    } catch (e) {
-      print("Error Updating added content :- $e");
-    }
-  }
-
-  void updateContentPlan(
-      {required String progressType,
-      required int onlineInstituteSubjectId,
-      required int onlineInstituteChapterId,
-      required int onlineInstituteTopicId}) async {
-    try {
-      final chapter = allSubjectsData[onlineInstituteSubjectId]![progressType]
-          ?.firstWhereOrNull((element) =>
-              element.chapter.onlineInstituteChapterId ==
-              onlineInstituteChapterId);
-      final topic = chapter!.topics.firstWhereOrNull((element) =>
-          element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
-      await topic?.updateExistingContentPlanIds();
       update();
     } catch (e) {
       print("Error Updating added content :- $e");

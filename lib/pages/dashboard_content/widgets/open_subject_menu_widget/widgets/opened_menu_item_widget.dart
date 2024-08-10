@@ -401,7 +401,7 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextView(
-                            '${topic.mediaSyllabusCount}/${topic.mediaCount}',
+                            '${topic.mediaCompletedCount}/${topic.mediaCount}',
                             fontsize: 13)),
                   )),
                   TableCell(
@@ -409,7 +409,7 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextView(
-                            '${topic.ematerialSyllabusCount}/${topic.eMaterialCount}',
+                            '${topic.ematerialCompletedCount}/${topic.eMaterialCount}',
                             fontsize: 13)),
                   )),
                   TableCell(
@@ -417,7 +417,7 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextView(
-                            '${topic.questionSyllabusCount}/${topic.questionData.length}',
+                            '${topic.questionCompletedCount}/${topic.questionData.length}',
                             fontsize: 13)),
                   )),
                   // TableCell(

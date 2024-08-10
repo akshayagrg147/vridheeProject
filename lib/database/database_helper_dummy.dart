@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:teaching_app/database/create_tables.dart';
@@ -22,13 +21,14 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    final dbpath =await getDatabasesPath();
+    final dbpath = await getDatabasesPath();
     databaseFactory = databaseFactoryFfi;
-    
+
     String path = join(dbpath, 'my_database.db');
-    final db = await databaseFactory. openDatabase(
-      path,);
-   await _onCreate(db, 1);
+    final db = await databaseFactory.openDatabase(
+      path,
+    );
+    await _onCreate(db, 1);
     return db;
   }
 
@@ -51,6 +51,7 @@ class DatabaseHelper {
     await db.execute(CreateTables().tbl_syllabus);
     await db.execute(CreateTables().tbl_user_type);
     await db.execute(CreateTables().tbl_question_bank);
+    await db.execute(CreateTables().tbl_content_access);
   }
 
   Future<void> initializeDatabase() async {

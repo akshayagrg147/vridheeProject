@@ -19,7 +19,6 @@ import '../../services/background_service_controller.dart';
 
 class LoginController extends GetxController {
   final formKey = GlobalKey<FormState>();
-
   final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   RxBool obscureText = true.obs;

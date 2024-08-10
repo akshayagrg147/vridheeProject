@@ -419,15 +419,7 @@ class ContentPlanningController extends GetxController {
               "Plan deleted: ${quesData.instituteTopicId} :${quesData.onlineLmsQuesBankId}");
         }
       }
-      final dashboardController = Get.find<DashboardHeaderController>();
-      dashboardController.updateContentPlan(
-          progressType: type ?? "",
-          onlineInstituteSubjectId:
-              selectedChapter.value!.chapter.instituteSubjectId,
-          onlineInstituteChapterId:
-              selectedChapter.value!.chapter.onlineInstituteChapterId,
-          onlineInstituteTopicId:
-              selectedTopic.value!.topic.onlineInstituteTopicId);
+
     } catch (e) {
       print("Error inserting plan data: $e");
     }
