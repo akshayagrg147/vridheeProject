@@ -141,8 +141,7 @@ class DatabaseController extends GetxController {
         'created_date': DateTime.now().toIso8601String(),
         'updated_date': DateTime.now().toIso8601String()
       });
-    } else {
-      throw Exception("Database is not initialized");
+      Get.find<Header>()
     }
   }
 }

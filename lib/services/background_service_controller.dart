@@ -29,15 +29,21 @@ class BackgroundServiceController {
         return;
       }
       isSyncingInProgress = true;
+      filesDownloaded.value=0;
       await SharedPrefHelper().initialize();
-      final DatabaseController dbController = Get.put(DatabaseController());
-      await dbController.initializeDatabase();
+      final DatabaseController dbController = Platform.isAndroid? Get.put(DatabaseController()):Get.find<DatabaseController>();
+      if(Platform.isAndroid){
+        await dbController.initializeDatabase();
+
+      }
+
       // Get the download list
       final response = await dbController.getDownloadList();
       final List<Map<String, dynamic>> rows = [];
       rows.add(
-          {"url": "http://dbhjjdbh//", "filename": "filename", "ext": "fg"});
+          {"url": "http://dbhjjdbh//", "filename": -1, "ext": "fg"});
       rows.addAll(response);
+      rows.removeWhere((item)=> (item['url']??"").trim().isEmpty);
       totalFilesTOBeDownload = rows.length;
       if (GetPlatform.isWindows) {
         DownloadProgressDialog.show();
@@ -46,13 +52,13 @@ class BackgroundServiceController {
         final url = row['url'];
         final ext =
             (row['ext'] ?? "").isNotEmpty ? row['ext'] : getFileExtFromUrl(url);
-
+final id = row['filename'];
         final fileName = "${row['filename'] ?? ""}.$ext";
         final isInternetAvailable = await ApiClient().isInternetAvailable();
         if (!isInternetAvailable) {
           throw ApiClient().noInternet;
         }
-        await downloadFile(url, fileName, ext);
+        await downloadFile(url, fileName, ext,onlineTopicDataId: id);
         filesDownloaded.value += 1;
       });
       final isInternetAvailable = await ApiClient().isInternetAvailable();
@@ -113,7 +119,7 @@ class BackgroundServiceController {
           filesDownloaded.value += 1;
         }
 
-        dbController.database?.execute('''UPDATE tbl_lms_ques_bank
+     await   dbController.database?.execute('''UPDATE tbl_lms_ques_bank
 SET is_local_available = 1
 WHERE online_lms_ques_bank_id = $id''');
       });
@@ -154,7 +160,7 @@ WHERE online_lms_ques_bank_id = $id''');
           if (onlineTopicDataId != null) {
             final DatabaseController _databaseController =
                 Get.find<DatabaseController>();
-            _databaseController.database
+           await _databaseController.database
                 ?.execute('''UPDATE tbl_institute_topic_data
 SET is_local_content_available = 1
 WHERE online_institute_topic_data_id = $onlineTopicDataId''');

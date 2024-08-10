@@ -87,6 +87,9 @@ class LoginController extends GetxController {
 
   Future<void> syncData([bool skipLogin = false]) async {
     try {
+      if(isSyncDataLoading.value){
+        return ;
+      }
       isSyncDataLoading.value = true;
 
       final response = await LoginRepository.getDeviceInfo(
