@@ -789,8 +789,10 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
           ?.firstWhereOrNull((element) =>
               element.chapter.onlineInstituteChapterId ==
               onlineInstituteChapterId);
-      final topic = chapter!.topics.firstWhereOrNull((element) =>
-          element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
+      final topic = chapter!.topics.firstWhereOrNull((element) {
+
+      final id = isQuestion? element.topic.onlineInstituteTopicId:element.topic.instituteTopicId;
+        return id == onlineInstituteTopicId;});
       await topic!.initiateContentCompleteCount();
       update();
     } catch (e) {

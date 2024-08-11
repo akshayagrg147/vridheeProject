@@ -22,11 +22,7 @@ static void show(){
         content: ValueListenableBuilder<int>(
           valueListenable: BackgroundServiceController.filesDownloaded,
           builder: (context,value,_) {
-            if(value == BackgroundServiceController.totalFilesTOBeDownload){
-              Future.delayed(const Duration(seconds: 1),(){
-                Navigator.pop(context);
-              });
-            }
+
             return Row(
               children: [
                 Expanded(

@@ -297,9 +297,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         docData != null) {
       contentWidget = SfPdfViewer.memory(
         docData!,
-        onPageChanged: (value) {
+        onPageChanged: (value)async {
           if (value.isLastPage) {
-            Get.find<DatabaseController>().updateContentProgress(
+           await Get.find<DatabaseController>().updateContentProgress(
                 widget.topic!.onlineInstituteTopicDataId!,
                 instituteTopicId: widget.topic!.instituteTopicId!);
             final videoMainScreenController =
@@ -311,9 +311,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
                     .selectedTopic.value!.topic.instituteChapterId);
           }
         },
-        onDocumentLoaded: (value) {
+        onDocumentLoaded: (value)async {
           if (value.document.pages.count == 1) {
-            Get.find<DatabaseController>().updateContentProgress(
+          await  Get.find<DatabaseController>().updateContentProgress(
                 widget.topic!.onlineInstituteTopicDataId!,
                 instituteTopicId: widget.topic!.instituteTopicId!);
             final videoMainScreenController =

@@ -61,7 +61,7 @@ class LocalTopic {
     final idList = topicData
         .where((element) =>
             element.topicDataType == 'HTML5' || element.topicDataType == 'MP4')
-        .map((e) => e.instituteTopicDataId)
+        .map((e) => e.onlineInstituteTopicDataId)
         .toList();
     final count = (completedContentData ?? [])
         .where((instituteTopicDataId) => idList.contains(instituteTopicDataId))
@@ -72,7 +72,7 @@ class LocalTopic {
   int get ematerialCompletedCount {
     final idList = topicData
         .where((element) => element.topicDataType == "e-Material")
-        .map((e) => e.instituteTopicDataId)
+        .map((e) => e.onlineInstituteTopicDataId)
         .toList();
     final count = (completedContentData ?? [])
         .where((instituteTopicDataId) => idList.contains(instituteTopicDataId))
