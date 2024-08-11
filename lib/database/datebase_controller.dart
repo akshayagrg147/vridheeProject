@@ -141,7 +141,6 @@ class DatabaseController extends GetxController {
         'created_date': DateTime.now().toIso8601String(),
         'updated_date': DateTime.now().toIso8601String()
       });
-      Get.find<Header>()
     }
   }
 }
