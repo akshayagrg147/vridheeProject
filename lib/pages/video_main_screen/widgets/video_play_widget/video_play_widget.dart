@@ -10,6 +10,7 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
+import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 import 'package:video_player/video_player.dart';
@@ -301,6 +302,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             Get.find<DatabaseController>().updateContentProgress(
                 widget.topic!.onlineInstituteTopicDataId!,
                 instituteTopicId: widget.topic!.instituteTopicId!);
+            final videoMainScreenController =
+                Get.find<VideoMainScreenController>();
+            videoMainScreenController.updateContentProgress(
+                widget.topic!.instituteTopicId!,
+                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
+                instituteChapterId: videoMainScreenController
+                    .selectedTopic.value!.topic.instituteChapterId);
           }
         },
         onDocumentLoaded: (value) {
@@ -308,6 +316,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             Get.find<DatabaseController>().updateContentProgress(
                 widget.topic!.onlineInstituteTopicDataId!,
                 instituteTopicId: widget.topic!.instituteTopicId!);
+            final videoMainScreenController =
+                Get.find<VideoMainScreenController>();
+            videoMainScreenController.updateContentProgress(
+                widget.topic!.instituteTopicId!,
+                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
+                instituteChapterId: videoMainScreenController
+                    .selectedTopic.value!.topic.instituteChapterId);
           }
         },
       );

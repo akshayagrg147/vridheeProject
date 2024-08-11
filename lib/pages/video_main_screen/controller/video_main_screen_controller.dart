@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/pages/dashboard_content/widgets/header/header_dashboard_controller.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import 'package:whiteboard/whiteboard.dart';
 
@@ -42,11 +43,12 @@ class VideoMainScreenController extends GetxController {
   var subjectName = RxnString();
   var chapterName = RxnString();
   var topicName = RxnString();
+  String? progressType;
 
   @override
   void onInit() async {
     super.onInit();
-
+    progressType = null;
     List<dynamic> args = Get.arguments;
 
     isContinueWatching.value = args.isNotEmpty ? args[0] : true;
@@ -77,6 +79,8 @@ class VideoMainScreenController extends GetxController {
         if (data is QuestionBank) {
           currentQuestionData.value = data;
           openQuestionViewer.value = true;
+        } else if (data is String) {
+          progressType = data;
         } else {
           currentTopicData.value = data;
         }
@@ -577,5 +581,20 @@ class VideoMainScreenController extends GetxController {
     } catch (e) {
       print("Error inserting data: $e");
     }
+  }
+
+  void updateContentProgress(int instituteTopicId,
+      {required int onlineTopicDataId,
+      required int instituteChapterId,
+      bool isQuestion = false}) async {
+    if (progressType == null) {
+      return;
+    }
+    final dashboardController = Get.find<DashboardHeaderController>();
+    await dashboardController.updateCompleteCount(instituteTopicId,
+        onlineTopicDataId: onlineTopicDataId,
+        onlineInstituteChapterId: instituteChapterId,
+        progressType: progressType!,
+        isQuestion: isQuestion);
   }
 }
