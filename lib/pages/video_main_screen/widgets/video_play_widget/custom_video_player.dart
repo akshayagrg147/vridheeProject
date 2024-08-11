@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
+import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:video_player/video_player.dart';
 
 class CustomVideoPlayer extends StatefulWidget {
   final VideoPlayerController controller;
   final int onlineTopicDataId;
   final int instituteTopicId;
-  const CustomVideoPlayer(
-      {super.key,
-      required this.controller,
-      required this.onlineTopicDataId,
-      required this.instituteTopicId});
+  const CustomVideoPlayer({
+    super.key,
+    required this.controller,
+    required this.onlineTopicDataId,
+    required this.instituteTopicId,
+  });
 
   @override
   State<CustomVideoPlayer> createState() => _CustomVideoPlayerState();
@@ -50,6 +52,11 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       final dbController = Get.find<DatabaseController>();
       dbController.updateContentProgress(widget.onlineTopicDataId,
           instituteTopicId: widget.instituteTopicId);
+      final videoMainScreenController = Get.find<VideoMainScreenController>();
+      videoMainScreenController.updateContentProgress(widget.instituteTopicId,
+          onlineTopicDataId: widget.onlineTopicDataId,
+          instituteChapterId: videoMainScreenController
+              .selectedTopic.value!.topic.instituteChapterId);
     }
   }
 

@@ -772,4 +772,24 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
       throw 'Could not launch $url';
     }
   }
+
+  Future<void> updateCompleteCount(int onlineInstituteTopicId,
+      {required int onlineTopicDataId,
+      required int onlineInstituteChapterId,
+      required String progressType,
+      bool isQuestion = false}) async {
+    try {
+      final chapter = allSubjectsData[
+              selectedSubject.value!.onlineInstituteSubjectId]![progressType]
+          ?.firstWhereOrNull((element) =>
+              element.chapter.onlineInstituteChapterId ==
+              onlineInstituteChapterId);
+      final topic = chapter!.topics.firstWhereOrNull((element) =>
+          element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
+      await topic!.initiateContentCompleteCount();
+      update();
+    } catch (e) {
+      print("Error Updating added content :- $e");
+    }
+  }
 }

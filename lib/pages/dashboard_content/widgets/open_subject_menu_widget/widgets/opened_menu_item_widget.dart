@@ -252,7 +252,8 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                                                 arguments: [
                                                   false,
                                                   model,
-                                                  topic
+                                                  topic,
+                                                  type
                                                 ]);
                                           },
                                           icon: const Icon(

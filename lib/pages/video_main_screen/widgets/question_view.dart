@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/decrypt_image_view.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
 
@@ -98,16 +99,25 @@ class _QuestionViewState extends State<QuestionView>
             ),
           Center(
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
                 showAnswer = !showAnswer;
+                setState(() {});
+
                 if (showAnswer == true) {
                   final dbController = Get.find<DatabaseController>();
-                  dbController.updateContentProgress(
+                  await dbController.updateContentProgress(
                       widget.question.onlineLmsQuesBankId,
                       instituteTopicId: widget.question.instituteTopicId,
                       isQuestion: true);
+                  final videoMainScreenController =
+                      Get.find<VideoMainScreenController>();
+                  videoMainScreenController.updateContentProgress(
+                      widget.question.instituteTopicId,
+                      onlineTopicDataId: widget.question.onlineLmsQuesBankId,
+                      isQuestion: true,
+                      instituteChapterId: videoMainScreenController
+                          .selectedTopic.value!.topic.instituteChapterId);
                 }
-                setState(() {});
               },
               child: Text(
                 showAnswer ? "Hide Answer" : "Show Answer",
