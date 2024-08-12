@@ -451,7 +451,7 @@ class ContentPlanningController extends GetxController {
             onlineInstituteTopicDataId: onlineId,
             instituteId: employeedata['institute_id'],
             parentInstituteId: employeedata['parent_institute_id'],
-            instituteTopicId: selectedTopic.value!.topic.onlineInstituteTopicId,
+            instituteTopicId: selectedTopic.value!.topic.instituteTopicId,
             topicDataKind: "",
             topicDataType: getTopicDataType(ext),
             topicDataFileCodeName: file.path.split('/').last.split('.').first,
