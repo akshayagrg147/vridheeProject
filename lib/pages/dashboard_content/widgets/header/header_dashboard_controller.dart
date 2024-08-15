@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:teaching_app/core/remote_config/remote_config_service.dart';
 import 'package:teaching_app/modals/tbl_institute_subject.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/utils/string_constant.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../database/datebase_controller.dart';
@@ -15,7 +16,6 @@ import '../../../../modals/tbl_institute_course.dart';
 import '../../../../modals/tbl_institute_topic.dart';
 import '../../../../modals/tbl_institute_topic_data.dart';
 import '../../../../modals/tbl_intitute_chapter_model.dart';
-import '../../../../modals/tbl_la_plan_execution_2023_2024.dart';
 import '../open_subject_menu_widget/modal/open_subject_model.dart';
 
 class DashboardHeaderController extends GetxController {
@@ -37,17 +37,15 @@ class DashboardHeaderController extends GetxController {
   RxList<LocalChapter> toDo = <LocalChapter>[].obs;
   RxList<LocalChapter> completed = <LocalChapter>[].obs;
 
-  var allSubjectsData = <int, Map<String, List<LocalChapter>>>{}.obs;
-
   RxList<Map<String, dynamic>> cData = <Map<String, dynamic>>[].obs;
   RxBool isFetchingData = false.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    myDataController.setUserId();
+    await myDataController.setUserDetails();
     fetchClassData();
-    fetchContinueData(null, null);
+    fetchContinueData();
     fetchLanguageData();
     _checkForUpdate();
   }
@@ -132,36 +130,19 @@ class DashboardHeaderController extends GetxController {
     }
   }
 
-  // Future<void> fetchData(int subjectId) async {
-  //   print(" in fetchingin data ${subjectId}");
-  //   allChapterList.clear();
-  //   toDo.clear();
-  //   inProgress.clear();
-  //   completed.clear();
-  //
-  //   try {
-  //     List<LocalChapter> chapters = await fetchAllChapters(selectedClass.value?.instituteCourseId ?? 0, subjectId);
-  //     // print("1 chpaters lenght: ${chapters}");
-  //     allChapterList.assignAll(chapters);
-  //     // print("2 allchpaterslist lenght: ${allChapterList.value}");
-  //
-  //     // print("object ff ${allChapterList}");
-  //     await filterChaptersByExecution();
-  //     await filterChaptersBySyllabusPlanning();
-  //   } catch (e) {
-  //     // print('Error fetching data: $e');
-  //   }
-  // }
-
   Future<List<InstituteChapter>> fetchChapters(
       int courseId, int subjectId) async {
     // print("in fetch chapter  maps $courseId  ${subjectId}");
     final List<Map<String, dynamic>> chapterDataMaps =
-        await myDataController.query(
-      'tbl_institute_chapter',
-      where: 'institute_course_id = ? AND institute_subject_id = ?',
-      whereArgs: [courseId, subjectId],
-    );
+        await myDataController.rawQuery('''
+    select * ,  EXISTS (
+        SELECT 1 
+        FROM tbl_institute_user_content_access_2024_2025 a 
+        WHERE a.institute_chapter_id = c.online_institute_chapter_id AND a.institute_user_id = ${myDataController.currentuser.onlineInstituteUserId}
+    ) AS isStarted from tbl_institute_chapter c
+    where c.institute_course_id = $courseId and c.institute_subject_id = $subjectId
+    ''');
+
     // print("in fetch chapter  maps${chapterDataMaps.length}");
     final List<InstituteChapter> chapterData =
         chapterDataMaps.map((map) => InstituteChapter.fromMap(map)).toList();
@@ -171,18 +152,33 @@ class DashboardHeaderController extends GetxController {
     return chapterData;
   }
 
-  Future<List<InstituteTopic>> fetchTopics(int courseId, int chapterId) async {
+  Future<List<InstituteTopic>> fetchTopics(
+      int courseId, List<int> chapterId) async {
     // print("in fetch topic 1");
     // print("in fetch topics  maps $courseId  ${chapterId}");
-    final List<Map<String, dynamic>> topicsMaps = await myDataController.query(
-      'tbl_institute_topic',
-      where: 'institute_course_id = ? AND institute_chapter_id = ?',
-      whereArgs: [courseId, chapterId],
-    );
-    // print("in fetch topics  maps${topicsMaps.length}");
-    // print("${topicsMaps}");
+    final ids = chapterId.join(',');
 
     try {
+      final List<Map<String, dynamic>> topicsMaps =
+          await myDataController.rawQuery('''
+     select t.*,
+     EXISTS (
+        SELECT 1 
+        FROM tbl_institute_user_content_access_2024_2025 a 
+        WHERE a.institute_topic_id = t.online_institute_topic_id AND a.institute_user_id = ${myDataController.currentuser.onlineInstituteUserId}
+    ) AS isViewed ,
+     (SELECT GROUP_CONCAT(Distinct s.institute_topic_data_id) 
+     FROM ${StringConstant().tblSyllabusPlanning}  s
+     WHERE s.institute_topic_id = t.online_institute_topic_id and s.content_type != "Question"
+    ) AS topic_data_syllabus_ids,
+     (SELECT GROUP_CONCAT(Distinct sq.institute_topic_data_id) 
+     FROM ${StringConstant().tblSyllabusPlanning}  sq
+     WHERE sq.institute_topic_id = t.online_institute_topic_id and sq.content_type = "Question"
+    ) AS question_syllabus_ids
+      from tbl_institute_topic t where t.institute_course_id = $courseId and t.institute_chapter_id in ($ids)
+     ''');
+      // print("in fetch topics  maps${topicsMaps.length}");
+      // print("${topicsMaps}");
       final List<InstituteTopic> topic = topicsMaps.map((map) {
         // print("Mapping topic data: $map");
         return InstituteTopic.fromMap(map);
@@ -200,15 +196,15 @@ class DashboardHeaderController extends GetxController {
     // return topic;
   }
 
-  Future<List<InstituteTopicData>> fetchTopicData(int topicId,
+  Future<List<InstituteTopicData>> fetchTopicData(List<int> topicIds,
       {required String language}) async {
     // print("in fetch topic data 1");
-
+    final ids = topicIds.join(',');
     final List<Map<String, dynamic>> topicsDataMaps =
         await myDataController.rawQuery('''
-     select * , tt.topic_name from tbl_institute_topic_data as tb
-join tbl_institute_topic tt on tt.online_institute_topic_id=tb.institute_topic_id
-where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
+     select tb.* , tt.topic_name from tbl_institute_topic_data tb
+join tbl_institute_topic tt on tb.institute_topic_id = tt.online_institute_topic_id
+where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
       ''');
     //     await myDataController.query(
     //   'tbl_institute_topic_data',
@@ -222,16 +218,16 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
     return topicData;
   }
 
-  Future<List<QuestionBank>> fetchQuestionsData(int topicId,
+  Future<List<QuestionBank>> fetchQuestionsData(List<int> topicIds,
       {required String language}) async {
     // print("in fetch topic data 1");
+    final ids = topicIds.join(',');
 
     final List<Map<String, dynamic>> questionDataMap =
-        await myDataController.query(
-      'tbl_lms_ques_bank',
-      where: 'institute_topic_id = ? and content_lang = ? ',
-      whereArgs: [topicId, language],
-    );
+        await myDataController.rawQuery('''
+      select * from tbl_lms_ques_bank where institute_topic_id in ($ids) and content_lang = "$language"
+      ''');
+
     // print("in fetch topic data  2");
     final List<QuestionBank> questionData =
         questionDataMap.map((map) => QuestionBank.fromJson(map)).toList();
@@ -247,271 +243,99 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
     // print("fetch al lchapter chaptersData length ${chaptersData.length}");
 
     List<LocalChapter> chapters = [];
+    final chapterIds =
+        List<int>.from(chaptersData.map((e) => e.onlineInstituteChapterId));
+    final List<InstituteTopic> topicsList =
+        await fetchTopics(courseId, chapterIds);
+    final topicIds =
+        List<int>.from(topicsList.map((e) => e.onlineInstituteTopicId));
+    final List<InstituteTopicData> topicDataList =
+        await fetchTopicData(topicIds, language: selectedLanguage.value ?? "");
+
+    final List<QuestionBank> questionList = await fetchQuestionsData(topicIds,
+        language: selectedLanguage.value ?? "");
+
+    List<LocalTopic> localTopicList = [];
+    for (var topic in topicsList) {
+      final topicData = topicDataList
+          .where((element) =>
+              element.instituteTopicId == topic.onlineInstituteTopicId)
+          .toList();
+      final questionData = questionList
+          .where((element) =>
+              element.instituteTopicId == topic.onlineInstituteTopicId)
+          .toList();
+      localTopicList.add(LocalTopic(
+          topic: topic, topicData: topicData, questionData: questionData));
+    }
 
     for (var chapterMap in chaptersData) {
       final int chapterId = chapterMap.onlineInstituteChapterId;
-      // print("fetch all chhapter chatperId: $chapterId");
-      final List<InstituteTopic> topicsList =
-          await fetchTopics(courseId, chapterId);
-      // print("fetch all chapter topics List length ${topicsList.length}");
 
-      List<LocalTopic> topicList = [];
+      final localTopics = localTopicList
+          .where((element) => element.topic.instituteChapterId == chapterId)
+          .toList();
 
-      for (var topicMap in topicsList) {
-        final int topicId = topicMap.onlineInstituteTopicId;
-        // print("fetch all chapter topicListAdd id ${topicId}");
-        final List<InstituteTopicData> topicDataList = await fetchTopicData(
-            topicId,
-            language: selectedLanguage.value ?? "");
-        final List<QuestionBank> questionList = await fetchQuestionsData(
-            topicId,
-            language: selectedLanguage.value ?? "");
-        final topicData = LocalTopic(
-            topic: topicMap,
-            topicData: topicDataList,
-            questionData: questionList);
-        await topicData.initiateContentCompleteCount();
-        topicList.add(topicData);
-        // print("topic list added for ${topicId} ${topicList.length} and ${topicDataList.length}");
-        // // print("in chapter ff");
-      }
-      chapters.add(LocalChapter(chapter: chapterMap, topics: topicList));
+      chapters.add(LocalChapter(chapter: chapterMap, topics: localTopics));
       // print("fetch all chapter chaptersAdd ${chapters.length}");
     }
     // print("fetch all chapter topicListAdd return ${chapters.length}");
     return chapters;
   }
 
-  Future<void> filterChaptersByExecution() async {
-    // print("in fetch execution 1");
-
-    final List<Map<String, dynamic>> executionDataMaps =
-        await myDataController.query(
-      'tbl_la_plan_execution_2024_2025',
-    );
-    // print("in fetch execution 2");
-
-    final List<LaPlanExecution> executionData = executionDataMaps.map((map) {
-      // print("Mapping la plan: $map");
-      return LaPlanExecution.fromMap(map);
-    }).toList();
+  Future<void> fetchDataForSelectedSubject() async {
+    allChapterList.clear();
     toDo.clear();
-    // print("in fetch topics list length: ${executionData.length} : ${executionData[0]}");
-    // final List<LaPlanExecution> executionData = executionDataMaps.map((map) => LaPlanExecution.fromMap(map)).toList();
-    // print("in fetch execution 3");
+    inProgress.clear();
+    completed.clear();
 
-    // Filter chapters from allChapterList that match executionData
-    for (var execution in executionData) {
-      List<LocalChapter> filteredChapters = allChapterList
-          .where((chapter) =>
-              chapter.chapter.onlineInstituteChapterId ==
-                  execution.instituteChapterId &&
-              chapter.chapter.instituteSubjectId ==
-                  execution.instituteSubjectId)
-          .toList();
-      print("filteredChapters list" + filteredChapters.toString());
-      // print("in dfd ${chapter.chapter.instituteChapterId}");
-      // print("aa : ${execution.instituteSubjectId} : ${execution.instituteChapterId}");
-      // print("in execution aa");
-      if (filteredChapters.isNotEmpty) {
-        // print(" in here aa :${filteredChapters.length}");
-        // inProgress.addAll(filteredChapters);
-        toDo.addAll(filteredChapters);
-        // print(" in here if ${inProgress.length}");
-        // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
-        allChapterList
-            .removeWhere((chapter) => filteredChapters.contains(chapter));
-      }
-    }
-  }
+    List<LocalChapter> chapters = await fetchAllChapters(
+        selectedClass.value?.onlineInstituteCourseId ?? 0,
+        selectedSubject.value!.onlineInstituteSubjectId);
 
-  Future<void> filterChapterByUserAccess() async {
-    // print("in fetch execution 1");
+    allChapterList.clear();
+    allChapterList.assignAll(chapters);
 
-    final List<Map<String, dynamic>> executionDataMaps =
-        await myDataController.query(
-      'tbl_institute_user_content_access_2024_2025',
-    );
-    // print("in fetch execution 2");
+    filterChapters();
 
-    try {
-      final List<InstituteUserContentAccess> executionData =
-          executionDataMaps.map((map) {
-        print("Mapping topic data: $map");
-        return InstituteUserContentAccess.fromMap(map);
-      }).toList();
-
-      inProgress.clear();
-      // print("in fetch topics list length: ${executionData.length}");
-
-      // final List<LaPlanExecution> executionData = executionDataMaps.map((map) => LaPlanExecution.fromMap(map)).toList();
-      // print("in fetch execution 3");
-
-      // Filter chapters from allChapterList that match executionData
-      for (var execution in executionData) {
-        List<LocalChapter> filteredChapters = allChapterList
-            .where((chapter) =>
-                chapter.chapter.onlineInstituteChapterId ==
-                    execution.instituteChapterId &&
-                chapter.chapter.instituteSubjectId ==
-                    execution.instituteSubjectId)
-            .toList();
-
-        // List<LocalChapter> filteredChapters = allChapterList.where((chapter) {
-        //   // Print details of each chapter being processed
-        //   print("Checking chapter with onlineInstituteChapterId: ${chapter.chapter.onlineInstituteChapterId} == ${execution.instituteChapterId} and instituteSubjectId: ${chapter.chapter.instituteSubjectId} == ${execution.instituteSubjectId}");
-        //
-        //   bool isMatchingChapter = chapter.chapter.onlineInstituteChapterId == execution.instituteChapterId &&
-        //       chapter.chapter.instituteSubjectId == execution.instituteSubjectId;
-        //
-        //   // Print if the chapter matches the criteria
-        //   if (isMatchingChapter) {
-        //     print("Chapter matches criteria");
-        //   } else {
-        //     print("Chapter does not match criteria");
-        //   }
-        //
-        //   return isMatchingChapter;
-        // }).toList();
-
-        // print("in dfd ${filteredChapters.length}");
-        // print(execution.instituteSubjectId);
-        // print("in execution aa");
-        if (filteredChapters.isNotEmpty) {
-          // print(" in here aa");
-          inProgress.addAll(filteredChapters);
-          // print(" in here if ${inProgress.length}");
-          // print(" in here if 2 ${inProgress[0].chapter.onlineInstituteChapterId}");
-          allChapterList
-              .removeWhere((chapter) => filteredChapters.contains(chapter));
-        }
-      }
-    } catch (e) {
-      print("Error during mapping user acess: $e");
-    }
-  }
-
-  // Future<void> filterChaptersBySyllabusPlanning() async {
-  //   // print("in fetch syllabus 1");
-  //
-  //   final List<Map<String, dynamic>> syllabusDataMaps = await myDataController.query(
-  //     'tbl_syllabus_planning_2024_2025',
-  //   );
-  //   // print("in fetch syllabus 2");
-  //
-  //   final List<SyllabusPlanning> syllabusData = syllabusDataMaps.map((map) => SyllabusPlanning.fromMap(map)).toList();
-  //   // print("in syllabus 2 ${syllabusData.length}");
-  //   // Filter chapters from allChapterList that match syllabusData
-  //   for (var syllabus in syllabusData) {
-  //     List<LocalChapter> filteredChapters = allChapterList.where((chapter) =>
-  //     chapter.chapter.onlineInstituteChapterId == 536 &&
-  //         131.0 == syllabus.instituteSubjectId
-  //     ).toList();
-  //
-  //     if (filteredChapters.isNotEmpty) {
-  //       toDdo.assignAll(filteredChapters);
-  //       allChapterList.removeWhere((chapter) => filteredChapters.contains(chapter));
-  //       update();
-  //     }
-  //   }
-  //
-  //   // Remaining chapters in allChapterList will be considered as completed
-  //   completed.assignAll(allChapterList);
-  // }
-  void updateAddedContent(
-      {required InstituteTopicData data,
-      required String progressType,
-      required int onlineInstituteSubjectId,
-      required int onlineInstituteChapterId,
-      required int onlineInstituteTopicId}) {
-    try {
-      final chapter = allSubjectsData[onlineInstituteSubjectId]![progressType]
-          ?.firstWhereOrNull((element) =>
-              element.chapter.onlineInstituteChapterId ==
-              onlineInstituteChapterId);
-      final topic = chapter!.topics.firstWhereOrNull((element) =>
-          element.topic.onlineInstituteTopicId == onlineInstituteTopicId);
-      topic?.topicData.add(data);
-      update();
-    } catch (e) {
-      print("Error Updating added content :- $e");
-    }
-  }
-
-  Future<void> fetchDataForAllSubjects() async {
-    var tempData = <int, Map<String, List<LocalChapter>>>{};
-
-    try {
-      await Future.forEach(subjectList, (subject) async {
-        var inProgress = <LocalChapter>[];
-        var toDo = <LocalChapter>[];
-        var completed = <LocalChapter>[];
-
-        allChapterList.clear();
-        toDo.clear();
-        inProgress.clear();
-        completed.clear();
-
-        List<LocalChapter> chapters = await fetchAllChapters(
-            selectedClass.value?.onlineInstituteCourseId ?? 0,
-            subject.onlineInstituteSubjectId);
-        allChapterList.clear();
-        allChapterList.assignAll(chapters);
-        // print("chapter list for : ${subject.onlineInstituteSubjectId} : ${allChapterList.length}");
-        await filterChapterByUserAccess();
-        await filterChaptersByExecution();
-        // await filterChaptersBySyllabusPlanning();
-        // print("in all A : ${allChapterList.length} : ${subject.onlineInstituteSubjectId}");
-
-        inProgress.addAll(this.inProgress);
-
-        toDo.addAll(this.toDo);
-        completed.addAll(this.completed);
-
-        // print("in all ${inProgress.length} ${subject.onlineInstituteSubjectId}");
-        tempData[subject.onlineInstituteSubjectId] = {
-          "inProgress": List<LocalChapter>.from(inProgress),
-          "toDo": List<LocalChapter>.from(toDo),
-          "completed": List<LocalChapter>.from(allChapterList),
-          // "inProgress": allChapterList,
-          // "completed": allChapterList,
-        };
-        // print("in all C : ${subject.onlineInstituteSubjectId} : ${tempData[subject.onlineInstituteSubjectId]}");
-      });
-    } catch (e) {}
-    allSubjectsData.assignAll(tempData);
     update();
+  }
 
-    // print("in all B : ${allChapterList.length} : ${allSubjectsData.length} : ${allSubjectsData[131]}");
+  void filterChapters() {
+    List<LocalChapter> chapters = [];
+    chapters.addAll(allChapterList);
+    inProgress.assignAll(chapters.where((element) =>
+        element.chapter.isStarted &&
+        element.topics.map((e) => e.topic.isViewed).toList().contains(false) ==
+            true));
+    completed.assignAll(chapters.where((element) =>
+        element.chapter.isStarted &&
+        element.topics.map((e) => e.topic.isViewed).toList().contains(false) ==
+            false));
+    chapters.removeWhere((element) => element.chapter.isStarted);
+    toDo.assignAll(chapters);
   }
 
 //  continuing watching
-  Future<void> fetchContinueData(int? classId, int? subjectId) async {
+  Future<void> fetchContinueData() async {
     // print("fetch data called");
+    final int? classId = selectedClass.value?.onlineInstituteCourseId;
+    final int? subjectId = selectedSubject.value?.onlineInstituteSubjectId;
     cData.clear();
-    // print("c data length${cData.length}");
     update();
     try {
       // Fetch data from the database, you might need to adjust this according to your database setup.
-      // For demonstration purposes, we'll use a dummy function `fetchContentAccessData` to simulate data fetching.
 
       isFetchingData.value = true;
 
       List<InstituteUserContentAccess> data =
-          await fetchContentAccessData(classId, subjectId);
-      // print("in data length: ${data.length}");
-      // Transform data to the required format
+          await fetchContentAccessData(classId, subjectId, isLast6: true);
+
       final topicIds = data.map((e) => e.instituteTopicDataId).toList();
       List<InstituteTopicData> topicDatas =
           topicIds.isEmpty ? [] : await fetchContinueTopicData(topicIds);
       List<Map<String, dynamic>> fetchedVideos = [];
       for (var item in data) {
-        // print("In loop");
-        // String className = await fetchClassName(item.instituteCourseId);
-        // String subjectName = await fetchSubjectName(item.instituteSubjectId);
-        // String chapterName = await fetchChapterName(item.instituteChapterId);
-        // String topicName = await fetchTopicName(item.instituteTopicId);
-
         fetchedVideos.add({
           'class': item.className,
           'subject': item.subjectName,
@@ -540,20 +364,22 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
   }
 
   Future<List<InstituteUserContentAccess>> fetchContentAccessData(
-      int? classId, int? subjectId) async {
+      int? classId, int? subjectId,
+      {bool isLast6 = false}) async {
     // Construct the SQL query with optional filters
-    String whereClause = '';
+    String whereClause =
+        'where institute_user_id = ${myDataController.currentuser.onlineInstituteUserId}';
 
     if (classId != null) {
-      whereClause += 'where ta.institute_course_id = $classId';
+      whereClause += ' AND ta.institute_course_id = $classId';
     }
 
     if (subjectId != null) {
-      if (whereClause.isNotEmpty)
-        whereClause += ' AND ';
-      else
-        whereClause += ' where ';
-      whereClause += 'ta.institute_subject_id = $subjectId';
+      whereClause += ' AND ta.institute_subject_id = $subjectId';
+    }
+
+    if (isLast6) {
+      whereClause += ' ORDER BY institute_user_content_access_id DESC LIMIT 6';
     }
 
     final List<Map<String, dynamic>> dataMaps =
@@ -569,15 +395,6 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
     $whereClause
     ''');
 
-    // final List<Map<String, dynamic>> dataMaps = await myDataController.
-
-    // final List<Map<String, dynamic>> dataMaps = await myDataController.query(
-    //   'tbl_institute_user_content_access_2024_2025',
-    //   where: whereClause.isEmpty ? null : whereClause,
-    //   whereArgs: whereArgs.isEmpty ? null : whereArgs,
-    //   // orderBy: 'institute_user_content_access_id  DESC',
-    // );
-    // print(dataMaps);
     print("FetchDataContent :- $dataMaps");
     // print("in continue data ${dataMaps.length}");
     final List<InstituteUserContentAccess> data =
@@ -678,33 +495,10 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
     }
   }
 
-  Future<String> fetchTopicName(int topicId) async {
-    try {
-      final List<Map<String, dynamic>> topicDataMaps =
-          await myDataController.query(
-        'tbl_institute_topic',
-        where: 'online_institute_topic_id = ?',
-        // Assuming online_institute_topic_id is the primary key
-        whereArgs: [topicId],
-      );
-
-      if (topicDataMaps.isNotEmpty) {
-        final String topicName = topicDataMaps.first['topic_name'] as String;
-        return topicName;
-      } else {
-        return ''; // Handle the case where no topic name is found
-      }
-    } catch (e) {
-      print('Error fetching topic name: $e');
-      return ''; // Handle error case
-    }
-  }
-
   Future<bool> isInternetAvailable() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.mobile) ||
-        connectivityResult.contains(ConnectivityResult.wifi) ||
-        connectivityResult.contains(ConnectivityResult.ethernet)) {
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
       return true;
     }
     return false;
@@ -778,25 +572,43 @@ where tb.institute_topic_id = $topicId and tb.content_lang = "$language"
     }
   }
 
-  Future<void> updateCompleteCount(int onlineInstituteTopicId,
-      {required int onlineTopicDataId,
-      required int onlineInstituteChapterId,
-      required String progressType,
-      bool isQuestion = false}) async {
+  void addToProgress({
+    required int courseId,
+    required int chapterId,
+    required int topicId,
+    required int topicDataId,
+  }) async {
     try {
-      final chapter = allSubjectsData[
-              selectedSubject.value!.onlineInstituteSubjectId]![progressType]
-          ?.firstWhereOrNull((element) =>
-              element.chapter.onlineInstituteChapterId ==
-              onlineInstituteChapterId);
-      final topic = chapter!.topics.firstWhereOrNull((element) {
+      print("in adding : ${courseId}  : ${chapterId} : ${topicId}");
 
-      final id = isQuestion? element.topic.onlineInstituteTopicId:element.topic.instituteTopicId;
-        return id == onlineInstituteTopicId;});
-      await topic!.initiateContentCompleteCount();
-      update();
+      final DatabaseController myDataController =
+          Get.find<DatabaseController>();
+
+      Map<String, dynamic> data = {
+        "online_institute_user_content_access_id": null,
+        "parent_institute_id": myDataController.currentuser.parentInstituteId,
+        "institute_id": myDataController.currentuser.instituteId,
+        "institute_user_id": myDataController.currentuser.onlineInstituteUserId,
+        "user_type": "Employee",
+        "institute_course_id": courseId,
+        "institute_subject_id": selectedSubject.value!.onlineInstituteSubjectId,
+        "institute_chapter_id": chapterId,
+        "institute_topic_id": topicId,
+        "institute_topic_data_id": topicDataId,
+        "last_access_start_time": DateTime.now().toIso8601String(),
+        "last_access_end_time": DateTime.now().toIso8601String(),
+        "total_access_time": 0,
+        "no_of_views": DateTime.now().toIso8601String(),
+        "entry_date": null,
+        "last_update_date": null,
+        "update_flag": 0
+      };
+
+      int id = await myDataController.insert(
+          StringConstant().tblInstituteUserContentAccess, data);
+      print("Inserted row id: $id");
     } catch (e) {
-      print("Error Updating added content :- $e");
+      print("Error inserting data: $e");
     }
   }
 }

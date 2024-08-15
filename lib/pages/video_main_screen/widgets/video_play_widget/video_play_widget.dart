@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
-import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/services/background_service_controller.dart';
@@ -138,7 +137,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             final tempPath =
                 (await getTemporaryDirectory()).path + "/$filename";
             await File(tempPath).writeAsBytes(decryptedBytes);
-
+            Get.find<VideoMainScreenController>().addToProgress(
+                widget.topic!.instituteTopicId!,
+                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
             if (GetPlatform.isAndroid) {
               controller = VideoPlayerController.file(File(tempPath),
                   //TODO :-  check andd option if needed
@@ -180,6 +181,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         filePath += "/$filename";
         final isFileExists = await File(filePath).exists();
         if (isFileExists) {
+          Get.find<VideoMainScreenController>().addToProgress(
+              widget.topic!.instituteTopicId!,
+              onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
           docData = await FileEncryptor().decryptFile(File(filePath));
         }
       }
@@ -295,37 +299,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     } else if ((widget.topic?.fileNameExt == 'pdf' ||
             widget.topic?.fileNameExt == 'doc') &&
         docData != null) {
-      contentWidget = SfPdfViewer.memory(
-        docData!,
-        onPageChanged: (value)async {
-          if (value.isLastPage) {
-           await Get.find<DatabaseController>().updateContentProgress(
-                widget.topic!.onlineInstituteTopicDataId!,
-                instituteTopicId: widget.topic!.instituteTopicId!);
-            final videoMainScreenController =
-                Get.find<VideoMainScreenController>();
-            videoMainScreenController.updateContentProgress(
-                widget.topic!.instituteTopicId!,
-                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
-                instituteChapterId: videoMainScreenController
-                    .selectedTopic.value!.topic.instituteChapterId);
-          }
-        },
-        onDocumentLoaded: (value)async {
-          if (value.document.pages.count == 1) {
-          await  Get.find<DatabaseController>().updateContentProgress(
-                widget.topic!.onlineInstituteTopicDataId!,
-                instituteTopicId: widget.topic!.instituteTopicId!);
-            final videoMainScreenController =
-                Get.find<VideoMainScreenController>();
-            videoMainScreenController.updateContentProgress(
-                widget.topic!.instituteTopicId!,
-                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
-                instituteChapterId: videoMainScreenController
-                    .selectedTopic.value!.topic.instituteChapterId);
-          }
-        },
-      );
+      contentWidget = SfPdfViewer.memory(docData!);
     } else {
       contentWidget = controller?.value.isInitialized == true
           ? CustomVideoPlayer(

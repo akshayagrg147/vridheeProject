@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/open_subject_menu_widget/modal/open_subject_model.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/open_subject_menu_widget/widgets/opened_menu_item_controller.dart';
 import 'package:teaching_app/utils/contants.dart';
-import 'package:teaching_app/utils/string_constant.dart';
 import 'package:teaching_app/widgets/filled_arrow_icon_widget.dart';
 import 'package:teaching_app/widgets/text_view.dart';
 
@@ -186,67 +187,18 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                                             if (isToDo) {
                                               print("inside");
 
-                                              void addToProgress(
-                                                  {required int courseId,
-                                                  required int subjectId,
-                                                  required int chapterId,
-                                                  required int topicId}) async {
-                                                print(
-                                                    "in adding : ${courseId} : ${subjectId} : ${chapterId} : ${topicId}");
-
-                                                final DatabaseController
-                                                    myDataController =
-                                                    Get.find();
-
-                                                Map<String, dynamic> data = {
-                                                  // 'institute_user_content_access_id': 4, // Don't include this field for auto-increment
-                                                  'online_institute_user_content_access_id':
-                                                      null,
-                                                  'parent_institute_id': 17,
-                                                  'institute_id': 10967,
-                                                  'institute_user_id': 2,
-                                                  'user_type': 'Employee',
-                                                  'institute_course_id':
-                                                      chapterId,
-                                                  'institute_course_breakup_id':
-                                                      null,
-                                                  'institute_subject_id':
-                                                      subjectId,
-                                                  'institute_chapter_id':
-                                                      chapterId,
-                                                  'institute_topic_id': topicId,
-                                                  'institute_topic_data_id':
-                                                      6299,
-                                                  'last_access_start_time':
-                                                      '12:28:54',
-                                                  'last_access_end_time': null,
-                                                  'total_access_time': 0,
-                                                  'no_of_views': null,
-                                                  'is_updated': 0,
-                                                };
-
-                                                try {
-                                                  int id = await myDataController
-                                                      .insert(
-                                                          StringConstant()
-                                                              .tblInstituteUserContentAccess,
-                                                          data);
-                                                  print("Inserted row id: $id");
-                                                } catch (e) {
-                                                  print(
-                                                      "Error inserting data: $e");
-                                                }
-                                              }
-
                                               // final DashboardOpenMenuItemController controller = Get.find();
-                                              addToProgress(
-                                                  courseId: topic
-                                                      .topic.instituteCourseId,
-                                                  subjectId: selectedSubject,
-                                                  chapterId: topic
-                                                      .topic.instituteChapterId,
-                                                  topicId: topic.topic
-                                                      .onlineInstituteTopicId);
+                                              addToExecution(
+                                                courseId: topic
+                                                    .topic.instituteCourseId,
+                                                subjectId: selectedSubject,
+                                                chapterId: topic
+                                                    .topic.instituteChapterId,
+                                                topicIds: localChapter.topics
+                                                    .map((e) => e.topic
+                                                        .onlineInstituteTopicId)
+                                                    .toList(),
+                                              );
                                             }
                                             Get.toNamed("/videoScreen",
                                                 arguments: [
@@ -277,122 +229,6 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                                           )),
                                     ],
                                   ),
-                                  // Column(
-                                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                                  //   mainAxisAlignment: MainAxisAlignment.start,
-                                  //   children: [
-                                  //     TextView(
-                                  //       topic.topic.topicName ?? "",
-                                  //       fontsize: 13,
-                                  //     ),
-                                  //     Row(
-                                  //       mainAxisSize: MainAxisSize.min,
-                                  //       crossAxisAlignment:
-                                  //           CrossAxisAlignment.start,
-                                  //       mainAxisAlignment:
-                                  //           MainAxisAlignment.start,
-                                  //
-                                  //       children: [
-                                  //         IconButton(
-                                  //             onPressed: () {
-                                  //               print("outside");
-                                  //               if (isToDo) {
-                                  //                 print("inside");
-                                  //
-                                  //                 void addToProgress(
-                                  //                     {required int courseId,
-                                  //                     required int subjectId,
-                                  //                     required int chapterId,
-                                  //                     required int
-                                  //                         topicId}) async {
-                                  //                   print(
-                                  //                       "in adding : ${courseId} : ${subjectId} : ${chapterId} : ${topicId}");
-                                  //
-                                  //                   final DatabaseController
-                                  //                       myDataController =
-                                  //                       Get.find();
-                                  //
-                                  //                   Map<String, dynamic> data = {
-                                  //                     // 'institute_user_content_access_id': 4, // Don't include this field for auto-increment
-                                  //                     'online_institute_user_content_access_id':
-                                  //                         null,
-                                  //                     'parent_institute_id': 17,
-                                  //                     'institute_id': 10967,
-                                  //                     'institute_user_id': 2,
-                                  //                     'user_type': 'Employee',
-                                  //                     'institute_course_id':
-                                  //                         chapterId,
-                                  //                     'institute_course_breakup_id':
-                                  //                         null,
-                                  //                     'institute_subject_id':
-                                  //                         subjectId,
-                                  //                     'institute_chapter_id':
-                                  //                         chapterId,
-                                  //                     'institute_topic_id':
-                                  //                         topicId,
-                                  //                     'institute_topic_data_id':
-                                  //                         6299,
-                                  //                     'last_access_start_time':
-                                  //                         '12:28:54',
-                                  //                     'last_access_end_time':
-                                  //                         null,
-                                  //                     'total_access_time': 0,
-                                  //                     'no_of_views': null,
-                                  //                     'is_updated': 0
-                                  //                   };
-                                  //
-                                  //                   try {
-                                  //                     int id = await myDataController
-                                  //                         .insert(
-                                  //                             'tbl_institute_user_content_access_2023_2024',
-                                  //                             data);
-                                  //                     print(
-                                  //                         "Inserted row id: $id");
-                                  //                   } catch (e) {
-                                  //                     print(
-                                  //                         "Error inserting data: $e");
-                                  //                   }
-                                  //                 }
-                                  //
-                                  //                 // final DashboardOpenMenuItemController controller = Get.find();
-                                  //                 addToProgress(
-                                  //                     courseId: topic.topic
-                                  //                         .instituteCourseId,
-                                  //                     subjectId: selectedSubject,
-                                  //                     chapterId: topic.topic
-                                  //                         .instituteChapterId,
-                                  //                     topicId: topic.topic
-                                  //                         .onlineInstituteTopicId);
-                                  //               }
-                                  //               Get.toNamed("/videoScreen",
-                                  //                   arguments: [
-                                  //                     false,
-                                  //                     model,
-                                  //                     topic
-                                  //                   ]);
-                                  //             },
-                                  //             icon: Icon(
-                                  //               Icons.play_circle_fill_outlined,
-                                  //               color: ThemeColor.green,size: 12,
-                                  //             )),
-                                  //         IconButton(
-                                  //             onPressed: () {
-                                  //               Get.toNamed('/contentPlanning');
-                                  //             },
-                                  //             icon: Icon(
-                                  //               Icons.queue_play_next_outlined,
-                                  //               color: ThemeColor.green,size: 12,
-                                  //             )),
-                                  //       ],
-                                  //     ),
-                                  //   ],
-                                  // ),
-                                  // if (topic.completedDate != null)
-                                  //   TextView(
-                                  //     "${topic.completedDate}",
-                                  //     fontsize: 8,
-                                  //     textColor: ThemeColor.darkBlue4392,
-                                  //   )
                                 ],
                               ),
                             ),
@@ -402,7 +238,7 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextView(
-                            '${topic.mediaCompletedCount}/${topic.mediaCount}',
+                            '${topic.mediaSyllabuscount}/${topic.mediaCount}',
                             fontsize: 13)),
                   )),
                   TableCell(
@@ -410,7 +246,7 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextView(
-                            '${topic.ematerialCompletedCount}/${topic.eMaterialCount}',
+                            '${topic.eMaterialSyllabusCount}/${topic.eMaterialCount}',
                             fontsize: 13)),
                   )),
                   TableCell(
@@ -418,7 +254,7 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextView(
-                            '${topic.questionCompletedCount}/${topic.questionData.length}',
+                            '${topic.questionSyllabusCount}/${topic.questionData.length}',
                             fontsize: 13)),
                   )),
                   // TableCell(
@@ -434,5 +270,43 @@ class DashboardOpenedSubjectMenuItemWidget extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void addToExecution({
+    required int courseId,
+    required int subjectId,
+    required int chapterId,
+    required List<int> topicIds,
+  }) async {
+    try {
+      print(
+          "in adding : ${courseId} : ${subjectId} : ${chapterId} : ${topicIds}");
+
+      final DatabaseController myDataController =
+          Get.find<DatabaseController>();
+      Map<String, dynamic> data = {
+        "online_la_plan_execution_id": null,
+        "parent_institute_id": myDataController.currentuser.parentInstituteId,
+        "institute_id": myDataController.currentuser.instituteId,
+        "institute_course_id": courseId,
+        "institute_course_breakup_id": null,
+        "institute_subject_id": subjectId,
+        "institute_chapter_id": chapterId,
+        "period_num": 1,
+        "session": "2024-2025",
+        "execution_date": DateTime.now().toIso8601String(),
+        "institute_topic_ids": topicIds.join(','),
+        "execution_by_teacher_user_id":
+            myDataController.currentuser.onlineInstituteUserId,
+        "entry_date": DateTime.now().toIso8601String(),
+        "last_update_date": DateTime.now().toIso8601String(),
+        "update_flag": 0
+      };
+
+      int id = await myDataController.insert(
+          'tbl_la_plan_execution_2024_2025', data);
+    } catch (e) {
+      log('message');
+    }
   }
 }

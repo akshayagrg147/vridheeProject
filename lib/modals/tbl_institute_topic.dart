@@ -12,22 +12,27 @@ class InstituteTopic {
   final String? lastClassTopicId;
   final DateTime? entryDate;
   final DateTime? lastUpdateDate;
+  final bool isViewed;
+  final List<int>? syllabusTopicDataIds;
+  final List<int>? syllabusQuestionIds;
 
-  InstituteTopic({
-    required this.instituteTopicId,
-    required this.onlineInstituteTopicId,
-    required this.parentInstituteId,
-    required this.instituteChapterId,
-    required this.instituteCourseId,
-    this.topicName,
-    this.topicDescription,
-    this.priority,
-    this.status,
-    this.ext,
-    this.lastClassTopicId,
-    this.entryDate,
-    this.lastUpdateDate,
-  });
+  InstituteTopic(
+      {required this.instituteTopicId,
+      required this.onlineInstituteTopicId,
+      required this.parentInstituteId,
+      required this.instituteChapterId,
+      required this.instituteCourseId,
+      this.topicName,
+      this.topicDescription,
+      this.priority,
+      this.status,
+      this.ext,
+      this.lastClassTopicId,
+      this.entryDate,
+      this.syllabusTopicDataIds,
+      this.syllabusQuestionIds,
+      this.lastUpdateDate,
+      required this.isViewed});
 
   // Factory method to create an instance from a Map
   factory InstituteTopic.fromMap(Map<String, dynamic> map) {
@@ -42,10 +47,21 @@ class InstituteTopic {
       priority: map['priority'],
       status: map['status'],
       ext: map['ext'],
+      syllabusQuestionIds: (map['question_syllabus_ids'] as String?)
+          ?.split(',')
+          .map((e) => int.tryParse(e.trim()) ?? -1)
+          .toList(),
+      syllabusTopicDataIds: (map['topic_data_syllabus_ids'] as String?)
+          ?.split(',')
+          .map((e) => int.tryParse(e.trim()) ?? -1)
+          .toList(),
       lastClassTopicId: map['last_class_topic_id'],
-      entryDate: map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
-      lastUpdateDate: map['last_update_date'] != null ? DateTime.parse(map['last_update_date']) : null,
-
+      entryDate:
+          map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
+      lastUpdateDate: map['last_update_date'] != null
+          ? DateTime.parse(map['last_update_date'])
+          : null,
+      isViewed: map['isViewed'] == 1,
     );
   }
 
