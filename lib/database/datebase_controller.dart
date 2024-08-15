@@ -1,16 +1,22 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/database_helper_dummy.dart';
+import 'package:teaching_app/modals/user_model.dart';
 
 class DatabaseController extends GetxController {
   Database? database;
   static int loginUserId = -1;
-  Future<void> setUserId() async {
+  late UserDataModel currentuser;
+  Future<void> setUserDetails() async {
     final employeedataList = await query('tbl_employee',
         where: 'user_email_id = ?',
         whereArgs: [SharedPrefHelper().getLoginUserMail()]);
     final employeedata = employeedataList.first;
+    jsonEncode(employeedata);
+    currentuser = UserDataModel.fromJson(employeedata);
     loginUserId = employeedata['online_institute_user_id'];
   }
 

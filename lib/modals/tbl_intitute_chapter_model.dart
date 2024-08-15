@@ -13,6 +13,7 @@ class InstituteChapter {
   final String? numberOfPeriods;
   final DateTime? entryDate;
   final DateTime? lastUpdateDate;
+  final bool isStarted;
 
   InstituteChapter({
     required this.instituteChapterId,
@@ -24,11 +25,12 @@ class InstituteChapter {
     this.chapterName,
     this.chapterDescription,
     this.priority,
-   this.status,
+    this.status,
     this.marks,
     this.numberOfPeriods,
     required this.entryDate,
     required this.lastUpdateDate,
+    required this.isStarted,
   });
 
   // Factory method to create an instance from a map (e.g., from the database)
@@ -45,9 +47,13 @@ class InstituteChapter {
       priority: map['priority'],
       status: map['status'],
       marks: map['marks'],
+      isStarted: map['isStarted'] == 1,
       numberOfPeriods: map['number_of_periods'],
-      entryDate: map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
-      lastUpdateDate: map['last_update_date'] != null ? DateTime.parse(map['last_update_date']) : null,
+      entryDate:
+          map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
+      lastUpdateDate: map['last_update_date'] != null
+          ? DateTime.parse(map['last_update_date'])
+          : null,
     );
   }
 
@@ -65,6 +71,7 @@ class InstituteChapter {
       'priority': priority,
       'status': status,
       'marks': marks,
+      'isStarted': isStarted,
       'number_of_periods': numberOfPeriods,
       'entry_date': entryDate?.toIso8601String(),
       'last_update_date': lastUpdateDate?.toIso8601String(),

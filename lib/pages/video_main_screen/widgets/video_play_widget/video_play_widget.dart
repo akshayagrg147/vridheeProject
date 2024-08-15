@@ -10,7 +10,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
-import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/video_play_widget/custom_video_player.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/web_view/html_viewer.dart';
@@ -30,56 +29,6 @@ class VideoPlayWidget extends StatefulWidget {
 }
 
 class _VideoPlayWidgetState extends State<VideoPlayWidget> {
-  // late VideoPlayerController _videoController;
-
-  // var controller = WebViewController()
-  // ..setJavaScriptMode(JavaScriptMode.unrestricted)
-  // ..setBackgroundColor(const Color(0x00000000))
-  // ..setNavigationDelegate(
-  // NavigationDelegate(
-  // onProgress: (int progress) {
-  // // Update loading bar.
-  // },
-  // onPageStarted: (String url) {},
-  // onPageFinished: (String url) {},
-  // onWebResourceError: (WebResourceError error) {},
-  // onNavigationRequest: (NavigationRequest request) {
-  // if (request.url.startsWith('https://www.youtube.com/')) {
-  // return NavigationDecision.prevent;
-  // }
-  // return NavigationDecision.navigate;
-  // },
-  // ),
-  // )
-  // ..loadRequest(Uri.parse('https://www.youtube.com/watch?v=xXyfon-SOR8'));
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   if (widget.topic?.fileNameExt == 'mp4' && widget.topic?.code != null) {
-  //     _videoController = VideoPlayerController.network(widget.topic!.code!)
-  //       ..initialize().then((_) {
-  //         setState(() {});  // Ensure the first frame is shown
-  //       });
-  //   }
-  // }
-
-  // onPageChanged: (value) {
-  // log("on page change ${value.isLastPage}");
-  // if (value.isLastPage) {
-  // Get.find<DatabaseController>().updateContentProgress(
-  // widget.topic!.onlineInstituteTopicDataId!);
-  // }
-  // },
-  // onDocumentLoaded: (value) {
-  // log("on page load count ${value.document.pages.count}");
-  //
-  // if (value.document.pages.count == 1) {
-  // Get.find<DatabaseController>().updateContentProgress(
-  // widget.topic!.onlineInstituteTopicDataId!);
-  // }
-  // },
-
   VideoPlayerController? controller;
   final _controller = YoutubePlayerController();
 
@@ -141,6 +90,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             .getContentDirectoryPath();
         filePath += "/$filename";
         if (await File(filePath).exists()) {
+          Get.find<VideoMainScreenController>().addToProgress(
+              widget.topic!.instituteTopicId!,
+              onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
           initializeZipFile(filePath,
               dirName: "${widget.topic?.onlineInstituteTopicDataId}");
         } else {
@@ -159,7 +111,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
               await FileEncryptor().decryptFile(File(filePath));
           final tempPath = (await getTemporaryDirectory()).path + "/$filename";
           await File(tempPath).writeAsBytes(decryptedBytes);
-
+          Get.find<VideoMainScreenController>().addToProgress(
+              widget.topic!.instituteTopicId!,
+              onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
           controller = VideoPlayerController.file(File(tempPath),
               //TODO :-  check andd option if needed
               videoPlayerOptions: VideoPlayerOptions())
@@ -185,6 +139,9 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       filePath += "/$filename";
       final isFileExists = await File(filePath).exists();
       if (isFileExists) {
+        Get.find<VideoMainScreenController>().addToProgress(
+            widget.topic!.instituteTopicId!,
+            onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
         docData = await FileEncryptor().decryptFile(File(filePath));
       }
     }
@@ -331,34 +288,6 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         docData != null) {
       contentWidget = SfPdfViewer.memory(
         docData!,
-        onPageChanged: (value) async {
-          if (value.isLastPage) {
-            await Get.find<DatabaseController>().updateContentProgress(
-                widget.topic!.onlineInstituteTopicDataId!,
-                instituteTopicId: widget.topic!.instituteTopicId!);
-            final videoMainScreenController =
-                Get.find<VideoMainScreenController>();
-            videoMainScreenController.updateContentProgress(
-                widget.topic!.instituteTopicId!,
-                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
-                instituteChapterId: videoMainScreenController
-                    .selectedTopic.value!.topic.instituteChapterId);
-          }
-        },
-        onDocumentLoaded: (value) async {
-          if (value.document.pages.count == 1) {
-            await Get.find<DatabaseController>().updateContentProgress(
-                widget.topic!.onlineInstituteTopicDataId!,
-                instituteTopicId: widget.topic!.instituteTopicId!);
-            final videoMainScreenController =
-                Get.find<VideoMainScreenController>();
-            videoMainScreenController.updateContentProgress(
-                widget.topic!.instituteTopicId!,
-                onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!,
-                instituteChapterId: videoMainScreenController
-                    .selectedTopic.value!.topic.instituteChapterId);
-          }
-        },
       );
     } else {
       contentWidget = controller?.value.isInitialized == true

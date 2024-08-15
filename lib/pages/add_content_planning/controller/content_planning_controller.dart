@@ -76,6 +76,13 @@ class ContentPlanningController extends GetxController {
     // Now you can use the chapterData as needed
   }
 
+  @override
+  void onClose() {
+    Get.find<DashboardHeaderController>().fetchDataForSelectedSubject();
+    Get.find<DashboardHeaderController>().fetchContinueData();
+
+    super.dispose();
+  }
   // void submitPlan(){
   //
   // }
@@ -371,7 +378,7 @@ class ContentPlanningController extends GetxController {
             'institute_topic_id': quesData.instituteTopicId,
             'institute_topic_data_id': quesData.onlineLmsQuesBankId,
             'question_bank_id': null,
-            'content_type': "question",
+            'content_type': "Question",
             'start_year': 2024,
             'end_year': 2025,
             'created_date': DateTime.now().toIso8601String(),
@@ -476,15 +483,6 @@ class ContentPlanningController extends GetxController {
             'tbl_institute_topic_data', topicData.toJson());
         topicData.instituteTopicDataId = id;
         topics.value.add(topicData);
-        Get.find<DashboardHeaderController>().updateAddedContent(
-            data: topicData,
-            progressType: type ?? "",
-            onlineInstituteSubjectId:
-                selectedChapter.value!.chapter.instituteSubjectId,
-            onlineInstituteChapterId:
-                selectedChapter.value!.chapter.onlineInstituteChapterId,
-            onlineInstituteTopicId:
-                selectedTopic.value!.topic.onlineInstituteTopicId);
         filterTopicData();
         Get.back();
         Get.showSnackbar(const GetSnackBar(

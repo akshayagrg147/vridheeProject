@@ -103,6 +103,14 @@ class VideoMainScreenController extends GetxController {
     // Now you can use the chapterData as needed
   }
 
+  @override
+  void onClose() {
+    Get.find<DashboardHeaderController>().fetchDataForSelectedSubject();
+    Get.find<DashboardHeaderController>().fetchContinueData();
+
+    super.onClose();
+  }
+
   void onTopicChange(InstituteChapter chapterData,
       {required LocalTopic topicData}) async {
     chapterName.value = chapterData.chapterName;
@@ -584,18 +592,13 @@ class VideoMainScreenController extends GetxController {
     }
   }
 
-  void updateContentProgress(int instituteTopicId,
-      {required int onlineTopicDataId,
-      required int instituteChapterId,
-      bool isQuestion = false}) async {
-    if (progressType == null) {
-      return;
-    }
+  void addToProgress(int instituteTopicId,
+      {required int onlineTopicDataId, bool isQuestion = false}) async {
     final dashboardController = Get.find<DashboardHeaderController>();
-    await dashboardController.updateCompleteCount(instituteTopicId,
-        onlineTopicDataId: onlineTopicDataId,
-        onlineInstituteChapterId: instituteChapterId,
-        progressType: progressType!,
-        isQuestion: isQuestion);
+    dashboardController.addToProgress(
+        courseId: selectedTopic.value!.topic.instituteCourseId,
+        chapterId: selectedTopic.value!.topic.instituteChapterId,
+        topicId: instituteTopicId,
+        topicDataId: onlineTopicDataId);
   }
 }

@@ -1,8 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/modals/tbl_institute_course.dart';
@@ -153,12 +150,8 @@ class DashboardHeaderWidget extends StatelessWidget {
                                   onTap: () async {
                                     if (_.selectedClass.value != null &&
                                         _.selectedSubject.value != null) {
-                                      _.fetchDataForAllSubjects();
-                                      _.fetchContinueData(
-                                          _.selectedClass.value!
-                                              .onlineInstituteCourseId,
-                                          _.selectedSubject.value!
-                                              .onlineInstituteSubjectId);
+                                      _.fetchDataForSelectedSubject();
+                                      _.fetchContinueData();
                                     }
                                   },
                                   child: Container(
