@@ -181,6 +181,7 @@ class CreateTables {
       is_verified TEXT,
       verified_by TEXT,
       is_local_content_available INTEGER DEFAULT (0),
+      is_local_added INTEGER DEFAULT (0),
       html5_download_url TEXT
     )
   ''');

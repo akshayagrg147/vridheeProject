@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:archive/archive_io.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -17,6 +18,7 @@ import 'package:video_player_win/video_player_win.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../../modals/tbl_institute_topic_data.dart';
+import 'html_viewer.dart';
 
 class VideoPlayWidget extends StatefulWidget {
   final InstituteTopicData? topic;
@@ -65,6 +67,8 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
   dynamic controller;
   late YoutubePlayerController _controller;
   Uint8List? docData;
+  String? html5FilePath;
+
   bool isLoading = false;
   @override
   void initState() {
@@ -86,6 +90,8 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
       controller = null;
       docData = null;
+       html5FilePath=null;
+
       loadVideoPlayer();
     }
   }
@@ -110,7 +116,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
     try {
       if ((widget.topic?.fileNameExt == 'mp4' ||
-              widget.topic?.fileNameExt == 'html5') &&
+              widget.topic?.fileNameExt == 'html5'|| widget.topic?.topicDataType == 'HTML5') &&
           widget.topic?.code != null) {
         print("in init : ${widget.topic!.code!}");
         if (widget.topic!.code!.contains("https://www.youtube.com")) {
@@ -124,7 +130,23 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
                   controller.play();
                 }));
           }
-        } else if (widget.topic?.fileNameExt == 'mp4' &&
+          hideLoadingdialog();
+          return;
+
+        }else if (widget.topic?.topicDataType == 'HTML5') {
+          final filename = "${widget.topic?.onlineInstituteTopicDataId}.zip";
+          String filePath = await BackgroundServiceController.instance
+              .getContentDirectoryPath();
+          filePath += "/$filename";
+          if (await File(filePath).exists()) {
+
+            initializeZipFile(filePath,
+                dirName: "${widget.topic?.onlineInstituteTopicDataId}");
+          } else {
+            hideLoadingdialog();
+          }
+          return;
+        }  else if (widget.topic?.fileNameExt == 'mp4' &&
             widget.topic?.onlineInstituteTopicDataId != null) {
           final filename =
               "${widget.topic?.onlineInstituteTopicDataId}.${widget.topic?.fileNameExt}";
@@ -154,6 +176,11 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
                     controller.play();
                   }));
             }
+            hideLoadingdialog();
+            return;
+          }else{
+            hideLoadingdialog();
+            return ;
           }
         } else {
           //   if (GetPlatform.isAndroid) {
@@ -185,18 +212,20 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
               widget.topic!.instituteTopicId!,
               onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
           docData = await FileEncryptor().decryptFile(File(filePath));
+          hideLoadingdialog();
+          return;
+        }else{
+          hideLoadingdialog();
+          return ;
         }
+      }else{
+        hideLoadingdialog();
       }
     } catch (e) {
       log("error in finding file");
+      hideLoadingdialog();
     }
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Navigator.pop(context);
-    });
 
-    setState(() {
-      isLoading = false;
-    });
   }
 
   String extractYouTubeVideoId(String url) {
@@ -208,13 +237,40 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
     final Match? match = regExp.firstMatch(url);
     return match?.group(7) ?? '';
   }
+  initializeZipFile(String filePath, {required String dirName}) async {
+    // final zipPath =
+    // "/storage/emulated/0/Android/data/com.vridhee.offlinelms/files/477.zip";
+    final outputPath = (await getTemporaryDirectory()).path;
+    final decryptedBytes = await FileEncryptor().decryptFile(File(filePath));
+// Decode the zip from the InputFileStream. The archive will have the contents of the
+// zip, without having stored the data in memory.
+    final archive = ZipDecoder().decodeBytes(decryptedBytes);
 
+    extractArchiveToDisk(archive, "$outputPath/$dirName").then((value) {
+      Get.find<VideoMainScreenController>().addToProgress(
+          widget.topic!.instituteTopicId!,
+          onlineTopicDataId: widget.topic!.onlineInstituteTopicDataId!);
+      html5FilePath = "$outputPath/$dirName/story_html5.html";
+      hideLoadingdialog();
+    });
+  }
+
+  void hideLoadingdialog() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Navigator.pop(context);
+    });
+
+    setState(() {
+      isLoading = false;
+    });
+  }
   //
   @override
   void dispose() {
     print("in dispose 3");
 
     controller?.dispose();
+    BackgroundServiceController.instance.clearTemporaryDirectory();
 
     // _controller.dispose();
     super.dispose();
@@ -227,15 +283,13 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
         child: CircularProgressIndicator(),
       );
     }
-    if (widget.topic?.fileNameExt == 'html5' || widget.topic == null) {
+    if (widget.topic == null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.error_outline),
           Text(
-            widget.topic?.fileNameExt == 'html5'
-                ? "Not Supported"
-                : "No Content",
+           "No Content",
             style: TextStyle(
                 color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
           )
@@ -261,7 +315,8 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
             SingleChildScrollView(child: HtmlWidget(widget.topic?.code ?? "")),
       );
     } else if ((widget.topic?.fileNameExt == 'mp4' ||
-            widget.topic?.fileNameExt == 'html5') &&
+        widget.topic?.fileNameExt == 'html5' ||
+        widget.topic?.topicDataType == 'HTML5') &&
         widget.topic?.code != null) {
       if (widget.topic!.code!.contains("https://www.youtube.com")) {
         contentWidget = Center(
@@ -277,7 +332,22 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
                       16 / 9, // Aspect ratio you want to take in screen
                 ),
         );
-      } else {
+      } else if (widget.topic?.topicDataType == 'HTML5') {
+        if (html5FilePath != null) {
+          contentWidget = HtmlViewer(
+            htmlFilePath: html5FilePath!,
+          );
+        } else {
+          contentWidget = const Center(
+              child: Text(
+                "File Not Found",
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600),
+              ));
+        }
+      }  else {
         contentWidget = controller?.value.isInitialized == true
             ? CustomVideoPlayer(
                 controller: controller!,

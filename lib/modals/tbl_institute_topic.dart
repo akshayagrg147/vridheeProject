@@ -55,7 +55,7 @@ class InstituteTopic {
           ?.split(',')
           .map((e) => int.tryParse(e.trim()) ?? -1)
           .toList(),
-      lastClassTopicId: map['last_class_topic_id'],
+      lastClassTopicId: map['last_class_topic_id']?.toString(),
       entryDate:
           map['entry_date'] != null ? DateTime.parse(map['entry_date']) : null,
       lastUpdateDate: map['last_update_date'] != null

@@ -44,7 +44,6 @@ dependencies:
   sqflite_common_ffi:
   sqflite_common:
   file_picker:
-  webview_flutter: ^4.7.0
   sqlite3_flutter_libs: ^0.5.21
   youtube_player_iframe: ^4.0.4
   flutter_painter:
@@ -83,6 +82,10 @@ dependencies:
   youtube_explode_dart: ^2.2.1
   flutter_svg: ^2.0.10+1
   audio_video_progress_bar: ^2.0.3
+  archive: ^3.6.1
+  webview_win_floating: ^2.2.8
+  webview_flutter: ^4.8.0
+
 
 dev_dependencies:
   flutter_test:

@@ -50,6 +50,15 @@ class DashboardHeaderController extends GetxController {
     _checkForUpdate();
   }
 
+
+  void resetChapters(){
+    allChapterList.clear();
+    toDo.clear();
+    inProgress.clear();
+    completed.clear();
+    update();
+  }
+
   Future<void> fetchClassData() async {
     try {
       final List<Map<String, dynamic>> classDataMaps =
@@ -304,16 +313,35 @@ where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
   void filterChapters() {
     List<LocalChapter> chapters = [];
     chapters.addAll(allChapterList);
-    inProgress.assignAll(chapters.where((element) =>
-        element.chapter.isStarted &&
-        element.topics.map((e) => e.topic.isViewed).toList().contains(false) ==
-            true));
-    completed.assignAll(chapters.where((element) =>
-        element.chapter.isStarted &&
-        element.topics.map((e) => e.topic.isViewed).toList().contains(false) ==
-            false));
-    chapters.removeWhere((element) => element.chapter.isStarted);
-    toDo.assignAll(chapters);
+
+    for (var chapter in chapters) {
+      if(chapter.chapter.isStarted){
+        bool isChapterCompleted =false;
+        for (var topic in chapter.topics) {
+       isChapterCompleted=   topic.topic.isViewed||(topic.eMaterialCount==0&&topic.mediaCount==0&&topic.questionData.isEmpty);
+        }
+
+        if(isChapterCompleted){
+          completed.add(chapter);
+        }else{
+          inProgress.add(chapter);
+        }
+
+      }else{
+        toDo.add(chapter);
+      }
+    }
+    // completed.assignAll(chapters.where((element) =>
+    // element.chapter.isStarted &&
+    //     ( element.topics.map((e) => e.topic.isViewed).toList().contains(false) ==
+    //         false)));
+    // inProgress.assignAll(chapters.where((element) =>
+    //     element.chapter.isStarted &&
+    //     (element.topics.map((e) => e.topic.isViewed).toList().contains(false) ==
+    //         true )));
+    //
+    // chapters.removeWhere((element) => element.chapter.isStarted);
+    // toDo.assignAll(chapters);
   }
 
 //  continuing watching

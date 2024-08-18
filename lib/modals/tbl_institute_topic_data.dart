@@ -28,6 +28,7 @@ class InstituteTopicData {
   Null? verifiedBy;
   int? isLocalContentAvailable;
   String? html5DownloadUrl;
+   bool? isLocalAdded;
 
   InstituteTopicData(
       {this.instituteTopicDataId,
@@ -58,6 +59,7 @@ class InstituteTopicData {
       this.isVerified,
       this.verifiedBy,
       this.isLocalContentAvailable,
+        this.isLocalAdded,
       this.html5DownloadUrl});
 
   InstituteTopicData.fromJson(Map<String, dynamic> json) {
@@ -89,6 +91,7 @@ class InstituteTopicData {
     contentLang = json['content_lang'];
     isVerified = json['is_verified'];
     verifiedBy = json['verified_by'];
+    isLocalAdded = json['is_local_added']==1;
     isLocalContentAvailable = json['is_local_content_available'];
     html5DownloadUrl = json['html5_download_url'];
   }
@@ -113,6 +116,7 @@ class InstituteTopicData {
     data['status'] = this.status;
     data['display_type'] = this.displayType;
     data['is_default'] = this.isDefault;
+    data['is_local_added']=this.isLocalAdded==true?1:0;
     data['default_topic_date_id'] = this.defaultTopicDateId;
     data['entry_by_institute_user_id'] = this.entryByInstituteUserId;
     data['added_type'] = this.addedType;

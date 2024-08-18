@@ -6,12 +6,14 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   connectivity_plus
   firebase_core
+  fullscreen_window
   permission_handler_windows
   screen_brightness_windows
   sqlite3_flutter_libs
   syncfusion_pdfviewer_windows
   url_launcher_windows
   video_player_win
+  webview_win_floating
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

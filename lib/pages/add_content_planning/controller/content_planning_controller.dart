@@ -458,7 +458,7 @@ class ContentPlanningController extends GetxController {
             onlineInstituteTopicDataId: onlineId,
             instituteId: employeedata['institute_id'],
             parentInstituteId: employeedata['parent_institute_id'],
-            instituteTopicId: selectedTopic.value!.topic.instituteTopicId,
+            instituteTopicId: selectedTopic.value!.topic.onlineInstituteTopicId,
             topicDataKind: "",
             topicDataType: getTopicDataType(ext),
             topicDataFileCodeName: file.path.split('/').last.split('.').first,
@@ -468,13 +468,14 @@ class ContentPlanningController extends GetxController {
             referenceUrl: '',
             noOfClicks: 0,
             displayType: 'Public',
+            isLocalAdded: true,
             entryByInstituteUserId:
                 employeedata['online_institute_user_id'].toString(),
             addedType: 'Manual',
             contentLevel: 'Basic',
             topicName: topicName.value,
             contentTag: '',
-            contentLang: 'English',
+            contentLang: Get.find<DashboardHeaderController>().selectedLanguage.value,
             isVerified: 'Yes',
             isLocalContentAvailable: 1,
             html5DownloadUrl: '');
@@ -497,6 +498,14 @@ class ContentPlanningController extends GetxController {
         duration: const Duration(seconds: 2),
       ));
     }
+  }
+
+  void deleteContent(int topicDataId)async{
+    await myDataController.delete(
+        'tbl_institute_topic_data', where: "online_institute_topic_data_id = ?",whereArgs: [topicDataId]);
+
+  topics.value.removeWhere((e)=>e.onlineInstituteTopicDataId==topicDataId);
+    filterTopicData();
   }
 
   String getTopicDataType(String ext) {

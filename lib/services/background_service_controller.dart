@@ -12,6 +12,9 @@ import 'package:teaching_app/core/helper/encryption_helper.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/download_progress_dialog.dart';
+ bool _isSyncingInProgress = false;
+
+
 
 class BackgroundServiceController {
   BackgroundServiceController._privateConstructor();
@@ -20,15 +23,14 @@ class BackgroundServiceController {
       BackgroundServiceController._privateConstructor();
 
   final Connectivity _connectivity = Connectivity();
-  static bool isSyncingInProgress = false;
   static int totalFilesTOBeDownload = 0;
   static ValueNotifier<int> filesDownloaded = ValueNotifier(0);
   Future<void> performBackgroundTask() async {
     try {
-      if (isSyncingInProgress) {
+      if (_isSyncingInProgress) {
         return;
       }
-      isSyncingInProgress = true;
+      _isSyncingInProgress = true;
       filesDownloaded.value=0;
       await SharedPrefHelper().initialize();
       final DatabaseController dbController = Platform.isAndroid? Get.put(DatabaseController()):Get.find<DatabaseController>();
@@ -136,7 +138,7 @@ WHERE online_lms_ques_bank_id = $id''');
       } else {
         FlutterForegroundTask.stopService();
       }
-      isSyncingInProgress = false;
+      _isSyncingInProgress = false;
     }
   }
 
@@ -216,13 +218,11 @@ WHERE online_institute_topic_data_id = $onlineTopicDataId''');
     }
   }
 
-  static Future<void> clearTemporaryDirectory() async {
+   Future<void> clearTemporaryDirectory() async {
     try {
       final tempDir = await getTemporaryDirectory();
       if (tempDir.existsSync()) {
-        tempDir.listSync().forEach((file) {
-          file.deleteSync(recursive: true);
-        });
+        tempDir.deleteSync(recursive: true);
       }
     } catch (e) {
       print("Error clearing temporary directory: $e");

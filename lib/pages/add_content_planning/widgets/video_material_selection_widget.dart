@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:teaching_app/app_theme.dart';
+import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
 import 'package:teaching_app/pages/add_content_planning/controller/content_planning_controller.dart';
 import 'package:teaching_app/widgets/action_button.dart';
@@ -167,8 +168,11 @@ class VideoMaterialSelectionWidget extends StatelessWidget {
               child: Center(
             child: ActionButtons(
               showEdit: false,
-              showDelete: false,
+              showDelete: data.isLocalAdded==true&&data.entryByInstituteUserId=="${Get.find<DatabaseController>().currentuser.onlineInstituteUserId}",
               showViewButton: true,
+              onDelete: (){
+                Get.find<ContentPlanningController>().deleteContent(data.onlineInstituteTopicDataId!);
+              },
               onViewClick: () {
                 Get.toNamed("/videoScreen", arguments: [
                   false,

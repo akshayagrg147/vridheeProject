@@ -129,7 +129,13 @@ class DatabaseController extends GetxController {
   Future<List<Map<String, dynamic>>> getDownloadQuestionImageList() async {
     if (database != null) {
       final List<Map<String, dynamic>> maps = await database!.rawQuery(
-          'SELECT online_lms_ques_bank_id as id, question_down_path as ques_url, option_1_down_path as opt_1_url, option_2_down_path as opt_2_url, option_3_down_path as opt_4_url,option_4_down_path as opt_4_url FROM tbl_lms_ques_bank where is_local_available = 0');
+          '''SELECT online_lms_ques_bank_id as id, question_down_path as ques_url, option_1_down_path as opt_1_url, option_2_down_path as opt_2_url, option_3_down_path as opt_4_url,option_4_down_path as opt_4_url FROM tbl_lms_ques_bank where is_local_available = 0 AND (
+          TRIM(question_down_path) <> '' OR
+      TRIM(option_1_down_path) <> '' OR
+      TRIM(option_2_down_path) <> '' OR
+      TRIM(option_3_down_path) <> '' OR
+      TRIM(option_4_down_path) <> ''
+    )''');
       return maps;
     } else {
       throw Exception("Database is not initialized");

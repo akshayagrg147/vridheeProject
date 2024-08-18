@@ -31,18 +31,18 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 Obx(() => _.isFetchingData.value
                     ? const CircularProgressIndicator()
-                    : Card(
+                    : _.cData.isNotEmpty? Card(
                         elevation: 5,
                         child: DashboardContinueWatchingWidget(
                           cData: _.cData,
                           // chapterData: _.allSubjectsData,
                         ),
-                      )),
+                      ):const SizedBox.shrink()),
                 const SizedBox(
                   height: 20,
                 ),
                 Obx(() {
-                  if (_.selectedSubject.value != null) {
+                  if (_.selectedSubject.value != null&&_.allChapterList.isNotEmpty) {
                     // print("in index error: ${_.allSubjectsData.length}");
                     return Column(
                       children: [
@@ -58,7 +58,7 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        if (_.selectedSubject.value != null)
+                        if (_.allChapterList.isNotEmpty)
                           DashboardOpenedSubjectMenuScreen(
                               selectedSubject: _.selectedSubject.value!
                                   .onlineInstituteSubjectId,

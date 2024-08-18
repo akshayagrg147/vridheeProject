@@ -87,6 +87,7 @@ class DashboardHeaderWidget extends StatelessWidget {
                                           if (p0 != null) {
                                             await _.fetchSubjectsForClass(p0);
                                           }
+                                          _.resetChapters();
                                         },
                                         hintText: "Select class",
                                         value: _.selectedClass.value,
@@ -112,6 +113,8 @@ class DashboardHeaderWidget extends StatelessWidget {
                                     child: AppDropDown<InstituteSubject>(
                                         onChange: (p0) {
                                           _.selectedSubject.value = p0;
+                                          _.resetChapters();
+
                                         },
                                         value: _.selectedSubject.value,
                                         items: _.subjectList.dropDownItem(
@@ -135,6 +138,8 @@ class DashboardHeaderWidget extends StatelessWidget {
                                     child: AppDropDown<String>(
                                         onChange: (p0) {
                                           _.selectedLanguage.value = p0!;
+                                          _.resetChapters();
+
                                         },
                                         value: _.selectedLanguage.value,
                                         items: _.languageList

@@ -565,6 +565,7 @@ class VideoMainScreenController extends GetxController {
         contentLang: currentTopicData.value?.contentLang,
         isVerified: isVerified,
         isLocalContentAvailable: 0,
+        isLocalAdded: true,
         html5DownloadUrl: '');
 
     try {

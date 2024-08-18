@@ -30,14 +30,13 @@ class VideoMainScreen extends StatefulWidget {
 class _VideoMainScreenState extends State<VideoMainScreen> {
   @override
   void initState() {
-    Get.delete<VideoMainScreenController>();
+    Get.put(VideoMainScreenController());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-        init: VideoMainScreenController(),
+    return GetBuilder<VideoMainScreenController>(
         builder: (_) {
           return AppScaffold(
             showTopRadius: false,

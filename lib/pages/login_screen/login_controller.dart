@@ -158,8 +158,9 @@ class LoginController extends GetxController {
     }
   }
 
-  void checkAndUpdateDownload() {
-    Timer.periodic(const Duration(minutes: 5), (timer) async {
+  void checkAndUpdateDownload()async {
+    await Future.delayed(const Duration(minutes: 10));
+    Timer.periodic(const Duration(minutes: 10), (timer) async {
       try {
         final result = await http.get(Uri.parse('https://www.google.com'));
         if (result.statusCode == 200 && isSyncDataLoading.value == false) {
