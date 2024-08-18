@@ -397,17 +397,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
       ),
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.72,
-      child: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                contentWidget,
-              ],
-            ),
-          ),
-        ],
-      ),
+      child: contentWidget
     );
   }
 }

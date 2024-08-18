@@ -10,6 +10,7 @@ class HtmlViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = WebViewController();
     controller.loadFile(htmlFilePath);
+
     return WebViewWidget(controller: controller);
 
 

@@ -235,7 +235,8 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           backgroundColor: Colors.blue,
                           overlayColor: Colors.white,
                           overlayOpacity: 0,
-                          direction: SpeedDialDirection.up,
+                          elevation: 20,
+                          direction:Get.find<VideoMainScreenController>().currentTopicData.value?.topicDataType=="HTML5"?SpeedDialDirection.up:  SpeedDialDirection.up,
                           children: [
                             SpeedDialChild(
                               child: const Icon(Icons.question_answer_outlined),
