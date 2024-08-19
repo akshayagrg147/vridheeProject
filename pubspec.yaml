@@ -83,8 +83,8 @@ dependencies:
   flutter_svg: ^2.0.10+1
   audio_video_progress_bar: ^2.0.3
   archive: ^3.6.1
-  webview_win_floating: ^2.2.8
-  webview_flutter: ^4.8.0
+  webview_universal:
+    path: ./packages/webview_universal-0.0.5
 
 
 dev_dependencies:
