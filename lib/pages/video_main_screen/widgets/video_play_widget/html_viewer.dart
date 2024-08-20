@@ -18,13 +18,7 @@ class HtmlViewer extends StatefulWidget {
 
 class _HtmlViewerState extends State<HtmlViewer> {
   WebViewController webViewController = WebViewController();
-String? htmlFilePath;
-  @override
-  void initState() {
-    super.initState();
-    htmlFilePath=widget.htmlFilePath;
-    loadWebView();
-  }
+
 
   @override
   void dispose(){
@@ -36,12 +30,31 @@ String? htmlFilePath;
 
 
     Future<void> loadWebView() async {
+    // webViewController.go(uri: Uri.file(widget.htmlFilePath,windows: true));
+      webViewController = WebViewController();
     await webViewController.init(context: context, setState: setState, uri: Uri.file(widget.htmlFilePath,windows: true));
 
   }
+  Future<void> reLoad()async{
+    try{
+      await    webViewController.webview_desktop_controller.stop();
+
+    }catch(e){
+      loadWebView();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("Html5 Data is playing",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.w500,fontSize: 16),));
+    return  Center(child: ElevatedButton(
+      onPressed: () {
+      reLoad();
+      },
+      child: Text('Play Content'),
+    ),);
+
+
+      // Center(child: Text("Html5 Data is playing",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.w500,fontSize: 16),));
 
 
 
