@@ -487,16 +487,18 @@ class VideoMainScreenController extends GetxController {
       aiContentTopics.value.assignAll(aiContentData);
     }
 
-    if (videotopics.value.isNotEmpty) {
-      currentTopicData.value = videotopics.value.first;
-    } else if (ematerialtopics.value.isNotEmpty) {
-      currentTopicData.value = ematerialtopics.value.first;
-    } else if (questionTopics.value.isNotEmpty) {
-      currentQuestionData.value = questionTopics.value.first;
-      openQuestionViewer.value = true;
-    } else if (aiContentTopics.value.isNotEmpty) {
-      currentTopicData.value = aiContentTopics.value.first;
-    }
+   if(!isCurrentTopicDataAvailable){
+     if (videotopics.value.isNotEmpty) {
+       currentTopicData.value = videotopics.value.first;
+     } else if (ematerialtopics.value.isNotEmpty) {
+       currentTopicData.value = ematerialtopics.value.first;
+     } else if (questionTopics.value.isNotEmpty) {
+       currentQuestionData.value = questionTopics.value.first;
+       openQuestionViewer.value = true;
+     } else if (aiContentTopics.value.isNotEmpty) {
+       currentTopicData.value = aiContentTopics.value.first;
+     }
+   }
     // Do something with the filtered data, e.g., update variables or UI
     // For example:
     // videoData.forEach((data) => print("Video data: ${data.topicDataId}"));

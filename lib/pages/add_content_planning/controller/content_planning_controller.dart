@@ -210,6 +210,7 @@ class ContentPlanningController extends GetxController {
 
     allEMaterialList.value.assignAll(eMaterialData);
     allEMaterialList.refresh();
+
   }
 
   Future<String> fetchClassName(int courseId) async {
@@ -484,6 +485,8 @@ class ContentPlanningController extends GetxController {
             'tbl_institute_topic_data', topicData.toJson());
         topicData.instituteTopicDataId = id;
         topics.value.add(topicData);
+        selectedTopic.value
+            ?.topicData.add(topicData);
         filterTopicData();
         Get.back();
         Get.showSnackbar(const GetSnackBar(
