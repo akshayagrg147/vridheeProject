@@ -216,7 +216,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
           return;
         }else{
           hideLoadingdialog();
-          return ;
+          return;
         }
       }else{
         hideLoadingdialog();
