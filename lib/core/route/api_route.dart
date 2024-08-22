@@ -5,6 +5,7 @@ abstract class ApiRoute {
   static const mainURL = '$baseURL/WebServicesNative/public/api';
   static const getDeviceDetail = '$mainURL/GetDeviceDetails';
   static const getSyncData = '$mainURL/GetLMSCompleteData';
+  static const getAppVersion = '$mainURL/GetLMSAppVersion';
   static const updateSyncData = '$mainURL/UpdateSyncData';
   static const loginUser = '$mainURL/loginUser';
 }

@@ -1,12 +1,15 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:teaching_app/core/remote_config/remote_config_service.dart';
+import 'package:teaching_app/modals/app_version_response.dart';
 import 'package:teaching_app/modals/tbl_institute_subject.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/pages/dashboard_content/repo/dashboard_repo.dart';
 import 'package:teaching_app/utils/string_constant.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -533,20 +536,29 @@ where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
   }
 
   Future<void> _checkForUpdate() async {
-    if (!(await isInternetAvailable())) {
-      return;
-    }
-    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    final String currentVersion = packageInfo.version;
-    final String remoteVersion = RemoteConfigService.getAppVersion;
-    print("RemoteConfigVersionCurrent : $remoteVersion");
-    if (currentVersion.trim().isNotEmpty &&
-        remoteVersion.trim().isNotEmpty &&
-        _isUpdateRequired(currentVersion, remoteVersion)) {
-      print("RemoteConfigVersion : true");
-      _showUpdateDialog();
-    }
+   try{
+     if (await isInternetAvailable()) {
+       return;
+     }
+     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+     final String currentVersion = packageInfo.version;
+     AppVersion? versionData;
+     if(Platform.isWindows){
+       versionData = await DashboardRepo.getAppVersion();
+     }
+     String remoteVersion =Platform.isWindows?versionData!.appVersion:  RemoteConfigService.getAppVersion;
+     print("RemoteConfigVersionCurrent : $remoteVersion");
+     if (currentVersion.trim().isNotEmpty &&
+         remoteVersion.trim().isNotEmpty &&
+         _isUpdateRequired(currentVersion, remoteVersion)) {
+       print("RemoteConfigVersion : true");
+       _showUpdateDialog(Platform.isWindows?versionData!.filepath:null);
+     }
+   }catch (e){
+     log(e.toString());
+   }
   }
+
 
   bool _isUpdateRequired(String currentVersion, String remoteVersion) {
     final currentVersionParts = currentVersion.split('.');
@@ -566,7 +578,7 @@ where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
     return false;
   }
 
-  void _showUpdateDialog() {
+  void _showUpdateDialog([String? url]) {
     Get.dialog(
       AlertDialog(
         title: const Text('Update Available'),
@@ -581,7 +593,7 @@ where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
           ),
           TextButton(
             onPressed: () {
-              _launchURL();
+              _launchURL(url);
             },
             child: Text('Update'),
           ),
@@ -590,9 +602,9 @@ where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
     );
   }
 
-  void _launchURL() async {
-    const url =
-        'https://track.vridhee.com/Installer/VridheeEDU/VridheeLMSOffline.apk';
+  void _launchURL([String? downloadUrl]) async {
+    final url =
+        downloadUrl??  'https://track.vridhee.com/Installer/VridheeEDU/VridheeLMSOffline.apk';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
