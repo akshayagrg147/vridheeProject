@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:get/get.dart' as getP;
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
@@ -22,6 +23,12 @@ class ApiClient {
     _dio = Dio()
       ..interceptors.add(AuthInterceptor())
       ..interceptors.add(LogInterceptor(responseBody: true, logPrint: _log));
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (HttpClient client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
   }
 
   factory ApiClient() => _instance;

@@ -10,6 +10,7 @@ import 'package:teaching_app/core/remote_config/remote_config_service.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/add_content_planning/content_planning_screen.dart';
+import 'package:teaching_app/pages/clicker_registration/clicker_registration_screen.dart';
 import 'package:teaching_app/pages/dashboard_content/dashboard_screen.dart';
 import 'package:teaching_app/pages/login_screen/login_screen.dart';
 import 'package:teaching_app/pages/resgistration_screen/registration_or_splash_screen.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         GetPage(
             name: '/contentPlanning',
             page: () => const ContentPlanningScreen()),
+        GetPage(name: "/clickerRegistration", page:()=>const ClickerRegistration()),
         GetPage(name: '/videoScreen', page: () => const VideoMainScreen()),
       ],
     );

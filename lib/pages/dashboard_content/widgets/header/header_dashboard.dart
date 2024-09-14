@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/app_theme.dart';
@@ -5,10 +7,13 @@ import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/modals/tbl_institute_course.dart';
 import 'package:teaching_app/modals/tbl_institute_subject.dart';
 import 'package:teaching_app/pages/dashboard_content/widgets/header/header_dashboard_controller.dart';
+import 'package:teaching_app/services/clicker_service.dart';
 import 'package:teaching_app/utils/ext_utils.dart';
 import 'package:teaching_app/widgets/app_dropDown.dart';
 import 'package:teaching_app/widgets/app_rich_text.dart';
 import 'package:teaching_app/widgets/text_view.dart';
+import 'package:flutter_clicker_sdk/src/clicker_data.dart';
+
 
 class DashboardHeaderWidget extends StatelessWidget {
   const DashboardHeaderWidget({super.key});
@@ -38,16 +43,28 @@ class DashboardHeaderWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox()
-                  // InkWell(
-                  //   onTap: () {
-                  //     Get.toNamed('/contentPlanning');
-                  //   },
-                  //   child: TextView(
-                  //     "See History >",
-                  //     textColor: ThemeColor.commonDarkBlueColor,
-                  //   ),
-                  // )
+                  SizedBox(width: 10,),
+                  InkWell(
+                    onTap: () {
+                      if(_.selectedClass.value==null){
+                        Get.showSnackbar(const GetSnackBar(
+                          message: "Please Select a class !!",
+                          duration: Duration(
+                            seconds: 2
+
+                          ),
+                        ));
+                        return;
+                      }
+                      Get.toNamed('/clickerRegistration',arguments: [
+                        _.selectedClass.value!.onlineInstituteCourseId,
+                        _.selectedClass.value!.instituteCourseName
+                      ]);
+                    },
+                    child: Icon(Icons.ads_click_outlined, color: Colors.green,),
+
+
+                  )
                 ],
               ),
               const SizedBox(
@@ -153,6 +170,9 @@ class DashboardHeaderWidget extends StatelessWidget {
                               children: [
                                 GestureDetector(
                                   onTap: () async {
+
+
+
                                     if (_.selectedClass.value != null &&
                                         _.selectedSubject.value != null) {
                                       _.fetchDataForSelectedSubject();

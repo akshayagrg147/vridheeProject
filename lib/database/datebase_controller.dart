@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/database_helper_dummy.dart';
 import 'package:teaching_app/modals/user_model.dart';
+import 'package:teaching_app/pages/clicker_registration/modal/student_data_model.dart';
 
 class DatabaseController extends GetxController {
   Database? database;
@@ -153,6 +154,52 @@ class DatabaseController extends GetxController {
         'created_date': DateTime.now().toIso8601String(),
         'updated_date': DateTime.now().toIso8601String()
       });
+    }
+  }
+
+  Future<List<StudentDataModel>> fetchStudentsByClass(int instituteCourseId)async{
+    if (database != null && loginUserId != -1) {
+      final instituteId = currentuser.instituteId;
+      final response = await database!.rawQuery('''
+      SELECT 
+	ss.student_session_id as sessionId,
+	ss.online_student_session_id as onlineSessionId,
+    s.institute_user_id AS instituteUserId,
+    s.online_institute_user_id as onlineInstituteUserId,
+    ss.institute_id as instituteId,
+    s.user_name AS name,
+    s.user_email_id AS email,
+    s.user_gender AS gender,
+    s.user_mobile_no AS mobile,
+    c.online_institute_course_id As instituteCourseId,
+    c.institute_course_name As className,
+    ss.clickerId As clickerDeviceID
+FROM 
+    tbl_student s
+JOIN 
+    tbl_student_session ss ON s.online_institute_user_id = ss.institute_user_id
+JOIN 
+    tbl_institute_course c ON ss.institute_course_id = c.online_institute_course_id AND ss.parent_institute_id = c.parent_institute_id
+WHERE 
+    ss.institute_course_id = $instituteCourseId
+    AND ss.institute_id = $instituteId
+Group By s.online_institute_user_id    
+   
+      ''');
+     return  List<StudentDataModel>.from(response.map((e) => StudentDataModel.fromJSon(e)));
+    }
+
+    return List<StudentDataModel>.empty();
+  }
+
+  Future<void> setStudentClickerID({required num studentSessionId, required String clickerID})async{
+    if(database != null && loginUserId != -1){
+      await database!.update("tbl_student_session", {
+'clickerId':clickerID
+      },
+      where: "student_session_id = ?",
+        whereArgs: [studentSessionId]
+      );
     }
   }
 }

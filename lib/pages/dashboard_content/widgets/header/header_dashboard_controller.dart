@@ -579,6 +579,7 @@ where tb.institute_topic_id in ($ids) and tb.content_lang = "$language"
   }
 
   void _showUpdateDialog([String? url]) {
+
     Get.dialog(
       AlertDialog(
         title: const Text('Update Available'),

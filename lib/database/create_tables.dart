@@ -351,4 +351,49 @@ CREATE TABLE IF NOT EXISTS `tbl_content_access` (
       'is_question' INTEGER DEFAULT 0 ,
       UNIQUE(`online_institute_topic_data_id`, `user_id`, `is_question`) )
 ''';
+
+  String tbl_student ='''
+  CREATE TABLE IF NOT EXISTS tbl_student (
+  institute_user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  online_institute_user_id INTEGER,
+  parent_institute_id REAL NOT NULL,
+  institute_id REAL DEFAULT NULL,
+  user_name TEXT NOT NULL,
+  user_email_id TEXT NOT NULL,
+  user_mobile_no TEXT DEFAULT NULL,
+  dob DATE DEFAULT '0000-00-00',
+  user_gender TEXT DEFAULT NULL CHECK(user_gender IN ('Male', 'Female', 'Other')),
+  registration_no TEXT DEFAULT NULL,
+  admission_no TEXT DEFAULT NULL,
+  father_name TEXT DEFAULT NULL,
+  father_email_id TEXT DEFAULT NULL,
+  father_mobile_no TEXT DEFAULT NULL,
+  mother_name TEXT DEFAULT NULL,
+  mother_email_id TEXT DEFAULT NULL,
+  mother_mobile_no TEXT DEFAULT NULL,
+  user_status TEXT DEFAULT 'Active' CHECK(user_status IN ('Active', 'In-Active')),
+  student_status TEXT DEFAULT 'Confirm' CHECK(student_status IN ('Confirm', 'Dropout', 'Passout')),
+  last_update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  entry_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+  ''';
+
+  String tbl_student_session = '''
+  CREATE TABLE IF NOT EXISTS tbl_student_session (
+  student_session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  online_student_session_id INTEGER,
+  parent_institute_id REAL NOT NULL,
+  institute_id REAL NOT NULL,
+  institute_user_id REAL NOT NULL,
+  institute_course_id REAL NOT NULL,
+  institute_course_breakup_id REAL DEFAULT NULL,
+  roll_no INTEGER DEFAULT NULL,
+  move_flag REAL NOT NULL DEFAULT 0,
+  session_start_year REAL NOT NULL,
+  session_end_year REAL NOT NULL,
+  clickerId TEXT DEFAULT NULL,
+  entry_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+  ''';
 }
