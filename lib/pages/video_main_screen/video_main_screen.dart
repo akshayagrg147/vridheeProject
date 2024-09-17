@@ -3,6 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/modals/tbl_lms_ques_bank.dart';
+import 'package:teaching_app/pages/quiz/models/quiz_argument_model.dart';
 import 'package:teaching_app/pages/video_main_screen/controller/video_main_screen_controller.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/chapter_list_widget/chapter_list_widget.dart';
 import 'package:teaching_app/pages/video_main_screen/widgets/dialog_content.dart';
@@ -238,12 +239,14 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           elevation: 20,
                           direction:SpeedDialDirection.up,
                           children: [
-                            SpeedDialChild(
+                         if(_.selectedTopic.value?.questionData.isNotEmpty==true)   SpeedDialChild(
                               child: const Icon(Icons.assessment),
                               backgroundColor: Colors.white,
                               label: 'Start Quiz',
                               onTap: ()  {
-                              Get.toNamed('/quiz');
+                              Get.toNamed('/quiz',
+                              arguments: QuizArgumentModel(className: _.className.value!, subjectName: _.subjectName.value!, chapterName: _.chapterName.value!, questions: _.questionTopics.value, topicData: _.selectedTopic.value!.topic)
+                              );
                               },
                             ),
 

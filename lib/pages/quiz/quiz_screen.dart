@@ -17,6 +17,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   late QuizController _controller;
 
+
   @override
   void initState() {
     _controller=Get.put(QuizController());
