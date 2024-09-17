@@ -49,4 +49,9 @@ class SharedPrefHelper {
   }
 
   String getDeviceId() => _prefs!.getString('device_id') ?? '';
+
+  Future<bool> setTeacherClickerId(String deviceId) async {
+    return await _prefs!.setString('clicker_device_id', deviceId);
+  }
+  String? getTeacherClickerId()=> _prefs!.getString('clicker_device_id');
 }

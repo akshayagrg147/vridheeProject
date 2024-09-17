@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teaching_app/pages/clicker_registration/controller/clicker_registration_controller.dart';
+import 'package:teaching_app/pages/clicker_registration/widgets/add_clicker.dart';
 import 'package:teaching_app/pages/clicker_registration/widgets/student_card.dart';
+import 'package:teaching_app/pages/clicker_registration/widgets/teacher_card.dart';
 
 class ClickerRegistration extends StatefulWidget {
 
@@ -43,20 +45,21 @@ appBar: AppBar(
         if(controller.isLoading.isTrue){
           return const Center(child: CircularProgressIndicator(),);
         }
-        if(controller.students.isEmpty){
-          return const Center(child: Text("No Students Found"),);
-        }
-        return GridView.builder(
-            padding:const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-            itemCount: controller.students.length,
-            gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8,mainAxisSpacing: 15,crossAxisSpacing: 15), itemBuilder: (context,index){
-          return StudentCard(
-              student: controller.students[index],
-              isSelected:
-              index == controller.selectedStudentIndex.value,
-              index:index
-          );
-        });
+
+        return GridView(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8,mainAxisSpacing: 15,crossAxisSpacing: 15),
+          padding:const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+
+        children: [
+          TeacherClickerCard(isSelected: controller.isTeacherRegistrationInProcess.value,clickerId: controller.teacherClickerId.value,),
+          for(int index=0;index<controller.students.length; index++)
+            StudentCard(student: controller.students[index], isSelected:   index == controller.selectedStudentIndex.value , index: index),
+          AddClickers()
+          ],
+
+        );
+
+
+
       }),
 
 

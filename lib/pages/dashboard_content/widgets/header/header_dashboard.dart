@@ -46,20 +46,7 @@ class DashboardHeaderWidget extends StatelessWidget {
                   SizedBox(width: 10,),
                   InkWell(
                     onTap: () {
-                      if(_.selectedClass.value==null){
-                        Get.showSnackbar(const GetSnackBar(
-                          message: "Please Select a class !!",
-                          duration: Duration(
-                            seconds: 2
-
-                          ),
-                        ));
-                        return;
-                      }
-                      Get.toNamed('/clickerRegistration',arguments: [
-                        _.selectedClass.value!.onlineInstituteCourseId,
-                        _.selectedClass.value!.instituteCourseName
-                      ]);
+                      Get.toNamed('/clickerRegistration');
                     },
                     child: Icon(Icons.ads_click_outlined, color: Colors.green,),
 

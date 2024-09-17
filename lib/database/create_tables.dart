@@ -391,9 +391,64 @@ CREATE TABLE IF NOT EXISTS `tbl_content_access` (
   move_flag REAL NOT NULL DEFAULT 0,
   session_start_year REAL NOT NULL,
   session_end_year REAL NOT NULL,
-  clickerId TEXT DEFAULT NULL,
   entry_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   last_update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
   ''';
+
+  String tbl_clicker = '''
+  CREATE TABLE IF NOT EXISTS tbl_clicker (
+  roll_no INTEGER PRIMARY KEY AUTOINCREMENT,
+  clicker_id TEXT DEFAULT NULL
+)
+  ''';
+
+  String tbl_exam_online_paper_result='''
+  CREATE TABLE IF NOT EXISTS tbl_exam_online_paper_result (
+  exam_paper_result_id int AUTO_INCREMENT,	
+  exam_online_paper_result_id double NULL,
+  parent_institute_id double NOT NULL,
+  institute_id double NOT NULL,
+  institute_course_id double NOT NULL,
+  institute_course_breakup_id double DEFAULT NULL,
+  institute_subject_id double NOT NULL,
+  institute_topic_ids varchar(100) NOT NULL,
+  paper_type text DEFAULT NULL,
+  student_institute_user_id double NOT NULL,
+  exam_start_date_time timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  exam_end_date_time timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  exam_total_duration double NOT NULL DEFAULT 0,
+  exam_total_question double NOT NULL DEFAULT 0,
+  exam_total_marks double DEFAULT 0,
+  exam_total_student_duration double DEFAULT 0,
+  exam_total_student_marks double DEFAULT 0,
+  PRIMARY KEY (exam_paper_result_id)
+  )
+  ''';
+
+  String tbl_exam_online_paper_result_ques='''
+  CREATE TABLE IF NOT EXISTS tbl_exam_online_paper_result_ques (
+  exam_paper_result_ques_id int AUTO_INCREMENT,	
+  exam_online_paper_result_ques_id double DEFAULT NULL,
+  parent_institute_id double NOT NULL,
+  institute_id double NOT NULL,
+  institute_course_id double NOT NULL,
+  institute_course_breakup_id double DEFAULT NULL,
+  institute_subject_id double NOT NULL,
+  institute_chapter_id double NOT NULL,
+  institute_topic_id double NOT NULL,
+  exam_online_paper_result_id double NOT NULL,
+  lms_ques_bank_id double NOT NULL,
+  student_institute_user_id double NOT NULL,
+  question_marks double NOT NULL,
+  marks_obtained double NOT NULL DEFAULT 0,
+  option_selected_by_user text DEFAULT NULL,
+  correct_options varchar(100) NOT NULL,
+  answer_status text DEFAULT 'Not Attempted',
+  date_time_of_ans timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (exam_paper_result_ques_id)
+  )
+  ''';
+
+
 }

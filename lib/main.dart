@@ -13,6 +13,7 @@ import 'package:teaching_app/pages/add_content_planning/content_planning_screen.
 import 'package:teaching_app/pages/clicker_registration/clicker_registration_screen.dart';
 import 'package:teaching_app/pages/dashboard_content/dashboard_screen.dart';
 import 'package:teaching_app/pages/login_screen/login_screen.dart';
+import 'package:teaching_app/pages/quiz/quiz_screen.dart';
 import 'package:teaching_app/pages/resgistration_screen/registration_or_splash_screen.dart';
 import 'package:teaching_app/pages/video_main_screen/video_main_screen.dart';
 import 'package:teaching_app/services/ForegroundTaskService.dart';
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
             name: '/contentPlanning',
             page: () => const ContentPlanningScreen()),
         GetPage(name: "/clickerRegistration", page:()=>const ClickerRegistration()),
+        GetPage(name: "/quiz", page:()=>const QuizScreen()),
         GetPage(name: '/videoScreen', page: () => const VideoMainScreen()),
       ],
     );

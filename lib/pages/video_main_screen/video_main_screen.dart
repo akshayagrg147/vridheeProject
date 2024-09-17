@@ -239,9 +239,18 @@ class _VideoMainScreenState extends State<VideoMainScreen> {
                           direction:SpeedDialDirection.up,
                           children: [
                             SpeedDialChild(
+                              child: const Icon(Icons.assessment),
+                              backgroundColor: Colors.white,
+                              label: 'Start Quiz',
+                              onTap: ()  {
+                              Get.toNamed('/quiz');
+                              },
+                            ),
+
+                            SpeedDialChild(
                               child: const Icon(Icons.question_answer_outlined),
                               backgroundColor: Colors.white,
-                              label: 'Quiz',
+                              label: 'Questions',
                               onTap: () async {
                                 showDialog(
                                   context: context,

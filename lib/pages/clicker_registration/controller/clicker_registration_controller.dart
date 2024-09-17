@@ -2,34 +2,31 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
-import 'package:teaching_app/pages/clicker_registration/modal/student_data_model.dart';
+import 'package:teaching_app/pages/clicker_registration/modal/clicker_model.dart';
 import 'package:teaching_app/services/clicker_service.dart';
 import 'package:flutter_clicker_sdk/src/clicker_data.dart';
 
 class ClickerRegistrationController extends GetxController {
   final DatabaseController myDataController = Get.find();
 
-  final students = RxList<StudentDataModel>();
+  final students = RxList<ClickerModel>();
   RxBool isLoading = false.obs;
+  RxBool isTeacherRegistrationInProcess = false.obs;
+  Rx<String?> teacherClickerId = Rx<String?>(null);
   Rx<String?> className = Rx<String?>(null);
   RxInt selectedStudentIndex = (-1).obs;
 
   StreamSubscription<ClickerData>? _clickerStream;
+
   @override
   void onInit() {
-    final args = Get.arguments;
-    if(args!=null&& args is List){
-      final instituteCourseId =args.isNotEmpty?args.first:null;
-      final classNo = args.length>1?args[1]:null;
-      if(classNo!=null){
-        className.value= ">> Class $classNo";
+    FlutterClickerService.instance.setClickerScanMode(ClickerScanMode.dongle);
+    FlutterClickerService.instance.startClickerScanning();
+  teacherClickerId.value= SharedPrefHelper().getTeacherClickerId();
+        fetchStudents();
 
-      }
-      if(instituteCourseId!=null){
-        fetchStudents(instituteCourseId);
-      }
-    }
 
     super.onInit();
   }
@@ -48,15 +45,46 @@ class ClickerRegistrationController extends GetxController {
     _clickerStream=null;
     update();
   }
-  void onStudentRegistration(StudentDataModel data,{required int index})async{
 
-    FlutterClickerService.instance.setClickerScanMode(ClickerScanMode.dongle);
+  void onTeacherRegistrationCancel(){
+    isTeacherRegistrationInProcess.value=false;
+    _clickerStream?.cancel();
+
+    _clickerStream=null;
+update();
+  }
+
+  void onTeacherRegistration()async{
+
+    final isAvailable = await FlutterClickerService.instance.isClickerScanningAvailable();
+    if(isAvailable){
+      selectedStudentIndex.value=-1;
+      isTeacherRegistrationInProcess.value=true;
+      update();
+      _clickerStream?.cancel();
+      _clickerStream= FlutterClickerService.instance.clickerScanStream.listen((event)async {
+        log(event.deviceId);
+        log(event.clickerButtonValue.index.toString() +"\t btn value");
+        if(event.clickerButtonValue.index==(7)){
+         await SharedPrefHelper().setTeacherClickerId(event.deviceId);
+         teacherClickerId.value= SharedPrefHelper().getTeacherClickerId();
+
+          onTeacherRegistrationCancel();
+          return;
+        }
+      });
+    }
+
+  }
+
+  void onStudentRegistration(ClickerModel data,{required int index})async{
+
     final isAvailable = await FlutterClickerService.instance.isClickerScanningAvailable();
     log("clicker scanning available :- $isAvailable");
     if(isAvailable){
+      isTeacherRegistrationInProcess.value=false;
       selectedStudentIndex.value = index;
       update();
-      FlutterClickerService.instance.startClickerScanning();
 if(_clickerStream!=null){
   _clickerStream?.cancel();
   _clickerStream=null;
@@ -65,7 +93,8 @@ if(_clickerStream!=null){
         log(event.deviceId);
         log(event.clickerButtonValue.index.toString() +"\t btn value");
         if(event.clickerButtonValue.index==(selectedStudentIndex.value%5)){
-         await myDataController.setStudentClickerID(studentSessionId: data.sessionId, clickerID: event.deviceId);
+         await myDataController.setClickerRollNo(data.rollNo, deviceId: event.deviceId);
+
          students[index]= students[index].copyWith(event.deviceId);
          onStudentRegisterationCancel();
           return;
@@ -78,11 +107,11 @@ if(_clickerStream!=null){
   }
 
 
-  void fetchStudents(int instituteCourseId)async{
+  void fetchStudents()async{
     try{
       isLoading.value=true;
       update();
-    final response = await myDataController.fetchStudentsByClass(instituteCourseId);
+    final response = await myDataController.getClickersData();
     students.clear();
     students.addAll(response);
     }catch(e){
@@ -92,6 +121,22 @@ isLoading.value=false;
 update();
 
     }
+  }
+
+  void generateClickers(int clickersLength) async{
+    isLoading.value=true;
+    update();
+    try{
+  await  myDataController.generateClickers(clickersLength);
+    fetchStudents();
+
+    }
+        catch(e){
+          isLoading.value=false;
+          update();
+      print("error while generating clickers :- $e");
+        }
+
   }
 
 }

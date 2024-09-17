@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/database_helper_dummy.dart';
 import 'package:teaching_app/modals/user_model.dart';
+import 'package:teaching_app/pages/clicker_registration/modal/clicker_model.dart';
 import 'package:teaching_app/pages/clicker_registration/modal/student_data_model.dart';
 
 class DatabaseController extends GetxController {
@@ -190,6 +191,36 @@ Group By s.online_institute_user_id
     }
 
     return List<StudentDataModel>.empty();
+  }
+
+  Future<List<ClickerModel>> getClickersData()async{
+    if(database != null && loginUserId != -1){
+     final response =  await database?.query('tbl_clicker');
+     return List<ClickerModel>.from(response!.map((e) => ClickerModel.fromJson(e)));
+    }
+    return List<ClickerModel>.empty();
+  }
+
+  Future<void> setClickerRollNo(int rollNo,{required String deviceId})async{
+    if(database != null && loginUserId != -1){
+      await database!.update("tbl_clicker", {
+        'clicker_id':deviceId
+      },
+          where: "roll_no = ?",
+          whereArgs: [rollNo]
+      );
+    }
+  }
+
+
+  Future<void> generateClickers(int length)async{
+    if(database != null && loginUserId != -1) {
+      final batch = database!.batch();
+      for (int i = 0; i < length; i++) {
+        batch.insert('tbl_clicker', {'clicker_id': null});
+      }
+      await batch.commit();
+    }
   }
 
   Future<void> setStudentClickerID({required num studentSessionId, required String clickerID})async{
