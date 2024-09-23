@@ -1,20 +1,18 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:teaching_app/core/remote_config/remote_config_service.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 import 'package:teaching_app/pages/add_content_planning/content_planning_screen.dart';
+import 'package:teaching_app/pages/clicker_registeration/clicker_registration_screen.dart';
 import 'package:teaching_app/pages/dashboard_content/dashboard_screen.dart';
 import 'package:teaching_app/pages/login_screen/login_screen.dart';
 import 'package:teaching_app/pages/resgistration_screen/registration_or_splash_screen.dart';
 import 'package:teaching_app/pages/video_main_screen/video_main_screen.dart';
-import 'package:teaching_app/services/ForegroundTaskService.dart';
-import 'package:teaching_app/services/background_service.dart';
+
+import 'pages/quiz/quiz_screen.dart';
 
 // const platform = MethodChannel('com.example.foreground_service');
 
@@ -23,16 +21,6 @@ void main() async {
   await FlutterDownloader.initialize(
       debug: true, // optional: set false to disable printing logs to console
       ignoreSsl: true);
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-        apiKey: "AIzaSyAS-9eo7zrU6wByUHyH689k3hM4MPHrvCQ",
-        authDomain: "vridhee-lms.firebaseapp.com",
-        projectId: "vridhee-lms",
-        storageBucket: "vridhee-lms.appspot.com",
-        messagingSenderId: "445532701923",
-        appId: "1:445532701923:web:38a9e040b7cf2f858071d6",
-        measurementId: "G-CLJPMWFCQP"),
-  );
 
   await SharedPrefHelper().initialize();
   await RemoteConfigService.initConfig();
@@ -68,6 +56,10 @@ class MyApp extends StatelessWidget {
         GetPage(
             name: '/contentPlanning',
             page: () => const ContentPlanningScreen()),
+        GetPage(
+            name: "/clickerRegistration",
+            page: () => const ClickerRegistration()),
+        GetPage(name: "/quiz", page: () => const QuizScreen()),
         GetPage(name: '/videoScreen', page: () => const VideoMainScreen()),
       ],
     );

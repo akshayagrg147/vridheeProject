@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
+import 'package:teaching_app/database/create_tables.dart';
 import 'package:teaching_app/database/database_helper_dummy.dart';
 import 'package:teaching_app/modals/user_model.dart';
+import 'package:teaching_app/pages/clicker_registeration/model/clicker_model.dart';
+import 'package:teaching_app/pages/clicker_registeration/model/student_data_model.dart';
 
 class DatabaseController extends GetxController {
   Database? database;
@@ -18,6 +22,19 @@ class DatabaseController extends GetxController {
     jsonEncode(employeedata);
     currentuser = UserDataModel.fromJson(employeedata);
     loginUserId = employeedata['online_institute_user_id'];
+  }
+
+  void deleteandCreateTables() async {
+    await database!
+        .execute('DROP TABLE IF EXISTS tbl_exam_online_paper_result_ques');
+    await database!
+        .execute('DROP TABLE IF EXISTS tbl_exam_online_paper_result');
+    try {
+      await database!.execute(CreateTables().tbl_exam_online_paper_result);
+      await database!.execute(CreateTables().tbl_exam_online_paper_result_ques);
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   Future<void> initializeDatabase() async {
@@ -149,6 +166,78 @@ class DatabaseController extends GetxController {
       });
     } else {
       throw Exception("Database is not initialized");
+    }
+  }
+
+  Future<List<StudentDataModel>> fetchStudentsByClass(
+      int instituteCourseId) async {
+    if (database != null && loginUserId != -1) {
+      final instituteId = currentuser.instituteId;
+      final response = await database!.rawQuery('''
+      SELECT 
+	ss.student_session_id as sessionId,
+	ss.online_student_session_id as onlineSessionId,
+    s.institute_user_id AS instituteUserId,
+    s.online_institute_user_id as onlineInstituteUserId,
+    ss.institute_id as instituteId,
+    s.user_name AS name,
+    s.user_email_id AS email,
+    s.user_gender AS gender,
+    s.user_mobile_no AS mobile,
+    c.online_institute_course_id As instituteCourseId,
+    c.institute_course_name As className,
+    tc.clicker_id As clickerDeviceID,
+    tc.roll_no As rollNo
+FROM 
+    tbl_student s
+JOIN 
+    tbl_student_session ss ON s.online_institute_user_id = ss.institute_user_id
+JOIN 
+    tbl_institute_course c ON ss.institute_course_id = c.online_institute_course_id AND ss.parent_institute_id = c.parent_institute_id
+ Join tbl_clicker tc on ss.roll_no = tc.roll_no   
+WHERE 
+    ss.institute_course_id = 11
+    AND ss.institute_id = 20
+Group By s.online_institute_user_id 
+      ''');
+      return List<StudentDataModel>.from(
+          response.map((e) => StudentDataModel.fromJSon(e)));
+    }
+
+    return List<StudentDataModel>.empty();
+  }
+
+  Future<List<ClickerModel>> getClickersData() async {
+    if (database != null && loginUserId != -1) {
+      final response = await database?.query('tbl_clicker');
+      return List<ClickerModel>.from(
+          response!.map((e) => ClickerModel.fromJson(e)));
+    }
+    return List<ClickerModel>.empty();
+  }
+
+  Future<void> setClickerRollNo(int rollNo, {required String deviceId}) async {
+    if (database != null && loginUserId != -1) {
+      await database!.update("tbl_clicker", {'clicker_id': deviceId},
+          where: "roll_no = ?", whereArgs: [rollNo]);
+    }
+  }
+
+  Future<void> generateClickers(int length) async {
+    if (database != null && loginUserId != -1) {
+      final batch = database!.batch();
+      for (int i = 0; i < length; i++) {
+        batch.insert('tbl_clicker', {'clicker_id': null});
+      }
+      await batch.commit();
+    }
+  }
+
+  Future<void> setStudentClickerID(
+      {required num studentSessionId, required String clickerID}) async {
+    if (database != null && loginUserId != -1) {
+      await database!.update("tbl_student_session", {'clickerId': clickerID},
+          where: "student_session_id = ?", whereArgs: [studentSessionId]);
     }
   }
 }

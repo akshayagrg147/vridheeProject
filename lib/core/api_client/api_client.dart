@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:dio/io.dart';
 import 'package:get/get.dart' as getP;
-import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:teaching_app/core/api_client/api_result.dart';
 import 'package:teaching_app/core/api_client/header_interceptor.dart';
-import 'package:teaching_app/core/helper/encryption_helper.dart';
+
 import 'api_exception.dart';
 
 typedef JsonMap = Map<String, dynamic>;
@@ -22,6 +23,12 @@ class ApiClient {
     _dio = Dio()
       ..interceptors.add(AuthInterceptor())
       ..interceptors.add(LogInterceptor(responseBody: true, logPrint: _log));
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (HttpClient client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
   }
 
   factory ApiClient() => _instance;
@@ -50,6 +57,33 @@ class ApiClient {
 
   Future<dynamic> post(url,
       {FormData? body,
+      Map<String, dynamic>? headers,
+      Map<String, dynamic>? queryParams}) async {
+    try {
+      url = url;
+      if (!(await isInternetAvailable())) {
+        throw noInternet;
+      }
+      Response response = await _dio.post(
+        url,
+        data: body,
+        queryParameters: queryParams,
+        options: Options(headers: headers),
+        // cancelToken: _cancelToken,
+      );
+      final data = response.data;
+      if (data != null && data is String) {
+        // Proceed with decoding if data is a string
+        return jsonDecode(data);
+      }
+      return data;
+    } catch (error) {
+      return _handleError(url, error);
+    }
+  }
+
+  Future<dynamic> postJson(url,
+      {dynamic? body,
       Map<String, dynamic>? headers,
       Map<String, dynamic>? queryParams}) async {
     try {

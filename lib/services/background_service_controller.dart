@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:teaching_app/core/api_client/api_client.dart';
 import 'package:teaching_app/core/helper/encryption_helper.dart';
+import 'package:teaching_app/core/route/api_route.dart';
 import 'package:teaching_app/core/shared_preferences/shared_preferences.dart';
 import 'package:teaching_app/database/datebase_controller.dart';
 
@@ -179,6 +180,59 @@ WHERE online_institute_topic_data_id = $onlineTopicDataId''');
         // Use a method to show a dialog or a snackbar
         Get.snackbar("Grant Permission", "Allow permission to download file");
       }
+    }
+  }
+
+  Future<void> syncQuizResults() async {
+    try {
+      final response =
+          await ApiClient().postJson(ApiRoute.syncQuizResults, body: [
+        {
+          "parent_institute_id": "17",
+          "institute_id": "20",
+          "institute_course_id": "13",
+          "institute_course_breakup_id": "5703",
+          "institute_subject_id": "4",
+          "institute_topic_ids": "3601,3602",
+          "student_institute_user_id": "6",
+          "exam_start_date_time": "11-09-2024 11:30",
+          "exam_end_date_time": "11-09-2024 12:30",
+          "exam_total_duration": "60",
+          "exam_total_question": "10",
+          "exam_total_marks": "30",
+          "exam_total_student_duration": "40",
+          "Exam_total_student_marks": "20",
+          "data": [
+            {
+              "institute_chapter_id": "285",
+              "institute_topic_id": "3601",
+              "lms_ques_bank_id": "39775",
+              "student_institute_user_id": "6",
+              "question_marks": "3",
+              "marks_obtained": "3",
+              "option_selected_by_user": "3",
+              "correct_options": "3",
+              "answer_status": "Correct",
+              "date_time_of_ans": "11-09-2024 12:30"
+            },
+            {
+              "institute_chapter_id": "285",
+              "institute_topic_id": "3602",
+              "lms_ques_bank_id": "39776",
+              "student_institute_user_id": "6",
+              "question_marks": "3",
+              "marks_obtained": "3",
+              "option_selected_by_user": "3",
+              "correct_options": "3",
+              "answer_status": "Correct",
+              "date_time_of_ans": "11-09-2024 12:30"
+            }
+          ]
+        }
+      ]);
+      log(response.toString());
+    } catch (e) {
+      log(e.toString());
     }
   }
 

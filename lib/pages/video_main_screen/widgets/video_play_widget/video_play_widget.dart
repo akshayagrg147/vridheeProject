@@ -170,7 +170,7 @@ class _VideoPlayWidgetState extends State<VideoPlayWidget> {
 
   initializeZipFile(String filePath, {required String dirName}) async {
     // final zipPath =
-    // "/storage/emulated/0/Android/data/com.vridhee.offlinelms/files/477.zip";
+    // "/storage/emulated/0/Android/data/com.mafatlal.lms/files/477.zip";
     final outputPath = (await getTemporaryDirectory()).path;
     final decryptedBytes = await FileEncryptor().decryptFile(File(filePath));
 // Decode the zip from the InputFileStream. The archive will have the contents of the

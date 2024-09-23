@@ -1,3 +1,5 @@
+import 'package:teaching_app/core/helper/helper.dart';
+
 class QuestionBank {
   final int onlineLmsQuesBankId;
   final int parentInstituteId;
@@ -231,5 +233,39 @@ class QuestionBank {
       'option_3_down_path': option3DownPath,
       'option_4_down_path': option4DownPath,
     };
+  }
+
+  String getCorrectOptions() {
+    List<String> correctIndex = [];
+    if (answer1IsCorrect) {
+      correctIndex.add(Helper.getOptionName(1));
+    }
+    if (answer2IsCorrect) {
+      correctIndex.add(Helper.getOptionName(2));
+    }
+    if (answer3IsCorrect) {
+      correctIndex.add(Helper.getOptionName(3));
+    }
+    if (answer4IsCorrect) {
+      correctIndex.add(Helper.getOptionName(4));
+    }
+    return correctIndex.join(",\t");
+  }
+
+  List<int> getCorrectOptionIndices() {
+    List<int> correctIndex = [];
+    if (answer1IsCorrect) {
+      correctIndex.add(1);
+    }
+    if (answer2IsCorrect) {
+      correctIndex.add(2);
+    }
+    if (answer3IsCorrect) {
+      correctIndex.add(3);
+    }
+    if (answer4IsCorrect) {
+      correctIndex.add(4);
+    }
+    return correctIndex;
   }
 }
