@@ -16,6 +16,7 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
         padding:
             const EdgeInsets.only(left: 20.0, top: 40, right: 20, bottom: 15),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Obx(() => Row(
@@ -71,49 +72,6 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
                   ],
                 )),
             const SizedBox(height: 16),
-            Obx(
-              () => Row(
-                children: [
-                  SizedBox(
-                      width: 100,
-                      child: TextView('Language:',
-                          fontsize: 16, fontweight: FontWeight.bold)),
-                  Checkbox(
-                      value: controller.hindiSelected.value,
-                      onChanged: (value) {
-                        if (value != null)
-                          controller.hindiSelected.value = value;
-                      }),
-                  TextView(
-                    'Hindi',
-                    fontsize: 14,
-                    fontweight: FontWeight.bold,
-                  ),
-                  Checkbox(
-                      value: controller.englishSelected.value,
-                      onChanged: (value) {
-                        if (value != null)
-                          controller.englishSelected.value = value;
-                      }),
-                  TextView(
-                    'English',
-                    fontsize: 14,
-                    fontweight: FontWeight.bold,
-                  ),
-                  Checkbox(
-                      value: controller.odiaSelected.value,
-                      onChanged: (value) {
-                        if (value != null)
-                          controller.odiaSelected.value = value;
-                      }),
-                  TextView(
-                    'Odia',
-                    fontsize: 14,
-                    fontweight: FontWeight.bold,
-                  ),
-                ],
-              ),
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -144,6 +102,7 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
           children: [
             Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Obx(() => Row(
@@ -199,49 +158,6 @@ Widget buildLanguageTypeSelectionWidget(ContentPlanningController controller) {
                         ],
                       )),
                   const SizedBox(height: 16),
-                  Obx(
-                    () => Row(
-                      children: [
-                        SizedBox(
-                            width: 100,
-                            child: TextView('Language:',
-                                fontsize: 16, fontweight: FontWeight.bold)),
-                        Checkbox(
-                            value: controller.hindiSelected.value,
-                            onChanged: (value) {
-                              if (value != null)
-                                controller.hindiSelected.value = value;
-                            }),
-                        TextView(
-                          'Hindi',
-                          fontsize: 14,
-                          fontweight: FontWeight.bold,
-                        ),
-                        Checkbox(
-                            value: controller.englishSelected.value,
-                            onChanged: (value) {
-                              if (value != null)
-                                controller.englishSelected.value = value;
-                            }),
-                        TextView(
-                          'English',
-                          fontsize: 14,
-                          fontweight: FontWeight.bold,
-                        ),
-                        Checkbox(
-                            value: controller.odiaSelected.value,
-                            onChanged: (value) {
-                              if (value != null)
-                                controller.odiaSelected.value = value;
-                            }),
-                        TextView(
-                          'Odia',
-                          fontsize: 14,
-                          fontweight: FontWeight.bold,
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
