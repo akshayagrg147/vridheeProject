@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:teaching_app/app_theme.dart';
 import 'package:teaching_app/pages/add_content_planning/widgets/video_material_selection_widget.dart';
 import 'package:teaching_app/widgets/address_header.dart';
 import 'package:teaching_app/widgets/app_scaffold.dart';
 import 'package:teaching_app/widgets/flag_container.dart';
+
 import '../../widgets/elevated_button.dart';
 import 'controller/content_planning_controller.dart';
 import 'widgets/language_type_selection_widget.dart';
@@ -54,7 +54,7 @@ class ContentPlanningScreen extends StatelessWidget {
                               child: Column(
                                 children: [
                                   FlagContainer(
-                                    height: 215,
+                                    // height: 215,
                                     flagTitle: "Type / Language",
                                     flagTitleColor: ThemeColor.darkBlue4392,
                                     bgColor: ThemeColor.scaffoldBgColor,
