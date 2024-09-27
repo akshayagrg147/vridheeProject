@@ -87,7 +87,7 @@ class DatabaseController extends GetxController {
           [userTypeId]);
       final designation = userTypeNameMap.first['designation_for'];
       if (userTypeNameMap.isNotEmpty) {
-        if (designation == role) {
+        if (designation == role || designation == 'Admin') {
           return true;
         } else if (designation == 'Institute') {
           //check for teacher or principal
