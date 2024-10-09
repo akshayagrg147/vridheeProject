@@ -10,6 +10,7 @@ class DatabaseController extends GetxController {
   Database? database;
   static int loginUserId = -1;
   late UserDataModel currentuser;
+
   Future<void> setUserDetails() async {
     final employeedataList = await query('tbl_employee',
         where: 'user_email_id = ?',
@@ -87,7 +88,7 @@ class DatabaseController extends GetxController {
           [userTypeId]);
       final designation = userTypeNameMap.first['designation_for'];
       if (userTypeNameMap.isNotEmpty) {
-        if (designation == role || designation == 'Admin') {
+        if (designation == role) {
           return true;
         } else if (designation == 'Institute') {
           //check for teacher or principal
@@ -98,7 +99,7 @@ class DatabaseController extends GetxController {
               [userTypeId]);
           if (userNameMap.isNotEmpty) {
             final userName = userNameMap.first['user_type_name'];
-            if (userName == role) {
+            if (userName == role || userName == 'Admin') {
               return true;
             }
           }
